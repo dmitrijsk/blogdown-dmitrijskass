@@ -29,6 +29,9 @@ code {
   background-color: rgba(0, 0, 0, 0.02);
 }
 
+/*Font-size of categories and tags under the page title*/
+.terms { font-size: 12px; }
+
 .wrapper {
   overflow: hidden;
   position: relative;

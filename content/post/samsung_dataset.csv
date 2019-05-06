@@ -1,0 +1,7 @@
+Phone dataset for k-means clustering. Source: www.gsmarena.com.
+
+brand;model;approx_price_eur;weight_g
+Samsung;Galaxy A7 (2017);280;186
+Samsung;Galaxy S8+;470;173
+Samsung;Galaxy J3 (2017);110;142
+Samsung;Galaxy A3 (2017);220;138

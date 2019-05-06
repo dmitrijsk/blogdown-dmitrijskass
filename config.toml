@@ -1,8 +1,8 @@
-baseurl = "/"
+baseurl = "https://dmitrijskass.netlify.com/"
 languageCode = "en-us"
 title = "Dmitrijs Kass"
 theme = "hugo-lithium"
-googleAnalytics = ""
+googleAnalytics = "UA-137778181-2"
 disqusShortname = ""
 enableEmoji = true
 ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]

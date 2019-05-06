@@ -3,7 +3,7 @@ languageCode = "en-us"
 title = "Dmitrijs Kass"
 theme = "hugo-lithium"
 googleAnalytics = "UA-137778181-2"
-disqusShortname = ""
+disqusShortname = "https-dmitrijskass-netlify-com"
 enableEmoji = true
 ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
 

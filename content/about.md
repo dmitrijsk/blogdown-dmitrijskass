@@ -1,6 +1,7 @@
 ---
 date: "2019-05-06"
 title: About
+disable_comments: true
 ---
 
 <img style="margin-bottom: 20px" src="/img/dmitrijs_wide_2.jpg" width="100%"></img>

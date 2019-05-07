@@ -27,6 +27,7 @@ a {
 
 code {
   background-color: rgba(0, 0, 0, 0.02);
+  /*font-size: 70%;  font size for the code*/
 }
 
 /*Font-size of categories and tags under the page title*/
@@ -126,6 +127,7 @@ code {
 
 .article-content p {
   margin: 15px 0 25px;
+  /*font-size: 0.75em; Font size for the main text*/
 }
 
 .article-content a {

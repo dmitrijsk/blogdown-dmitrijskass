@@ -27,7 +27,7 @@ draft: false
 library(tidyverse)
 
 # Import phone data.
-phones_df &lt;- read_delim(file = &quot;samsung_dataset.csv&quot;, delim = &quot;;&quot;, skip = 2)
+phones_df &lt;- read_delim(file = &quot;iphone_dataset.csv&quot;, delim = &quot;;&quot;, skip = 2)
 
 # Print phone data.
 phones_df %&gt;% 
@@ -53,58 +53,58 @@ Weight (g)
 <tbody>
 <tr>
 <td style="text-align:left;">
-Samsung
+Apple
 </td>
 <td style="text-align:left;">
-Galaxy A7 (2017)
+iPhone 4
 </td>
 <td style="text-align:right;">
-280
+200
 </td>
 <td style="text-align:right;">
-186
+137
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-Samsung
+Apple
 </td>
 <td style="text-align:left;">
-Galaxy S8+
+iPhone 6
+</td>
+<td style="text-align:right;">
+360
+</td>
+<td style="text-align:right;">
+129
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Apple
+</td>
+<td style="text-align:left;">
+iPhone 6s Plus
 </td>
 <td style="text-align:right;">
 470
 </td>
 <td style="text-align:right;">
-173
+192
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-Samsung
+Apple
 </td>
 <td style="text-align:left;">
-Galaxy J3 (2017)
+iPhone 8 Plus
 </td>
 <td style="text-align:right;">
-110
+770
 </td>
 <td style="text-align:right;">
-142
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Samsung
-</td>
-<td style="text-align:left;">
-Galaxy A3 (2017)
-</td>
-<td style="text-align:right;">
-220
-</td>
-<td style="text-align:right;">
-138
+202
 </td>
 </tr>
 </tbody>
@@ -117,7 +117,7 @@ Galaxy A3 (2017)
   geom_text(aes(label = model), size = 3.5, vjust = &quot;top&quot;, nudge_y = -20) +
   scale_x_continuous(expand = expand_scale(mult = 0.3)) +
   scale_y_continuous(expand = expand_scale(mult = 0.3)) +
-  labs(title = &quot;How would you assign these 4 phones into 2 clusters?&quot;,
+  labs(title = &quot;How would you assign these 4 iPhones into 2 clusters?&quot;,
        x = &quot;weight (g)&quot;, 
        y = &quot;price (EUR)&quot;) +
   theme_classic()</code></pre>
@@ -135,8 +135,7 @@ set.seed(1)
 kmeans_fit &lt;- kmeans(phones_mat, centers = 2, nstart = 100)
 
 # Small data frame with cluster centers.
-centers_df &lt;- kmeans_fit$centers %&gt;%
-  as.data.frame() %&gt;% 
+centers_df &lt;- as_tibble(kmeans_fit$centers) %&gt;%
   mutate(cluster = 1:2)</code></pre>
 <pre class="r"><code>p &lt;- phones_df %&gt;% 
   mutate(cluster = kmeans_fit$cluster) %&gt;% 
@@ -146,7 +145,7 @@ centers_df &lt;- kmeans_fit$centers %&gt;%
   geom_point(data = centers_df, size = 4) +
   scale_x_continuous(expand = expand_scale(mult = 0.3)) +
   scale_y_continuous(expand = expand_scale(mult = 0.3)) +
-  labs(title = &quot;Hopefully, you are surprised to see Galaxy S8+ alone in cluster 1&quot;,
+  labs(title = &quot;Hopefully, you are surprised to see iPhone 8 Plus alone in cluster 2&quot;,
        subtitle = &quot;k-means clustering with original (not scaled) features&quot;,
        x = &quot;weight (g)&quot;, 
        y = &quot;price (EUR)&quot;, 
@@ -159,8 +158,8 @@ p</code></pre>
 <pre class="r"><code># Adjust axes to the same scale.
 p +
   labs(title = &quot;No more surprise after equally scaling axes&quot;) +
-  scale_y_continuous(limits = c(0, 600)) +
-  scale_x_continuous(limits = c(0, 600)) +
+  scale_y_continuous(limits = c(0, 800)) +
+  scale_x_continuous(limits = c(0, 800)) +
   coord_equal()</code></pre>
 <p><img src="/post/2019-05-06-mini-feature-scaling-in-k-means-clustering_files/figure-html/unnamed-chunk-6-1.png" width="576" /></p>
 </div>
@@ -168,17 +167,17 @@ p +
 <h1>Feature scaling and k-means revisited</h1>
 <p>Below are Eucledean distances between phones using original features. Values of distances are not interpretable per se because those are euros and grams combined. Magnitudes is what we are interested in. Notice that the distance between “Galaxy S8+” and “Galaxy A7” (190.44) is the second largest distance.</p>
 <pre class="r"><code>round(dist(phones_mat), 2)</code></pre>
-<pre><code>##                  Galaxy A7 (2017) Galaxy S8+ Galaxy J3 (2017)
-## Galaxy S8+                 190.44                            
-## Galaxy J3 (2017)           175.60     361.33                 
-## Galaxy A3 (2017)            76.84     252.44           110.07</code></pre>
+<pre><code>##                iPhone 4 iPhone 6 iPhone 6s Plus
+## iPhone 6         160.20                        
+## iPhone 6s Plus   275.54   126.76               
+## iPhone 8 Plus    573.69   416.45         300.17</code></pre>
 <p>Now compare it with the same distance calculated from scaled features. It is now</p>
 <p>Distance matrix after feature scaling.</p>
 <pre class="r"><code>phones_mat_scaled &lt;- scale(phones_mat)
 round(dist(phones_mat_scaled), 2)</code></pre>
-<pre><code>##                  Galaxy A7 (2017) Galaxy S8+ Galaxy J3 (2017)
-## Galaxy S8+                   1.38                            
-## Galaxy J3 (2017)             2.19       2.73                 
-## Galaxy A3 (2017)             2.08       2.23             0.75</code></pre>
+<pre><code>##                iPhone 4 iPhone 6 iPhone 6s Plus
+## iPhone 6           0.70                        
+## iPhone 6s Plus     1.85     1.75               
+## iPhone 8 Plus      2.94     2.60           1.28</code></pre>
 <!-- round(dist(phones_mat), 2) %>% as.matrix() %>% as.data.frame() %>% rownames_to_column() %>% gather(model_to, distance, -rowname) %>% filter(rowname == "Galaxy S8+") -->
 </div>

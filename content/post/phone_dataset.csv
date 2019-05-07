@@ -1,0 +1,21 @@
+Phone dataset for k-means clustering. Source: www.gsmarena.com.
+
+brand;model;approx_price_eur;weight_g
+Apple;iPhone 6s Plus;470;192
+Apple;iPhone 8 Plus;770;202
+Apple;iPhone 6;360;129
+Apple;iPhone 4;200;137
+Samsung;Galaxy A7 (2017);280;186
+Samsung;Galaxy S8+;470;173
+Samsung;Galaxy J3 (2017);110;142
+Samsung;Galaxy A3 (2017);220;138
+Apple;iPhone X;1000;174
+Apple;iPhone 8;700;148
+Apple;iPhone 7;550;138
+Apple;iPhone 7 Plus;690;188
+Apple;iPhone 5;340;112
+Apple;iPhone SE;300;113
+Apple;iPhone 5s;330;112
+Apple;iPhone 5c;300;132
+Apple;iPhone XS;1150;177
+Apple;iPhone XR;850;194

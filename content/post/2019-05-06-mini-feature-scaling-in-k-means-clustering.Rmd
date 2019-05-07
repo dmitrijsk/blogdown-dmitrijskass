@@ -13,12 +13,16 @@ output:
 draft: false
 ---
 
+This is a short blog post about the effect of feature scaling in k-means clustering.
+
+Import and print data.
+
 ```{r message=FALSE, warning=FALSE}
 # Attach packages.
 library(tidyverse)
 
 # Import phone data.
-phones_df <- read_delim(file = "samsung_dataset.csv", delim = ";", skip = 2)
+phones_df <- read_delim(file = "iphone_dataset.csv", delim = ";", skip = 2)
 
 # Print phone data.
 phones_df %>% 
@@ -26,7 +30,18 @@ phones_df %>%
   kableExtra::kable_styling(full_width = FALSE, bootstrap_options = c("striped", "condensed"))
 ```
 
+# About k-means
+
+Clustering refers to a broad set of techniques for finding homogeneous subgroups, or clusters, in a data set. It seeks to partition observations into distinct clusters in such a way that 
+
+* observations within each cluster are quite similar to each other,
+* while observations in different clusters are quite different from each other.
+
+Similarities and dissimilarities within and between clusters are based on the data set that is provided to the clustering technique
+
 # Surprise
+
+The plot below depicts four iPhone models in two dimensions: approximate price in euro and weight in grams. How would you assign these four iPhones into two clusters?
 
 ```{r fig.height=3, fig.width=6}
 phones_df %>% 
@@ -35,7 +50,7 @@ phones_df %>%
   geom_text(aes(label = model), size = 3.5, vjust = "top", nudge_y = -20) +
   scale_x_continuous(expand = expand_scale(mult = 0.3)) +
   scale_y_continuous(expand = expand_scale(mult = 0.3)) +
-  labs(title = "How would you assign these 4 phones into 2 clusters?",
+  labs(title = "How would you assign these 4 iPhones into 2 clusters?",
        x = "weight (g)", 
        y = "price (EUR)") +
   theme_classic()
@@ -57,8 +72,7 @@ set.seed(1)
 kmeans_fit <- kmeans(phones_mat, centers = 2, nstart = 100)
 
 # Small data frame with cluster centers.
-centers_df <- kmeans_fit$centers %>%
-  as.data.frame() %>% 
+centers_df <- as_tibble(kmeans_fit$centers) %>%
   mutate(cluster = 1:2)
 ```
 
@@ -71,7 +85,7 @@ p <- phones_df %>%
   geom_point(data = centers_df, size = 4) +
   scale_x_continuous(expand = expand_scale(mult = 0.3)) +
   scale_y_continuous(expand = expand_scale(mult = 0.3)) +
-  labs(title = "Hopefully, you are surprised to see Galaxy S8+ alone in cluster 1",
+  labs(title = "Hopefully, you are surprised to see iPhone 8 Plus alone in cluster 2",
        subtitle = "k-means clustering with original (not scaled) features",
        x = "weight (g)", 
        y = "price (EUR)", 
@@ -86,9 +100,7 @@ p
 # Adjust axes to the same scale.
 p +
   labs(title = "No more surprise after equally scaling axes") +
-  scale_y_continuous(limits = c(0, 600)) +
-  scale_x_continuous(limits = c(0, 600)) +
-  coord_equal()
+  coord_equal(xlim = c(0, 800), ylim = c(0, 800), expand = FALSE)
 ```
 
 # Feature scaling and k-means revisited
@@ -108,6 +120,55 @@ phones_mat_scaled <- scale(phones_mat)
 round(dist(phones_mat_scaled), 2)
 ```
 
-<!-- round(dist(phones_mat), 2) %>% as.matrix() %>% as.data.frame() %>% rownames_to_column() %>% gather(model_to, distance, -rowname) %>% filter(rowname == "Galaxy S8+") -->
+```{r}
+set.seed(2)
+kmeans_fit <- kmeans(phones_mat_scaled, centers = 2, nstart = 100)
+
+feature_centers_vec <- attributes(phones_mat_scaled)[["scaled:center"]]
+feature_sd_vec      <- attributes(phones_mat_scaled)[["scaled:scale"]]
+
+centers_df <- tibble(approx_price_eur_scaled = kmeans_fit$centers[, 1],
+       weight_g_scaled = kmeans_fit$centers[, 2]) %>% 
+  bind_cols(as_tibble(t(apply(X = kmeans_fit$centers, MARGIN = 1, FUN = function(x) x * feature_sd_vec + feature_centers_vec)))) %>% 
+  mutate(cluster = 1:2)
+```
+
+```{r}
+phones_df %>% 
+  mutate(approx_price_eur_scaled = (approx_price_eur - mean(approx_price_eur)) / sd(approx_price_eur), 
+         weight_g_scaled = (weight_g - mean(weight_g)) / sd(weight_g),
+         cluster = kmeans_fit$cluster) %>% 
+  ggplot(aes(x = weight_g_scaled, y = approx_price_eur_scaled, color = as.factor(cluster))) + 
+  geom_point(size = 4, shape = "x") +
+  geom_text(aes(label = model), size = 3.5, vjust = "top", nudge_y = -0.1) +
+  
+  geom_point(data = centers_df, aes(x = weight_g_scaled, y = approx_price_eur_scaled), size = 4) +
+  labs(title = "Now differences in price and weight are standardized",
+       subtitle = "k-means clustering with scaled features",
+       x = "standardized weight", 
+       y = "standardized price", color = "Cluster centers") +
+  theme_classic() +
+  theme(legend.position = "top") +
+  coord_equal(xlim = c(-2, 2), ylim = c(-2, 2))
+```
+
+After getting k-means result based on scaled features, we may scaled them back.
+
+```{r}
+phones_df %>% 
+  mutate(cluster = kmeans_fit$cluster) %>% 
+  ggplot(aes(x = weight_g, y = approx_price_eur, color = as.factor(cluster))) + 
+  geom_point(size = 4, shape = "x") +
+  geom_text(aes(label = model), size = 3.5, vjust = "top", nudge_y = -20) +
+  geom_point(data = centers_df, aes(x = weight_g, y = approx_price_eur), size = 8, shape = "x") +
+  labs(title = "",
+       subtitle = "k-means clustering with scaled features",
+       x = "weight (g)",
+       y = "price (EUR)", 
+       color = "Cluster centers") +
+  theme_classic() +
+  theme(legend.position = "top") +
+  coord_equal(xlim = c(0, 800), ylim = c(0, 800))
+```
 
 

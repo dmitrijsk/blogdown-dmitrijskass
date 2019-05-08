@@ -1,0 +1,55 @@
+---
+title: '#SWDchallenge: artisanal data'
+author: Dmitrijs Kass
+date: '2019-05-08'
+slug: swdchallenge-artisanal-data
+categories: [data-viz]
+tags: []
+---
+
+This post is my participation in [#SWDchallenge: artisanal data](http://www.storytellingwithdata.com/blog/2019/5/1/swdchallenge-artisanal-data).
+
+The story is about the words used by 12 guests that appeared on the 14th episode of [#SWDpodcast](http://www.storytellingwithdata.com/podcast).  [Storytelling with Data](http://www.storytellingwithdata.com/book) has been on my shelf for over a year and it is this podcast episode that sparkled interest in me about data visualization and made me read the book in few days.
+
+# Data 
+
+The source of data is the [transcript](https://docs.google.com/document/d/1S2_63MUbvQs7fxWQrcuCNSl03fmDl1Vr3FjNjnbWK14/edit#) of episode 14 of #SWDpodcast. As the goal is to analyse words used by the guests of the podcast, the initial step is to clean data from all other text.
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+raw_text <- readLines("swd_podcast_episode_14_learning_dataviz.txt", encoding = "ansi")
+
+# TOC.
+toc <- raw_text[11:25]
+names(toc) <- str_replace_all(toc, pattern = "(.*)\\|(.*)", replacement = "\\2") %>% str_trim()
+
+# Content.
+content <- raw_text[29:length(raw_text)]
+content <- content[content != ""]
+
+# Get indices of interviews.
+toc_lines <- purrr::map_int(.x = toc, .f = function(x) str_which(string = content, pattern = fixed(x)))
+toc_lines <- tibble(interview = names(toc_lines),
+                    interview_index = toc_lines)
+
+# Extract the main content - interviews.
+content_df <- tibble(paragraph_id = 1:length(content),
+                     paragraph = content) %>% 
+  left_join(toc_lines, by = c("paragraph_id" = "interview_index")) %>% 
+  mutate(row_with_interview_name = !is.na(interview)) %>% 
+  fill(interview, .direction = "down") %>% 
+  filter(!(interview %in% c("Intro", "Summary", "Updates")))
+
+content_df %>% 
+  select(paragraph, interview) %>% 
+  slice(1:2) %>% 
+  knitr::kable(format = "html", col.names = c("paragraph", "interview")) %>% 
+  kableExtra::kable_styling(full_width = FALSE)
+```
+
+
+
+
+
+
+

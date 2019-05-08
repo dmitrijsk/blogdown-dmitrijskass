@@ -1,0 +1,77 @@
+---
+title: '#SWDchallenge: artisanal data'
+author: Dmitrijs Kass
+date: '2019-05-08'
+slug: swdchallenge-artisanal-data
+categories: [data-viz]
+tags: []
+---
+
+<script src="/rmarkdown-libs/kePrint/kePrint.js"></script>
+
+
+<p>This post is my participation in <a href="http://www.storytellingwithdata.com/blog/2019/5/1/swdchallenge-artisanal-data">#SWDchallenge: artisanal data</a>.</p>
+<p>The story is about the words used by 12 guests that appeared on the 14th episode of <a href="http://www.storytellingwithdata.com/podcast">#SWDpodcast</a>. <a href="http://www.storytellingwithdata.com/book">Storytelling with Data</a> has been on my shelf for over a year and it is this podcast episode that sparkled interest in me about data visualization and made me read the book in few days.</p>
+<div id="data" class="section level1">
+<h1>Data</h1>
+<p>The source of data is the <a href="https://docs.google.com/document/d/1S2_63MUbvQs7fxWQrcuCNSl03fmDl1Vr3FjNjnbWK14/edit#">transcript</a> of episode 14 of #SWDpodcast. As the goal is to analyse words used by the guests of the podcast, the initial step is to clean data from all other text.</p>
+<pre class="r"><code>library(tidyverse)
+raw_text &lt;- readLines(&quot;swd_podcast_episode_14_learning_dataviz.txt&quot;, encoding = &quot;ansi&quot;)
+
+# TOC.
+toc &lt;- raw_text[11:25]
+names(toc) &lt;- str_replace_all(toc, pattern = &quot;(.*)\\|(.*)&quot;, replacement = &quot;\\2&quot;) %&gt;% str_trim()
+
+# Content.
+content &lt;- raw_text[29:length(raw_text)]
+content &lt;- content[content != &quot;&quot;]
+
+# Get indices of interviews.
+toc_lines &lt;- purrr::map_int(.x = toc, .f = function(x) str_which(string = content, pattern = fixed(x)))
+toc_lines &lt;- tibble(interview = names(toc_lines),
+                    interview_index = toc_lines)
+
+# Extract the main content - interviews.
+content_df &lt;- tibble(paragraph_id = 1:length(content),
+                     paragraph = content) %&gt;% 
+  left_join(toc_lines, by = c(&quot;paragraph_id&quot; = &quot;interview_index&quot;)) %&gt;% 
+  mutate(row_with_interview_name = !is.na(interview)) %&gt;% 
+  fill(interview, .direction = &quot;down&quot;) %&gt;% 
+  filter(!(interview %in% c(&quot;Intro&quot;, &quot;Summary&quot;, &quot;Updates&quot;)))
+
+content_df %&gt;% 
+  select(paragraph, interview) %&gt;% 
+  slice(1:2) %&gt;% 
+  knitr::kable(format = &quot;html&quot;, col.names = c(&quot;paragraph&quot;, &quot;interview&quot;)) %&gt;% 
+  kableExtra::kable_styling(full_width = FALSE)</code></pre>
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+paragraph
+</th>
+<th style="text-align:left;">
+interview
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+0:01:42 | Moritz Stefaner
+</td>
+<td style="text-align:left;">
+Moritz Stefaner
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+His may be a familiar voice if you’re a listener of the Data Stories podcast, which he co-hosts. Moritz Stefaner. Moritz is an independent designer of data visualizations, based in Germany, his work has won multiple Information is Beautiful Awards and he has some fantastic tips to share with us today. Let’s have a listen to Moritz!
+</td>
+<td style="text-align:left;">
+Moritz Stefaner
+</td>
+</tr>
+</tbody>
+</table>
+</div>

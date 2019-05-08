@@ -10,19 +10,22 @@ tags: []
 output:
   blogdown::html_page:
     toc: true
-draft: false
+draft: true
 ---
 
 <script src="/rmarkdown-libs/kePrint/kePrint.js"></script>
 
 <div id="TOC">
 <ul>
+<li><a href="#about-k-means">About k-means</a></li>
 <li><a href="#surprise">Surprise</a></li>
 <li><a href="#k-means-clustering-with-original-features">K-means clustering with original features</a></li>
 <li><a href="#feature-scaling-and-k-means-revisited">Feature scaling and k-means revisited</a></li>
 </ul>
 </div>
 
+<p>This is a short blog post about the effect of feature scaling in k-means clustering.</p>
+<p>Import and print data.</p>
 <pre class="r"><code># Attach packages.
 library(tidyverse)
 
@@ -109,8 +112,18 @@ iPhone 8 Plus
 </tr>
 </tbody>
 </table>
+<div id="about-k-means" class="section level1">
+<h1>About k-means</h1>
+<p>Clustering refers to a broad set of techniques for finding homogeneous subgroups, or clusters, in a data set. It seeks to partition observations into distinct clusters in such a way that</p>
+<ul>
+<li>observations within each cluster are quite similar to each other,</li>
+<li>while observations in different clusters are quite different from each other.</li>
+</ul>
+<p>Similarities and dissimilarities within and between clusters are based on the data set that is provided to the clustering technique</p>
+</div>
 <div id="surprise" class="section level1">
 <h1>Surprise</h1>
+<p>The plot below depicts four iPhone models in two dimensions: approximate price in euro and weight in grams. How would you assign these four iPhones into two clusters?</p>
 <pre class="r"><code>phones_df %&gt;% 
   ggplot(aes(x = weight_g, y = approx_price_eur)) + 
   geom_point(size = 4, shape = &quot;x&quot;) +
@@ -158,9 +171,7 @@ p</code></pre>
 <pre class="r"><code># Adjust axes to the same scale.
 p +
   labs(title = &quot;No more surprise after equally scaling axes&quot;) +
-  scale_y_continuous(limits = c(0, 800)) +
-  scale_x_continuous(limits = c(0, 800)) +
-  coord_equal()</code></pre>
+  coord_equal(xlim = c(0, 800), ylim = c(0, 800), expand = FALSE)</code></pre>
 <p><img src="/post/2019-05-06-mini-feature-scaling-in-k-means-clustering_files/figure-html/unnamed-chunk-6-1.png" width="576" /></p>
 </div>
 <div id="feature-scaling-and-k-means-revisited" class="section level1">
@@ -179,5 +190,47 @@ round(dist(phones_mat_scaled), 2)</code></pre>
 ## iPhone 6           0.70                        
 ## iPhone 6s Plus     1.85     1.75               
 ## iPhone 8 Plus      2.94     2.60           1.28</code></pre>
-<!-- round(dist(phones_mat), 2) %>% as.matrix() %>% as.data.frame() %>% rownames_to_column() %>% gather(model_to, distance, -rowname) %>% filter(rowname == "Galaxy S8+") -->
+<pre class="r"><code>set.seed(2)
+kmeans_fit &lt;- kmeans(phones_mat_scaled, centers = 2, nstart = 100)
+
+feature_centers_vec &lt;- attributes(phones_mat_scaled)[[&quot;scaled:center&quot;]]
+feature_sd_vec      &lt;- attributes(phones_mat_scaled)[[&quot;scaled:scale&quot;]]
+
+centers_df &lt;- tibble(approx_price_eur_scaled = kmeans_fit$centers[, 1],
+       weight_g_scaled = kmeans_fit$centers[, 2]) %&gt;% 
+  bind_cols(as_tibble(t(apply(X = kmeans_fit$centers, MARGIN = 1, FUN = function(x) x * feature_sd_vec + feature_centers_vec)))) %&gt;% 
+  mutate(cluster = 1:2)</code></pre>
+<pre class="r"><code>phones_df %&gt;% 
+  mutate(approx_price_eur_scaled = (approx_price_eur - mean(approx_price_eur)) / sd(approx_price_eur), 
+         weight_g_scaled = (weight_g - mean(weight_g)) / sd(weight_g),
+         cluster = kmeans_fit$cluster) %&gt;% 
+  ggplot(aes(x = weight_g_scaled, y = approx_price_eur_scaled, color = as.factor(cluster))) + 
+  geom_point(size = 4, shape = &quot;x&quot;) +
+  geom_text(aes(label = model), size = 3.5, vjust = &quot;top&quot;, nudge_y = -0.1) +
+  
+  geom_point(data = centers_df, aes(x = weight_g_scaled, y = approx_price_eur_scaled), size = 4) +
+  labs(title = &quot;Now differences in price and weight are standardized&quot;,
+       subtitle = &quot;k-means clustering with scaled features&quot;,
+       x = &quot;standardized weight&quot;, 
+       y = &quot;standardized price&quot;, color = &quot;Cluster centers&quot;) +
+  theme_classic() +
+  theme(legend.position = &quot;top&quot;) +
+  coord_equal(xlim = c(-2, 2), ylim = c(-2, 2))</code></pre>
+<p><img src="/post/2019-05-06-mini-feature-scaling-in-k-means-clustering_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p>After getting k-means result based on scaled features, we may scaled them back.</p>
+<pre class="r"><code>phones_df %&gt;% 
+  mutate(cluster = kmeans_fit$cluster) %&gt;% 
+  ggplot(aes(x = weight_g, y = approx_price_eur, color = as.factor(cluster))) + 
+  geom_point(size = 4, shape = &quot;x&quot;) +
+  geom_text(aes(label = model), size = 3.5, vjust = &quot;top&quot;, nudge_y = -20) +
+  geom_point(data = centers_df, aes(x = weight_g, y = approx_price_eur), size = 8, shape = &quot;x&quot;) +
+  labs(title = &quot;&quot;,
+       subtitle = &quot;k-means clustering with scaled features&quot;,
+       x = &quot;weight (g)&quot;,
+       y = &quot;price (EUR)&quot;, 
+       color = &quot;Cluster centers&quot;) +
+  theme_classic() +
+  theme(legend.position = &quot;top&quot;) +
+  coord_equal(xlim = c(0, 800), ylim = c(0, 800))</code></pre>
+<p><img src="/post/2019-05-06-mini-feature-scaling-in-k-means-clustering_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
 </div>

@@ -10,7 +10,7 @@ tags: []
 output:
   blogdown::html_page:
     toc: true
-draft: false
+draft: true
 ---
 
 This is a short blog post about the effect of feature scaling in k-means clustering.

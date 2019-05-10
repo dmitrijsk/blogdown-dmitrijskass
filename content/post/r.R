@@ -1,13 +1,21 @@
+
+# Packages.
 library(tidyverse)
 
-# Setup colours similar to those used in SWD charts.
+# Colours.
 dark_grey <- "grey30"
 light_grey <- "grey80"
 swd_light_blue <- "#95b3d7"
 swd_dark_blue <- "#4f81bd"
+swd_orange <- "#f79646"
 
-# source: https://docs.google.com/document/d/1S2_63MUbvQs7fxWQrcuCNSl03fmDl1Vr3FjNjnbWK14/edit#
+# Text import ----
+
 raw_text <- readLines("swd_podcast_episode_14_learning_dataviz.txt", encoding = "ansi")
+
+# Text cleaning ----
+
+# 1. Extract the monologues of the 12 podcast guests from the transcript.
 
 toc <- raw_text[11:25]
 names(toc) <- str_replace_all(toc, pattern = "(.*)\\|(.*)", replacement = "\\2") %>% str_trim()
@@ -28,24 +36,22 @@ content_df <- tibble(paragraph_id = 1:length(content),
   fill(interview, .direction = "down") %>% 
   mutate(ignore = interview %in% c("Intro", "Summary", "Updates") | paragraph_id %in% paragraphs_to_ignore) %>% 
   filter(!ignore)
-  
+
+
+# 2. Replace contractions.
+
 # Before applying `qdap::replace_contractions()` we need to replace apostrophes from Windows-1252 code page (146) to a ASCII (39).
 # Otherwise, the function may not work (did not work on one of two computers I tried).
-
-# content_df$paragraph[3]
 
 content_df$paragraph <- str_replace_all(string = content_df$paragraph,
                                         pattern = gtools::chr(146), # https://en.wikipedia.org/wiki/Windows-1252
                                         replacement = gtools::chr(39))
 
-# content_df$paragraph[3]
-
-# Replace contractions.
 content_df$paragraph <- qdap::replace_contraction(content_df$paragraph)
 
-# content_df$paragraph[3]
+# 3., 4., 5. Tokenize, lemmatize, mark stop words.
 
-# Define stopwords.
+# Define stop words.
 
 # Know your stop words! For example, the SMART set (as documented in Appendix 11
 # of http://jmlr.csail.mit.edu/papers/volume5/lewis04a/) has all single letters
@@ -55,21 +61,6 @@ content_df$paragraph <- qdap::replace_contraction(content_df$paragraph)
 
 names_of_guests <- str_to_lower(names(toc)) %>% str_split(pattern = "\\s") %>% unlist()
 stopwords_vec <- setdiff(c(tm::stopwords(kind = "SMART"), names_of_guests, "cole"), "r")
-
-# tm::stopwords(kind = "en")
-# tidytext::stop_words %>% filter(lexicon == "onix") %>% pull(word)
-
-# TODO: add bi-grams.
-# TODO: heatmap.
-# TODO: plot network diagram connecting guests by 
-# - lines, where thinkness is defned by a number of words in common.
-# - lines, one per each word in common (limit to top X)
-
-# tibble(paragraph = "I learned R and started doing visualizations in R") %>% 
-#   tidytext::unnest_tokens(output = "word", input = paragraph, token = "words") %>% 
-#   mutate(word_lemma = textstem::lemmatize_words(word),
-#          stop_word = word_lemma %in% stopwords_vec) %>% 
-#   print(n = 9)
 
 # Tokenize by words, lemmatize and mark stop words.
 tokens <- content_df %>% 
@@ -101,7 +92,7 @@ tokens %>%
   ggplot(aes(x = word_lemma, y = n, label = n)) +
   geom_col(fill = light_grey) +
   # geom_text(hjust = "right", nudge_y = -10, size = 3.5, colour = "white") +
-  coord_flip() +
+  # coord_flip() +
   labs(title = "Top 5 of stop words in all interviews",
        # subtitle = "Words have been lemmatized prior to analysis",
        x = "stop word", 
@@ -147,6 +138,7 @@ tokens_freq_groups %>%
   ggplot(aes(x = interview, y = value, fill = key, label = value)) +
   geom_col(position = "stack") +
   coord_flip() +
+  scale_y_continuous(minor_breaks = NULL) +
   scale_fill_manual(values = c("n_stop_words" = light_grey, "n_repetitive_words" = swd_light_blue, "n_distinct_words" = swd_dark_blue),
                     labels = c("stop words", "non-stop word repetitions", "unique non-stop words")) +
   labs(title = "Stop words are 60-80% of all words in the podcast interviews",
@@ -154,9 +146,11 @@ tokens_freq_groups %>%
        x = NULL, 
        y = "word count", 
        fill = NULL) +
-  theme_classic() +
+  theme_minimal() +
   theme(legend.position = "top", 
-        axis.ticks.y = element_blank()) +
+        axis.ticks.y = element_blank(), 
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(), panel.grid.major.x = element_line(linetype = "dashed")) +
   guides(fill = guide_legend(reverse = TRUE))
   
 
@@ -189,30 +183,39 @@ tokens_top10 <- tokens_tfidf %>%
   # Add order column of row numbers
   mutate(order = row_number())
 
+zero_tfidf <- tokens_tfidf %>% 
+  filter(tf_idf == 0) %>% 
+  pull(word_lemma) %>% 
+  unique()
+
+zero_tfidf <- paste(zero_tfidf, sep = ",")
+
+word_to_highlight <- c("tip", "loop")
+
 p <- tokens_top10 %>% 
+  mutate(highlight = word_lemma %in% word_to_highlight) %>% 
   ggplot(aes(x = order, y = tf_idf)) +
-  geom_col(fill = swd_blue) +
+  geom_col(aes(fill = highlight), show.legend = FALSE) +
   coord_flip() +
-  facet_wrap(~interview, scales = "free") +
+  facet_wrap(~interview, scales = "free", ncol = 2) +
   scale_x_continuous(breaks = tokens_top10$order,
                      labels = tokens_top10$word_lemma) +
-  theme_minimal()
-
-p
+  theme_minimal() +
+  scale_fill_manual(values = c(swd_light_blue, swd_orange))
 
 p + 
-  labs(x = NULL, 
+  labs(title = "Importance of words by tf-idf.",
+       subtitle = "Words highlighted in orange are discussed below this plot",
+       x = NULL, 
        y = NULL) +
   theme(strip.background = element_blank(), 
         panel.grid = element_blank(), 
-        plot.background = element_rect(fill = "white"), 
-        strip.text = element_text(colour = dark_grey, face = "bold", size = 12), 
-        axis.text = element_text(colour = dark_grey), 
-        title = element_text(colour = dark_grey, size = 15), 
+        strip.text = element_text(colour = dark_grey, face = "bold", size = 12),
+        axis.text = element_text(colour = dark_grey),
+        title = element_text(colour = dark_grey, size = 15),
         plot.subtitle = element_text(colour = dark_grey, size = 9.5),
         axis.text.x = element_blank(),
-        axis.text.y = element_text(hjust = 0, size = 11), 
-        plot.caption = element_text(size = 8, hjust = 0),
+        axis.text.y = element_text(hjust = 0, size = 11),
         panel.spacing.x = unit(2,"line"), 
         panel.spacing.y = unit(1.5,"line"))
   
@@ -237,7 +240,7 @@ left_join(x[c(1,3)], x[c(1,3)], by = "word_lemma") %>%
   geom_text() +
   theme_minimal() +
   scale_x_discrete(position = "top") +
-  scale_fill_gradient(high = light_grey, low = swd_blue) +
+  scale_fill_gradient(high = "white", low = swd_dark_blue) +
   theme(axis.text.x = element_text(angle = 90), panel.grid = element_blank()) +
   labs(x = NULL, y = NULL, 
        title = "")
@@ -290,43 +293,51 @@ left_join(x[c(1,3)], x[c(1,3)], by = "word_lemma") %>%
 #   labs(edge_width = "Letters") +
 #   theme_graph()
 
-
-
-x1 <- tokens_tfidf %>% 
+top_global <- tokens_tfidf %>% 
   select(interview, word_lemma, tf_idf) %>% 
-  group_by(interview) %>%
-  top_n(n = 100, wt = tf_idf) %>%
-  ungroup() %>%
+  arrange(desc(tf_idf)) %>% 
+  distinct(word_lemma) %>% 
+  slice(1:50)
+
+top_spread <- tokens_tfidf %>% 
+  filter(word_lemma %in% top_global$word_lemma) %>% 
+  select(interview, word_lemma, tf_idf) %>% 
   spread(word_lemma, tf_idf, fill = 0) %>% 
   as.data.frame()
-rownames(x1) <- x1$interview
-dd <- dist(scale(x1[-1]), method = "euclidean")
+
+rownames(top_spread) <- top_spread$interview
+
+dd <- dist(scale(top_spread[-1]), method = "euclidean")
+set.seed(1)
 hc <- hclust(dd, method = "ward.D2")
-# install.packages(c("factoextra", "dendextend"))
+factoextra::fviz_dend(hc, k = 10, cex = 0.6, horiz = TRUE, k_colors = "jco",
+          rect = TRUE, rect_border = "jco", rect_fill = TRUE,
+          main = "Dendrogram reveals clusters of similar interviews",
+          ylab = "Distance")
 
 library(factoextra)
-# fviz_dend(hc, cex = 0.5)
-# fviz_dend(hc, cex = 0.5,
-#           main = "Dendrogram - ward.D2",
-#           xlab = "Objects", ylab = "Distance", sub = "")
-# fviz_dend(hc, cex = 0.5, horiz = TRUE)
-# fviz_dend(hc, k = 6, # Cut in four groups
-#           cex = 0.5, # label size
-#           k_colors = c("#2E9FDF", "#00AFBB", "#E7B800", "#FC4E07"),
-#           color_labels_by_k = TRUE, # color labels by groups
-#           rect = TRUE, # Add rectangle around groups
-#           rect_border = c("#2E9FDF", "#00AFBB", "#E7B800", "#FC4E07"),
-#           rect_fill = TRUE)
-# 
-# fviz_dend(hc, k = 6, # Cut in four groups
-#           cex = 0.5, # label size
-#           k_colors = c("#2E9FDF", "#00AFBB", "#E7B800", "#FC4E07"),
-#           color_labels_by_k = TRUE, # color labels by groups
-#           ggtheme = theme_gray() # Change theme
-# )
-# fviz_dend(hc, cex = 0.5, k = 6, # Cut in four groups
-#           k_colors = "jco")
-fviz_dend(hc, k = 4, cex = 0.6, horiz = TRUE, k_colors = "jco",
+fviz_dend(hc, cex = 0.5)
+fviz_dend(hc, cex = 0.5,
+          main = "Dendrogram - ward.D2",
+          xlab = "Objects", ylab = "Distance", sub = "")
+fviz_dend(hc, cex = 0.5, horiz = TRUE)
+fviz_dend(hc, k = 6, # Cut in four groups
+          cex = 0.5, # label size
+          k_colors = c("#2E9FDF", "#00AFBB", "#E7B800", "#FC4E07"),
+          color_labels_by_k = TRUE, # color labels by groups
+          rect = TRUE, # Add rectangle around groups
+          rect_border = c("#2E9FDF", "#00AFBB", "#E7B800", "#FC4E07"),
+          rect_fill = TRUE)
+
+fviz_dend(hc, k = 6, # Cut in four groups
+          cex = 0.5, # label size
+          k_colors = c("#2E9FDF", "#00AFBB", "#E7B800", "#FC4E07"),
+          color_labels_by_k = TRUE, # color labels by groups
+          ggtheme = theme_gray() # Change theme
+)
+fviz_dend(hc, cex = 0.5, k = 6, # Cut in four groups
+          k_colors = "jco")
+fviz_dend(hc, k = 6, cex = 0.6, horiz = TRUE, k_colors = "jco",
           rect = TRUE, rect_border = "jco", rect_fill = TRUE)
 
 # fviz_dend(hc, cex = 0.5, k = 6,

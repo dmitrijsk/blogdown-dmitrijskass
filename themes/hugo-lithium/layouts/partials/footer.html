@@ -1,8 +1,17 @@
       <footer class="footer">
-        {{ with .Site.Params.footer }}
-        <hr/>
-        {{ . | markdownify }}
-        {{ end }}
+        <ul class="footer-links">
+          <li>
+			{{ with .Site.Params.footer }}
+			<hr/>
+			{{ . | markdownify }}
+			{{ end }}
+			
+			<a href="https://gohugo.io/" class="footer-links-kudos"> | Made with <img src="{{ "images/hugo-logo.png" | relURL }}" alt="Img link to Hugo website" width="22" height="22"></a>
+		  </li>
+		  
+        </ul>
+		
+		
       </footer>
 
     </div>

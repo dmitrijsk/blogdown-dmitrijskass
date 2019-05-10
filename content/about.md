@@ -10,5 +10,5 @@ Hi! I'm Dmitrijs Kass, lecturer at [Latvian University](https://www.lu.lv/en/stu
 This blog is intended to serve few purposes:
 
 * Share the work I enjoy doing, such as **data viz and telling stories with data**.
-* Share my approach to understanding various elements of **data science** by deconstructing them into simple components and using examples to aid an intuitive understanding. 
-* Invite **feedback** from the community about my work so that I may improve in fulfilling the first two purposes.
+* Share my approach to understanding various elements of **data science** by deconstructing them into simple components. 
+* Invite **feedback** from the community about my work so that I may improve in fulfilling the first two points.

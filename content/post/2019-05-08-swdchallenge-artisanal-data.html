@@ -58,50 +58,90 @@ output:
 example &lt;- tibble(sentense = &quot;I learned R and started doing visualizations in R&quot;) %&gt;% 
   tidytext::unnest_tokens(output = &quot;word&quot;, input = sentense, token = &quot;words&quot;) %&gt;% 
   rowid_to_column()
-knitr::kable(example)</code></pre>
-<table>
+knitr::kable(example, format = &quot;html&quot;) %&gt;% kableExtra::kable_styling()</code></pre>
+<table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
-<tr class="header">
-<th align="right">rowid</th>
-<th align="left">word</th>
+<tr>
+<th style="text-align:right;">
+rowid
+</th>
+<th style="text-align:left;">
+word
+</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
-<td align="right">1</td>
-<td align="left">i</td>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+i
+</td>
 </tr>
-<tr class="even">
-<td align="right">2</td>
-<td align="left">learned</td>
+<tr>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+learned
+</td>
 </tr>
-<tr class="odd">
-<td align="right">3</td>
-<td align="left">r</td>
+<tr>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:left;">
+r
+</td>
 </tr>
-<tr class="even">
-<td align="right">4</td>
-<td align="left">and</td>
+<tr>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:left;">
+and
+</td>
 </tr>
-<tr class="odd">
-<td align="right">5</td>
-<td align="left">started</td>
+<tr>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:left;">
+started
+</td>
 </tr>
-<tr class="even">
-<td align="right">6</td>
-<td align="left">doing</td>
+<tr>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:left;">
+doing
+</td>
 </tr>
-<tr class="odd">
-<td align="right">7</td>
-<td align="left">visualizations</td>
+<tr>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:left;">
+visualizations
+</td>
 </tr>
-<tr class="even">
-<td align="right">8</td>
-<td align="left">in</td>
+<tr>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:left;">
+in
+</td>
 </tr>
-<tr class="odd">
-<td align="right">9</td>
-<td align="left">r</td>
+<tr>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:left;">
+r
+</td>
 </tr>
 </tbody>
 </table>
@@ -109,60 +149,120 @@ knitr::kable(example)</code></pre>
 <li><a href="https://en.wikipedia.org/wiki/Lemmatisation">Lemmatize</a> words. For example:</li>
 </ol>
 <pre class="r"><code>example &lt;- mutate(example, word_lemma = textstem::lemmatize_words(word))
-knitr::kable(example)</code></pre>
-<table>
+knitr::kable(example, format = &quot;html&quot;) %&gt;% kableExtra::kable_styling()</code></pre>
+<table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
-<tr class="header">
-<th align="right">rowid</th>
-<th align="left">word</th>
-<th align="left">word_lemma</th>
+<tr>
+<th style="text-align:right;">
+rowid
+</th>
+<th style="text-align:left;">
+word
+</th>
+<th style="text-align:left;">
+word_lemma
+</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
-<td align="right">1</td>
-<td align="left">i</td>
-<td align="left">i</td>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+i
+</td>
+<td style="text-align:left;">
+i
+</td>
 </tr>
-<tr class="even">
-<td align="right">2</td>
-<td align="left">learned</td>
-<td align="left">learn</td>
+<tr>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+learned
+</td>
+<td style="text-align:left;">
+learn
+</td>
 </tr>
-<tr class="odd">
-<td align="right">3</td>
-<td align="left">r</td>
-<td align="left">r</td>
+<tr>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:left;">
+r
+</td>
+<td style="text-align:left;">
+r
+</td>
 </tr>
-<tr class="even">
-<td align="right">4</td>
-<td align="left">and</td>
-<td align="left">and</td>
+<tr>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:left;">
+and
+</td>
+<td style="text-align:left;">
+and
+</td>
 </tr>
-<tr class="odd">
-<td align="right">5</td>
-<td align="left">started</td>
-<td align="left">start</td>
+<tr>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:left;">
+started
+</td>
+<td style="text-align:left;">
+start
+</td>
 </tr>
-<tr class="even">
-<td align="right">6</td>
-<td align="left">doing</td>
-<td align="left">do</td>
+<tr>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:left;">
+doing
+</td>
+<td style="text-align:left;">
+do
+</td>
 </tr>
-<tr class="odd">
-<td align="right">7</td>
-<td align="left">visualizations</td>
-<td align="left">visualization</td>
+<tr>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:left;">
+visualizations
+</td>
+<td style="text-align:left;">
+visualization
+</td>
 </tr>
-<tr class="even">
-<td align="right">8</td>
-<td align="left">in</td>
-<td align="left">in</td>
+<tr>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:left;">
+in
+</td>
+<td style="text-align:left;">
+in
+</td>
 </tr>
-<tr class="odd">
-<td align="right">9</td>
-<td align="left">r</td>
-<td align="left">r</td>
+<tr>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:left;">
+r
+</td>
+<td style="text-align:left;">
+r
+</td>
 </tr>
 </tbody>
 </table>
@@ -170,70 +270,150 @@ knitr::kable(example)</code></pre>
 <li>Remove <a href="https://en.wikipedia.org/wiki/Stop_words">stop words</a>. Stop words from the <a href="http://www.jmlr.org/papers/volume5/lewis04a/lewis04a.pdf">SMART information retrieval system</a> available in <code>tm</code> package served as the basis and were adjusted for the purpose of this analysis<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>. For example:</li>
 </ol>
 <pre class="r"><code>example &lt;- mutate(example, stop_word = word %in% tm::stopwords(kind = &quot;SMART&quot;))
-knitr::kable(example)</code></pre>
-<table>
+knitr::kable(example, format = &quot;html&quot;) %&gt;% kableExtra::kable_styling()</code></pre>
+<table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
-<tr class="header">
-<th align="right">rowid</th>
-<th align="left">word</th>
-<th align="left">word_lemma</th>
-<th align="left">stop_word</th>
+<tr>
+<th style="text-align:right;">
+rowid
+</th>
+<th style="text-align:left;">
+word
+</th>
+<th style="text-align:left;">
+word_lemma
+</th>
+<th style="text-align:left;">
+stop_word
+</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
-<td align="right">1</td>
-<td align="left">i</td>
-<td align="left">i</td>
-<td align="left">TRUE</td>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+i
+</td>
+<td style="text-align:left;">
+i
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
 </tr>
-<tr class="even">
-<td align="right">2</td>
-<td align="left">learned</td>
-<td align="left">learn</td>
-<td align="left">FALSE</td>
+<tr>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+learned
+</td>
+<td style="text-align:left;">
+learn
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
 </tr>
-<tr class="odd">
-<td align="right">3</td>
-<td align="left">r</td>
-<td align="left">r</td>
-<td align="left">TRUE</td>
+<tr>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:left;">
+r
+</td>
+<td style="text-align:left;">
+r
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
 </tr>
-<tr class="even">
-<td align="right">4</td>
-<td align="left">and</td>
-<td align="left">and</td>
-<td align="left">TRUE</td>
+<tr>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:left;">
+and
+</td>
+<td style="text-align:left;">
+and
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
 </tr>
-<tr class="odd">
-<td align="right">5</td>
-<td align="left">started</td>
-<td align="left">start</td>
-<td align="left">FALSE</td>
+<tr>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:left;">
+started
+</td>
+<td style="text-align:left;">
+start
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
 </tr>
-<tr class="even">
-<td align="right">6</td>
-<td align="left">doing</td>
-<td align="left">do</td>
-<td align="left">TRUE</td>
+<tr>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:left;">
+doing
+</td>
+<td style="text-align:left;">
+do
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
 </tr>
-<tr class="odd">
-<td align="right">7</td>
-<td align="left">visualizations</td>
-<td align="left">visualization</td>
-<td align="left">FALSE</td>
+<tr>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:left;">
+visualizations
+</td>
+<td style="text-align:left;">
+visualization
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
 </tr>
-<tr class="even">
-<td align="right">8</td>
-<td align="left">in</td>
-<td align="left">in</td>
-<td align="left">TRUE</td>
+<tr>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:left;">
+in
+</td>
+<td style="text-align:left;">
+in
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
 </tr>
-<tr class="odd">
-<td align="right">9</td>
-<td align="left">r</td>
-<td align="left">r</td>
-<td align="left">TRUE</td>
+<tr>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:left;">
+r
+</td>
+<td style="text-align:left;">
+r
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
 </tr>
 </tbody>
 </table>
@@ -325,12 +505,12 @@ learn
 <p>The idea is that if a word appears in all interviews then it is not particularly important for any single interview. This is not obligatory true because some word may be used a hundred times in one interview and only once in all other eleven interviews. Nevertheless, such word will have zero importance. This needs to be considered when using tf-idf.</p>
 <p>Without further ado, here are 10 most important words within each of 12 interviews according to tf-idf:</p>
 <p><img src="/post/2019-05-08-swdchallenge-artisanal-data_files/figure-html/unnamed-chunk-11-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>A selection of important words, highlighted with orange on the plot, are now linked to stories and advices shared by the podcast guests:</p>
-<p><strong>Alberto Cairo</strong> talks about balancing out the visual appeal of the <font color="#f79646">graphic</font> with the <font color="#f79646">informative power</font> of the <font color="#f79646">graphic</font> and how representatives of different professions tend to lean towards either emphasizing the visual <font color="#f79646">appeal</font> of the <font color="#f79646">graphic</font> at the expense of the <font color="#f79646">informative power</font> or vice versa.</p>
-<p><strong>RJ Andrews</strong> shares his path from <font color="#f79646">mechanical engineering</font> through <font color="#f79646">MBA</font>, connecting <font color="#f79646">strategy</font> with data to how Alberto Cairo’s The Functional Art inspired him to become the best data <font color="#f79646">storyteller</font> he can.</p>
-<p><strong>Moritz Stefaner</strong> gives two <font color="#f79646">tips</font> about feedback <font color="#f79646">loops</font>. First, <em>“be open to what data has to say and listen to it. Don’t come with a preconceived notion of how you would like to have the data look”</em>. Second, <em>“after you put out a visualization, make sure you understand how it’s being received, how it’s being used, how people respond to it”</em>.</p>
-<p><strong>Andy Cotgreave</strong> stressed the importance of getting feedback, practicing, practicing, practicing and having <font color="#f79646">fun</font>! <em>“Things like #<font color="#f79646">Makeover</font> Monday, storytelling with data monthly challenges, these are great ways to get out of your comfort zone and have <font color="#f79646">fun</font>. Have <font color="#f79646">fun</font>. My gosh, you are allowed to have <font color="#f79646">fun</font>!”</em></p>
-<p>Interestingly, 10 most important words within each interview do not necessarily highlight the theme of the interview. It may be a specific style of a person as well. Shirley Wu uses a phrase <font color="#f79646"><em>“kind of”</em></font> 29 times, as in, <em>“It was kind of through my involvement with …”</em>. This phrase ends up being Shirley’s 5th most important word, according to tf-idf, out of 205 unique words she used.</p>
+<p>A selection of important words, highlighted with dark blue on the plot, are now linked to stories and advices shared by the podcast guests:</p>
+<p><strong>Alberto Cairo</strong> talks about balancing out the visual appeal of the <font color="#4f81bd">graphic</font> with the <font color="#4f81bd">informative power</font> of the <font color="#4f81bd">graphic</font> and how representatives of different professions tend to lean towards either emphasizing the visual <font color="#4f81bd">appeal</font> of the <font color="#4f81bd">graphic</font> at the expense of the <font color="#4f81bd">informative power</font> or vice versa.</p>
+<p><strong>RJ Andrews</strong> shares his path from <font color="#4f81bd">mechanical engineering</font> through <font color="#4f81bd">MBA</font>, connecting <font color="#4f81bd">strategy</font> with data to how Alberto Cairo’s The Functional Art inspired him to become the best data <font color="#4f81bd">storyteller</font> he can.</p>
+<p><strong>Moritz Stefaner</strong> gives two <font color="#4f81bd">tips</font> about feedback <font color="#4f81bd">loops</font>. First, <em>“be open to what data has to say and listen to it. Don’t come with a preconceived notion of how you would like to have the data look”</em>. Second, <em>“after you put out a visualization, make sure you understand how it’s being received, how it’s being used, how people respond to it”</em>.</p>
+<p><strong>Andy Cotgreave</strong> stressed the importance of getting feedback, practicing, practicing, practicing and having <font color="#4f81bd">fun</font>! <em>“Things like #<font color="#4f81bd">Makeover</font> Monday, storytelling with data monthly challenges, these are great ways to get out of your comfort zone and have <font color="#4f81bd">fun</font>. Have <font color="#4f81bd">fun</font>. My gosh, you are allowed to have <font color="#4f81bd">fun</font>!”</em></p>
+<p>Interestingly, 10 most important words within each interview do not necessarily highlight the theme of the interview. It may be a specific style of a person as well. Shirley Wu uses a phrase <font color="#4f81bd"><em>“kind of”</em></font> 29 times, as in, <em>“It was kind of through my involvement with …”</em>. This phrase ends up being Shirley’s 5th most important word, according to tf-idf, out of 205 unique words she used.</p>
 </div>
 <div id="phase-3---lexical-similarity" class="section level1">
 <h1>Phase 3 - Lexical similarity</h1>

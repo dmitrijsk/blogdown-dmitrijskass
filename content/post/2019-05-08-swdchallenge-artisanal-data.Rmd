@@ -59,21 +59,21 @@ library(tidyverse)
 example <- tibble(sentense = "I learned R and started doing visualizations in R") %>% 
   tidytext::unnest_tokens(output = "word", input = sentense, token = "words") %>% 
   rowid_to_column()
-knitr::kable(example)
+knitr::kable(example, format = "html") %>% kableExtra::kable_styling()
 ```
 
 4. [Lemmatize](https://en.wikipedia.org/wiki/Lemmatisation) words. For example:
 
 ```{r}
 example <- mutate(example, word_lemma = textstem::lemmatize_words(word))
-knitr::kable(example)
+knitr::kable(example, format = "html") %>% kableExtra::kable_styling()
 ```
 
 5. Remove [stop words](https://en.wikipedia.org/wiki/Stop_words). Stop words from the [SMART information retrieval system](http://www.jmlr.org/papers/volume5/lewis04a/lewis04a.pdf) available in `tm` package served as the basis and were adjusted for the purpose of this analysis[^1]. For example:
 
 ```{r}
 example <- mutate(example, stop_word = word %in% tm::stopwords(kind = "SMART"))
-knitr::kable(example)
+knitr::kable(example, format = "html") %>% kableExtra::kable_styling()
 ```
 
 ## Results
@@ -88,7 +88,7 @@ dark_grey <- "grey30"
 light_grey <- "grey80"
 swd_light_blue <- "#95b3d7"
 swd_dark_blue <- "#4f81bd"
-swd_orange <- "#f79646"
+swd_orange <- "#4f81bd" # this is now dark blue; used to be #f79646.
 
 # Text import ----
 
@@ -316,7 +316,7 @@ p <- tokens_top10 %>%
 
 p + 
   labs(title = "Importance of words by tf-idf.",
-       subtitle = "Words highlighted in orange are discussed below this plot.",
+       subtitle = "Words highlighted in dark blue are discussed below this plot.",
        x = NULL, 
        y = NULL) +
   theme(strip.background = element_blank(), 
@@ -331,15 +331,15 @@ p +
         panel.spacing.y = unit(1.5,"line"))
 ```
 
-A selection of important words, highlighted with orange on the plot, are now linked to stories and advices shared by the podcast guests:
+A selection of important words, highlighted with dark blue on the plot, are now linked to stories and advices shared by the podcast guests:
 
-**Alberto Cairo** talks about balancing out the visual appeal of the <font color="#f79646">graphic</font> with the <font color="#f79646">informative power</font> of the <font color="#f79646">graphic</font> and how representatives of different professions tend to lean towards either emphasizing the visual <font color="#f79646">appeal</font> of the <font color="#f79646">graphic</font> at the expense of the <font color="#f79646">informative power</font> or vice versa. 
+**Alberto Cairo** talks about balancing out the visual appeal of the <font color="#4f81bd">graphic</font> with the <font color="#4f81bd">informative power</font> of the <font color="#4f81bd">graphic</font> and how representatives of different professions tend to lean towards either emphasizing the visual <font color="#4f81bd">appeal</font> of the <font color="#4f81bd">graphic</font> at the expense of the <font color="#4f81bd">informative power</font> or vice versa. 
 
-**RJ Andrews** shares his path from <font color="#f79646">mechanical engineering</font> through <font color="#f79646">MBA</font>, connecting <font color="#f79646">strategy</font> with data to how Alberto Cairo's The Functional Art inspired him to become the best data <font color="#f79646">storyteller</font> he can.
+**RJ Andrews** shares his path from <font color="#4f81bd">mechanical engineering</font> through <font color="#4f81bd">MBA</font>, connecting <font color="#4f81bd">strategy</font> with data to how Alberto Cairo's The Functional Art inspired him to become the best data <font color="#4f81bd">storyteller</font> he can.
 
-**Moritz Stefaner** gives two <font color="#f79646">tips</font> about feedback  <font color="#f79646">loops</font>. First, *"be open to what data has to say and listen to it. Don't come with a preconceived notion of how you would like to have the data look"*. Second, *"after you put out a visualization, make sure you understand how it's being received, how it's being used, how people respond to it"*.
+**Moritz Stefaner** gives two <font color="#4f81bd">tips</font> about feedback  <font color="#4f81bd">loops</font>. First, *"be open to what data has to say and listen to it. Don't come with a preconceived notion of how you would like to have the data look"*. Second, *"after you put out a visualization, make sure you understand how it's being received, how it's being used, how people respond to it"*.
 
-**Andy Cotgreave** stressed the importance of getting feedback, practicing, practicing, practicing and having <font color="#f79646">fun</font>! *"Things like #<font color="#f79646">Makeover</font> Monday, storytelling with data monthly challenges, these are great ways to get out of your comfort zone and have <font color="#f79646">fun</font>. Have <font color="#f79646">fun</font>. My gosh, you are allowed to have <font color="#f79646">fun</font>!"*
+**Andy Cotgreave** stressed the importance of getting feedback, practicing, practicing, practicing and having <font color="#4f81bd">fun</font>! *"Things like #<font color="#4f81bd">Makeover</font> Monday, storytelling with data monthly challenges, these are great ways to get out of your comfort zone and have <font color="#4f81bd">fun</font>. Have <font color="#4f81bd">fun</font>. My gosh, you are allowed to have <font color="#4f81bd">fun</font>!"*
 
 ```{r echo = FALSE}
 shirley_wu_unique_words <- tokens_tfidf %>% 
@@ -349,7 +349,7 @@ shirley_wu_unique_words <- tokens_tfidf %>%
   length()
 ```
 
-Interestingly, 10 most important words within each interview do not necessarily highlight the theme of the interview. It may be a specific style of a person as well. Shirley Wu uses a phrase <font color="#f79646">*"kind of"*</font> 29 times, as in, *"It was kind of through my involvement with ..."*. This phrase ends up being Shirley's 5th most important word, according to tf-idf, out of `r shirley_wu_unique_words` unique words she used.
+Interestingly, 10 most important words within each interview do not necessarily highlight the theme of the interview. It may be a specific style of a person as well. Shirley Wu uses a phrase <font color="#4f81bd">*"kind of"*</font> 29 times, as in, *"It was kind of through my involvement with ..."*. This phrase ends up being Shirley's 5th most important word, according to tf-idf, out of `r shirley_wu_unique_words` unique words she used.
 
 
 # Phase 3 - Lexical similarity

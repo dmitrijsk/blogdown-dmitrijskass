@@ -7,49 +7,60 @@ categories: [data-viz]
 tags: []
 ---
 
-This post is my participation in [#SWDchallenge: artisanal data](http://www.storytellingwithdata.com/blog/2019/5/1/swdchallenge-artisanal-data).
+This post is a participation in [#SWDchallenge: artisanal data](http://www.storytellingwithdata.com/blog/2019/5/1/swdchallenge-artisanal-data).
 
-The story is about the words used by 12 guests that appeared on the 14th episode of [#SWDpodcast](http://www.storytellingwithdata.com/podcast).  [Storytelling with Data](http://www.storytellingwithdata.com/book) has been on my shelf for over a year and it is this podcast episode that sparkled interest in me about data visualization and made me read the book in few days.
+The story is about the words used by 12 guests that appeared on the 14th episode of [#SWDpodcast](http://www.storytellingwithdata.com/podcast).  [Storytelling with Data](http://www.storytellingwithdata.com/book) (SWD) has been on my shelf for over a year and it is this podcast episode that sparkled interest in me about data visualization and made me read the book in few days and start participating in data viz challenges.
+
+Analysis below is performed in [R](https://www.r-project.org/), a free software environment for statistical computing and graphics with the help of [tidyverse](https://www.tidyverse.org/) packages and text analysis packages (`tidytext`, `tm`, `textstem`, `qdap`).
 
 # Data 
 
-The source of data is the [transcript](https://docs.google.com/document/d/1S2_63MUbvQs7fxWQrcuCNSl03fmDl1Vr3FjNjnbWK14/edit#) of episode 14 of #SWDpodcast. As the goal is to analyse words used by the guests of the podcast, the initial step is to clean data from all other text.
+The source of data is the [transcript](https://docs.google.com/document/d/1S2_63MUbvQs7fxWQrcuCNSl03fmDl1Vr3FjNjnbWK14/edit#) of episode 14 of #SWDpodcast brought by SWD. As the goal is to analyse words used by the guests of the podcast, the initial step is to clean data from all other text.
+
+# Text cleaning
+
+## Steps
+
+Text cleaning for this analysis involves five main steps:
+
+1. Extract the monologues of the 12 podcast guests from the transcript.
+2. Replace [contractions](https://en.wikipedia.org/wiki/Contraction_(grammar)). For example:
+
+```{r}
+qdap::replace_contraction("It's a fascinating field")
+```
+
+3. Split sentences into single words, [unigrams](https://en.wikipedia.org/wiki/N-gram). For example:
 
 ```{r message=FALSE, warning=FALSE}
 library(tidyverse)
-raw_text <- readLines("swd_podcast_episode_14_learning_dataviz.txt", encoding = "ansi")
+example <- tibble(sentense = "I learned R and started doing visualizations in R") %>% 
+  tidytext::unnest_tokens(output = "word", input = sentense, token = "words")
+example
+```
 
-# TOC.
-toc <- raw_text[11:25]
-names(toc) <- str_replace_all(toc, pattern = "(.*)\\|(.*)", replacement = "\\2") %>% str_trim()
+4. [Lemmatize](https://en.wikipedia.org/wiki/Lemmatisation) words. For example:
 
-# Content.
-content <- raw_text[29:length(raw_text)]
-content <- content[content != ""]
+```{r}
+example <- mutate(example, word_lemma = textstem::lemmatize_words(word))
+example
+```
 
-# Get indices of interviews.
-toc_lines <- purrr::map_int(.x = toc, .f = function(x) str_which(string = content, pattern = fixed(x)))
-toc_lines <- tibble(interview = names(toc_lines),
-                    interview_index = toc_lines)
+5. Remove [stop words](https://en.wikipedia.org/wiki/Stop_words). Stop words from the [SMART information retrieval system](http://www.jmlr.org/papers/volume5/lewis04a/lewis04a.pdf) available in `tm` package served as the basis and were adjusted for the purpose of this analysis[^1]. For example:
 
-# Extract the main content - interviews.
-content_df <- tibble(paragraph_id = 1:length(content),
-                     paragraph = content) %>% 
-  left_join(toc_lines, by = c("paragraph_id" = "interview_index")) %>% 
-  mutate(row_with_interview_name = !is.na(interview)) %>% 
-  fill(interview, .direction = "down") %>% 
-  filter(!(interview %in% c("Intro", "Summary", "Updates")))
+```{r}
+example <- mutate(example, stop_word = word %in% tm::stopwords(kind = "SMART"))
+example
+```
 
-content_df %>% 
-  select(paragraph, interview) %>% 
-  slice(1:2) %>% 
-  knitr::kable(format = "html", col.names = c("paragraph", "interview")) %>% 
-  kableExtra::kable_styling(full_width = FALSE)
+
+## Results 
+
+```{r}
+
 ```
 
 
 
 
-
-
-
+[^1]: SMART stop words were supplemented with the names of podcast host and guests. One stop word was removed, it is a letter *"r"*, which is used by one of the podcast guests to refer to R as a software. It is definitely worth knowing prepackaged stop words!

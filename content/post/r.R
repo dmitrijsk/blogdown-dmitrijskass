@@ -1,14 +1,17 @@
 library(tidyverse)
-library(tidytext)
+
+# Setup colours similar to those used in SWD charts.
 dark_grey <- "grey30"
 light_grey <- "grey80"
-swd_blue <- "#4F81BC"
+swd_light_blue <- "#95b3d7"
+swd_dark_blue <- "#4f81bd"
 
 # source: https://docs.google.com/document/d/1S2_63MUbvQs7fxWQrcuCNSl03fmDl1Vr3FjNjnbWK14/edit#
 raw_text <- readLines("swd_podcast_episode_14_learning_dataviz.txt", encoding = "ansi")
 
 toc <- raw_text[11:25]
 names(toc) <- str_replace_all(toc, pattern = "(.*)\\|(.*)", replacement = "\\2") %>% str_trim()
+
 content <- raw_text[29:length(raw_text)]
 content <- content[content != ""]
 
@@ -27,24 +30,34 @@ content_df <- tibble(paragraph_id = 1:length(content),
   filter(!ignore)
   
 # Before applying `qdap::replace_contractions()` we need to replace apostrophes from Windows-1252 code page (146) to a ASCII (39).
-# Otherwise, the function does not work.
+# Otherwise, the function may not work (did not work on one of two computers I tried).
 
-content_df$paragraph[3]
+# content_df$paragraph[3]
 
 content_df$paragraph <- str_replace_all(string = content_df$paragraph,
                                         pattern = gtools::chr(146), # https://en.wikipedia.org/wiki/Windows-1252
                                         replacement = gtools::chr(39))
 
-content_df$paragraph[3]
+# content_df$paragraph[3]
 
 # Replace contractions.
 content_df$paragraph <- qdap::replace_contraction(content_df$paragraph)
 
-content_df$paragraph[3]
+# content_df$paragraph[3]
 
 # Define stopwords.
+
+# Know your stop words! For example, the SMART set (as documented in Appendix 11
+# of http://jmlr.csail.mit.edu/papers/volume5/lewis04a/) has all single letters
+# on English alphabet, including "r", which in the text may mean a programming
+# language R and in this case you probably don't want to consider it as a stop
+# word.
+
 names_of_guests <- str_to_lower(names(toc)) %>% str_split(pattern = "\\s") %>% unlist()
-stopwords_vec <- c(stop_words$word, names_of_guests, "cole")
+stopwords_vec <- setdiff(c(tm::stopwords(kind = "SMART"), names_of_guests, "cole"), "r")
+
+# tm::stopwords(kind = "en")
+# tidytext::stop_words %>% filter(lexicon == "onix") %>% pull(word)
 
 # TODO: add bi-grams.
 # TODO: heatmap.
@@ -52,34 +65,45 @@ stopwords_vec <- c(stop_words$word, names_of_guests, "cole")
 # - lines, where thinkness is defned by a number of words in common.
 # - lines, one per each word in common (limit to top X)
 
+# tibble(paragraph = "I learned R and started doing visualizations in R") %>% 
+#   tidytext::unnest_tokens(output = "word", input = paragraph, token = "words") %>% 
+#   mutate(word_lemma = textstem::lemmatize_words(word),
+#          stop_word = word_lemma %in% stopwords_vec) %>% 
+#   print(n = 9)
+
 # Tokenize by words, lemmatize and mark stop words.
 tokens <- content_df %>% 
-  unnest_tokens(output = "word", input = paragraph, token = "words") %>% 
+  tidytext::unnest_tokens(output = "word", input = paragraph, token = "words") %>% 
   mutate(word_lemma = textstem::lemmatize_words(word),
          stop_word = word_lemma %in% stopwords_vec)
-
-# View lemmatized words.
-tokens %>% 
-  filter(!stop_word & word != word_lemma) %>% 
-  count(word, word_lemma, sort = TRUE)
 
 # Transform some words back after lemmatization.
 tokens <- tokens %>% 
   mutate(word_lemma = case_when(word_lemma == "numb" ~ "number", 
-                                word_lemma == "datum" ~ "data", 
+                                word_lemma == "datum" ~ "data",
+                                word_lemma == "infographics" ~ "infographic",
                                 TRUE ~ word_lemma))
+
+# View lemmatized words.
+tokens %>%
+  filter(!stop_word & word != word_lemma) %>%
+  count(word, word_lemma, sort = TRUE) %>% 
+  top_n(n = 5, wt = n)
+
+
+
 # Plot stop words.
 tokens %>% 
   filter(stop_word) %>% 
   count(word_lemma, sort = TRUE) %>% 
-  slice(1:10) %>% 
+  slice(1:5) %>% 
   mutate(word_lemma = reorder(word_lemma, n)) %>% 
   ggplot(aes(x = word_lemma, y = n, label = n)) +
-  geom_col(fill = swd_blue) +
-  geom_text(hjust = "right", nudge_y = -10, size = 3.5, colour = "white") +
+  geom_col(fill = light_grey) +
+  # geom_text(hjust = "right", nudge_y = -10, size = 3.5, colour = "white") +
   coord_flip() +
-  labs(title = "Top 10 of stop words in all interviews",
-       subtitle = "Words have been lemmatized prior to analysis",
+  labs(title = "Top 5 of stop words in all interviews",
+       # subtitle = "Words have been lemmatized prior to analysis",
        x = "stop word", 
        y = "word count") +
   theme_minimal()
@@ -123,9 +147,10 @@ tokens_freq_groups %>%
   ggplot(aes(x = interview, y = value, fill = key, label = value)) +
   geom_col(position = "stack") +
   coord_flip() +
-  scale_fill_manual(values = c("n_stop_words" = "grey80", "n_repetitive_words" = "grey60", "n_distinct_words" = swd_blue),
+  scale_fill_manual(values = c("n_stop_words" = light_grey, "n_repetitive_words" = swd_light_blue, "n_distinct_words" = swd_dark_blue),
                     labels = c("stop words", "non-stop word repetitions", "unique non-stop words")) +
-  labs(title = "Stop words are 60-80% of all words",
+  labs(title = "Stop words are 60-80% of all words in the podcast interviews",
+       subtitle = "They are further dropped and we focus on the most important words in each interview",
        x = NULL, 
        y = "word count", 
        fill = NULL) +
@@ -142,7 +167,7 @@ tokens_freq <- tokens_freq %>%
 
 # Add TF-IDF.
 tokens_tfidf <- tokens_freq %>% 
-  bind_tf_idf(word_lemma, interview, n) %>% 
+  tidytext::bind_tf_idf(word_lemma, interview, n) %>% 
   # Arrange by facet and word frequency.
   arrange(interview, tf_idf) %>% 
   # Add order column of row numbers
@@ -191,46 +216,125 @@ p +
         panel.spacing.x = unit(2,"line"), 
         panel.spacing.y = unit(1.5,"line"))
   
+# Words like "visualisation" and "data" do not appear in a top 10 of most important words
+# because all of these interviews were about it.
 
-  
-# Words in common ----
+# heatmap ----
 
-nodes <- tokens_freq %>% 
-  distinct(interview) %>% 
-  rename(label = interview) %>% 
-  rowid_to_column("id")
+x <- tokens_tfidf %>% 
+  group_by(interview) %>% 
+  top_n(n = 100, wt = tf_idf) %>% 
+  ungroup()
 
-edges <- left_join(tokens_freq[1:2], tokens_freq[1:2], by = "word_lemma") %>% 
+left_join(x[c(1,3)], x[c(1,3)], by = "word_lemma") %>% 
   filter(interview.x != interview.y) %>% # Remove loops.
   count(interview.x, interview.y, name = "weight") %>% 
-  left_join(nodes %>% rename(from = id), by = c("interview.x" = "label")) %>% 
-  left_join(nodes %>% rename(to = id), by = c("interview.y" = "label")) %>% 
-  select(from, to, weight) %>% 
-  mutate(dupl = if_else(from < to, paste(from, to), paste(to, from))) %>%
-  filter(weight > 50)
+  mutate(dupl = if_else(interview.x < interview.y, paste(interview.x, interview.y), paste(interview.y, interview.x))) %>% 
+  group_by(dupl) %>% 
+  slice(1) %>% 
+  ggplot(aes(x = interview.x, y = interview.y, fill = -weight, label = weight)) +
+  geom_tile() +
+  geom_text() +
+  theme_minimal() +
+  scale_x_discrete(position = "top") +
+  scale_fill_gradient(high = light_grey, low = swd_blue) +
+  theme(axis.text.x = element_text(angle = 90), panel.grid = element_blank()) +
+  labs(x = NULL, y = NULL, 
+       title = "")
 
-edges <- edges %>% 
-  filter(duplicated(edges$dupl)) %>% 
-  select(-dupl)
+  
+# # Words in common ----
+# 
+# nodes <- tokens_freq %>% 
+#   distinct(interview) %>% 
+#   rename(label = interview) %>% 
+#   rowid_to_column("id")
+# 
+# 
+# 
+# left_join(x[c(1,3)], x[c(1,3)], by = "word_lemma") %>% 
+#   filter(interview.x != interview.y) %>%
+#   View()
+# 
+# 
+# edges <- left_join(x[c(1,3)], x[c(1,3)], by = "word_lemma") %>% 
+#   filter(interview.x != interview.y) %>% # Remove loops.
+#   count(interview.x, interview.y, name = "weight") %>% 
+#   left_join(nodes %>% rename(from = id), by = c("interview.x" = "label")) %>% 
+#   left_join(nodes %>% rename(to = id), by = c("interview.y" = "label")) %>% 
+#   select(from, to, weight) %>% 
+#   mutate(dupl = if_else(from < to, paste(from, to), paste(to, from)))
+# 
+# edges <- edges %>% 
+#   filter(duplicated(edges$dupl)) %>% 
+#   select(-dupl)
+# 
+# edges %>% 
+#   spread(to, weight)
+# 
+# library(network)
+# 
+# routes_network <- network(edges, vertex.attr = nodes, matrix.type = "edgelist", ignore.eval = FALSE, directed = FALSE, loops = FALSE)
+# plot(routes_network, vertex.cex = 3, mode = "circle")
+# 
+# library(igraph)
+# routes_igraph <- graph_from_data_frame(d = edges, vertices = nodes, directed = FALSE)
+# plot(routes_igraph)
+# 
+# library(ggraph)
+# ggraph(routes_igraph, layout = "linear") + 
+#   geom_edge_arc(aes(width = weight), alpha = 0.8) + 
+#   geom_edge_link(aes(width = weight)) +
+#   scale_edge_width(range = c(0.2, 2)) +
+#   geom_node_text(aes(label = label)) +
+#   labs(edge_width = "Letters") +
+#   theme_graph()
 
-edges %>% 
-  spread(to, weight)
 
-library(network)
 
-routes_network <- network(edges, vertex.attr = nodes, matrix.type = "edgelist", ignore.eval = FALSE, directed = FALSE, loops = FALSE)
-plot(routes_network, vertex.cex = 3, mode = "circle")
+x1 <- tokens_tfidf %>% 
+  select(interview, word_lemma, tf_idf) %>% 
+  group_by(interview) %>%
+  top_n(n = 100, wt = tf_idf) %>%
+  ungroup() %>%
+  spread(word_lemma, tf_idf, fill = 0) %>% 
+  as.data.frame()
+rownames(x1) <- x1$interview
+dd <- dist(scale(x1[-1]), method = "euclidean")
+hc <- hclust(dd, method = "ward.D2")
+# install.packages(c("factoextra", "dendextend"))
 
-library(igraph)
-routes_igraph <- graph_from_data_frame(d = edges, vertices = nodes, directed = FALSE)
-plot(routes_igraph)
+library(factoextra)
+# fviz_dend(hc, cex = 0.5)
+# fviz_dend(hc, cex = 0.5,
+#           main = "Dendrogram - ward.D2",
+#           xlab = "Objects", ylab = "Distance", sub = "")
+# fviz_dend(hc, cex = 0.5, horiz = TRUE)
+# fviz_dend(hc, k = 6, # Cut in four groups
+#           cex = 0.5, # label size
+#           k_colors = c("#2E9FDF", "#00AFBB", "#E7B800", "#FC4E07"),
+#           color_labels_by_k = TRUE, # color labels by groups
+#           rect = TRUE, # Add rectangle around groups
+#           rect_border = c("#2E9FDF", "#00AFBB", "#E7B800", "#FC4E07"),
+#           rect_fill = TRUE)
+# 
+# fviz_dend(hc, k = 6, # Cut in four groups
+#           cex = 0.5, # label size
+#           k_colors = c("#2E9FDF", "#00AFBB", "#E7B800", "#FC4E07"),
+#           color_labels_by_k = TRUE, # color labels by groups
+#           ggtheme = theme_gray() # Change theme
+# )
+# fviz_dend(hc, cex = 0.5, k = 6, # Cut in four groups
+#           k_colors = "jco")
+fviz_dend(hc, k = 4, cex = 0.6, horiz = TRUE, k_colors = "jco",
+          rect = TRUE, rect_border = "jco", rect_fill = TRUE)
 
-library(ggraph)
-ggraph(routes_igraph, layout = layout_igraph_linear(circular = TRUE)) + 
-  geom_edge_arc(aes(width = weight), alpha = 0.8) + 
-  geom_edge_link(aes(width = weight)) +
-  scale_edge_width(range = c(0.2, 2)) +
-  geom_node_text(aes(label = label)) +
-  labs(edge_width = "Letters") +
-  theme_graph()
-
+# fviz_dend(hc, cex = 0.5, k = 6,
+#           k_colors = "jco", type = "circular")
+require("igraph")
+fviz_dend(hc, k = 4, k_colors = "jco",
+          type = "phylogenic", repel = TRUE)
+fviz_dend(hc, k = 4, # Cut in four groups
+          k_colors = swd_dark_blue,
+          type = "phylogenic", repel = TRUE,
+          phylo_layout = "layout.gem")

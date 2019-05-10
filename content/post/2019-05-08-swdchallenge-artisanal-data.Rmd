@@ -232,8 +232,8 @@ tokens_freq_groups %>%
   scale_y_continuous(minor_breaks = NULL) +
   scale_fill_manual(values = c("n_stop_words" = light_grey, "n_repetitive_words" = swd_light_blue, "n_distinct_words" = swd_dark_blue),
                     labels = c("stop words", "non-stop word repetitions", "unique non-stop words")) +
-  labs(title = "Stop words are 60-80% of all words in the podcast interviews",
-       subtitle = "They are further dropped and we focus on the most important words in each interview",
+  labs(title = "60-80% of words in the interviews are stop words and may be removed.",
+       subtitle = "Using stop words from the SMART information retrieval system.",
        x = NULL, 
        y = "word count", 
        fill = NULL) +

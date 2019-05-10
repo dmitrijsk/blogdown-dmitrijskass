@@ -315,8 +315,8 @@ p <- tokens_top10 %>%
   scale_fill_manual(values = c(swd_light_blue, swd_orange))
 
 p + 
-  labs(title = "Importance of words by tf-idf.",
-       subtitle = "Words highlighted in dark blue are discussed below this plot.",
+  labs(title = "Ten important words of each interview",
+       subtitle = "Important words reveal how each interview is different from a lexical poit of view.\nImportance is measured by tf-idf.\nWords highlighted in dark blue are discussed below this plot.",
        x = NULL, 
        y = NULL) +
   theme(strip.background = element_blank(), 
@@ -377,6 +377,11 @@ top_spread <- tokens_tfidf %>%
 
 rownames(top_spread) <- top_spread$interview
 
+andy_jeffrey_common_words <- data.frame(t(top_spread[-1]), stringsAsFactors = FALSE) %>% 
+  rownames_to_column() %>%
+  filter(Andy.Cotgreave > 0, Jeffrey.Shaffer > 0) %>% 
+  pull(rowname)
+
 dd <- dist(scale(top_spread[-1]), method = "euclidean")
 set.seed(1)
 hc <- hclust(dd, method = "ward.D2")
@@ -385,15 +390,8 @@ factoextra::fviz_dend(hc, k = 10, cex = 0.6, horiz = TRUE,
                       rect = TRUE, 
                       rect_border = c(rep("white", 7), swd_dark_blue, rep("white", 2)), # "jco" # "jco",
                       rect_fill = TRUE,
-                      main = "Dendrogram reveals clusters of similar interviews",
-                      ylab = "Distance")
-```
-
-```{r echo = FALSE}
-andy_jeffrey_common_words <- data.frame(t(top_spread[-1]), stringsAsFactors = FALSE) %>% 
-  rownames_to_column() %>%
-  filter(Andy.Cotgreave > 0, Jeffrey.Shaffer > 0) %>% 
-  pull(rowname)
+                      main = "Dendrogram of lexical similarities between 12 interviews.\nThree most similar interviewees are three authors of the Big Book of Dashboards!",
+                      ylab = "Euclidean distance between interview texts based on tf-idf")
 ```
 
 Interestingly, the most similar are three interviews by Jeffrey Shaffer, Andy Cotgreave	and Steve Wexler - the three authors of the [Big Book of Dashboards](https://www.bigbookofdashboards.com/). Let's see which words are common to two most similar interviews of Andy and Jeffrey: *`r paste(andy_jeffrey_common_words, sep = ",")`*. No surprise!

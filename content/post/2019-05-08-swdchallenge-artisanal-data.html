@@ -29,7 +29,7 @@ output:
 
 <p>This post is a participation in <a href="http://www.storytellingwithdata.com/blog/2019/5/1/swdchallenge-artisanal-data">#SWDchallenge: artisanal data</a>.</p>
 <p>The story is about the similarity and contrast between words used by 12 data visualization professionals that appeared on the 14th episode of <a href="http://www.storytellingwithdata.com/podcast">#SWDpodcast</a>. I find a lot of wisdom and inspiration in this episode. <a href="http://www.storytellingwithdata.com/book">Storytelling with Data</a> (SWD) book has been on my shelf for over a year and it is this podcast episode that sparkled interest in me about data visualization and made me read the book in few days and start participating in data viz challenges.</p>
-<p>Analysis below uses simple but useful methods of text mining and statistics. It is performed in <a href="https://www.r-project.org/">R</a>, a free software environment for statistical computing and graphics. Data manipulation is powered by <a href="https://www.tidyverse.org/">tidyverse</a>, visualization by <code>ggplot2</code> package, text analysis by <code>tidytext</code>, <code>tm</code>, <code>textstem</code> and <code>qdap</code> packages and visualization of the dendrogram by <code>factoextra</code> package. The R code behind this blog post will be shared before May 13th.</p>
+<p>Analysis below uses simple but useful methods of text mining and statistics. It is performed in <a href="https://www.r-project.org/">R</a>, a free software environment for statistical computing and graphics. Data manipulation is powered by <a href="https://www.tidyverse.org/">tidyverse</a>, visualization by <code>ggplot2</code> package, text analysis by <code>tidytext</code>, <code>tm</code>, <code>textstem</code> and <code>qdap</code> packages and visualization of the dendrogram by <code>factoextra</code> package.</p>
 <div id="storyline" class="section level1">
 <h1>Storyline</h1>
 <p>The source of data is the <a href="https://docs.google.com/document/d/1S2_63MUbvQs7fxWQrcuCNSl03fmDl1Vr3FjNjnbWK14/edit#">transcript</a> of episode 14 of #SWDpodcast shared by SWD.</p>
@@ -494,7 +494,7 @@ learn
 </tbody>
 </table>
 <p>Ten most frequent stop words are:</p>
-<p><img src="/post/2019-05-08-swdchallenge-artisanal-data_files/figure-html/unnamed-chunk-7-1.png" width="393.6" style="display: block; margin: auto;" /></p>
+<p><img src="/post/2019-05-08-swdchallenge-artisanal-data_files/figure-html/unnamed-chunk-7-1.png" width="403.2" style="display: block; margin: auto;" /></p>
 <p>Stop words are about 60-80% of all words in the interviews<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>. After removing them, the word count decreases from 14,930 to 2,690.</p>
 <p><img src="/post/2019-05-08-swdchallenge-artisanal-data_files/figure-html/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
@@ -524,7 +524,7 @@ learn
 <p><img src="/post/2019-05-08-swdchallenge-artisanal-data_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
 <p>Interestingly, the most similar are three interviews by Jeffrey Shaffer, Andy Cotgreave and Steve Wexler - the three authors of the <a href="https://www.bigbookofdashboards.com/">Big Book of Dashboards</a>. Let’s see which words are common to two most similar interviews of Andy and Jeffrey: <em>dashboard, excel, storytelling, tableau</em>. No surprise!</p>
 <p><br></p>
-<p>If you enjoyed reading this #SWDchallenge blog post, or you have a suggestion for improving it, I will be happy to hear! Please leave a comment below.</p>
+<p>If you enjoyed reading this #SWDchallenge blog post, or you have a suggestion for improving it, I will be happy to hear! Please leave a comment below. No login required, just check “I’d rather post as a guest”.</p>
 </div>
 <div class="footnotes">
 <hr />

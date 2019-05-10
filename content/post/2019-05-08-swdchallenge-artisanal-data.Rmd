@@ -17,7 +17,7 @@ This post is a participation in [#SWDchallenge: artisanal data](http://www.story
 
 The story is about the similarity and contrast between words used by 12 data visualization professionals that appeared on the 14th episode of [#SWDpodcast](http://www.storytellingwithdata.com/podcast). I find a lot of wisdom and inspiration in this episode.  [Storytelling with Data](http://www.storytellingwithdata.com/book) (SWD) book has been on my shelf for over a year and it is this podcast episode that sparkled interest in me about data visualization and made me read the book in few days and start participating in data viz challenges.
 
-Analysis below uses simple but useful methods of text mining and statistics. It is performed in [R](https://www.r-project.org/), a free software environment for statistical computing and graphics. Data manipulation is powered by [tidyverse](https://www.tidyverse.org/), visualization by `ggplot2` package, text analysis by `tidytext`, `tm`, `textstem` and `qdap` packages and visualization of the dendrogram by `factoextra` package. The R code behind this blog post will be shared before May 13th.
+Analysis below uses simple but useful methods of text mining and statistics. It is performed in [R](https://www.r-project.org/), a free software environment for statistical computing and graphics. Data manipulation is powered by [tidyverse](https://www.tidyverse.org/), visualization by `ggplot2` package, text analysis by `tidytext`, `tm`, `textstem` and `qdap` packages and visualization of the dendrogram by `factoextra` package.
 
 
 
@@ -171,7 +171,7 @@ tokens %>%
 
 Ten most frequent stop words are:
 
-```{r echo = FALSE, fig.height=3, fig.width=4.1, fig.align='center'}
+```{r echo = FALSE, fig.height=3, fig.width=4.2, fig.align='center'}
 # Plot stop words.
 tokens %>% 
   filter(stop_word) %>% 

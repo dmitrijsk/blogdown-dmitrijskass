@@ -1,0 +1,537 @@
+---
+title: '#SWDchallenge: artisanal data'
+author: Dmitrijs Kass
+date: '2019-05-10'
+categories:
+  - data-viz
+  - text analysis
+tags:
+  - SWDchallenge
+slug: swdchallenge-artisanal-data
+output:
+  blogdown::html_page:
+    toc: yes
+---
+
+<script src="/rmarkdown-libs/kePrint/kePrint.js"></script>
+
+<div id="TOC">
+<ul>
+<li><a href="#storyline">Storyline</a></li>
+<li><a href="#phase-1---text-cleaning">Phase 1 - Text cleaning</a><ul>
+<li><a href="#approach">Approach</a></li>
+<li><a href="#results">Results</a></li>
+</ul></li>
+<li><a href="#phase-2---word-importance">Phase 2 - Word importance</a></li>
+<li><a href="#phase-3---lexical-similarity">Phase 3 - Lexical similarity</a></li>
+</ul>
+</div>
+
+<p>This post is a participation in <a href="http://www.storytellingwithdata.com/blog/2019/5/1/swdchallenge-artisanal-data">#SWDchallenge: artisanal data</a>.</p>
+<p>The story is about the similarity and contrast between words used by 12 data visualization professionals that appeared on the 14th episode of <a href="http://www.storytellingwithdata.com/podcast">#SWDpodcast</a>. I find a lot of wisdom and inspiration in this episode. <a href="http://www.storytellingwithdata.com/book">Storytelling with Data</a> (SWD) book has been on my shelf for over a year and it is this podcast episode that sparkled interest in me about data visualization and made me read the book in few days and start participating in data viz challenges.</p>
+<p>Analysis below uses simple but useful methods of text mining and statistics. It is performed in <a href="https://www.r-project.org/">R</a>, a free software environment for statistical computing and graphics. Data manipulation is powered by <a href="https://www.tidyverse.org/">tidyverse</a>, visualization by <code>ggplot2</code> package, text analysis by <code>tidytext</code>, <code>tm</code>, <code>textstem</code> and <code>qdap</code> packages and visualization of the dendrogram by <code>factoextra</code> package.</p>
+<div id="storyline" class="section level1">
+<h1>Storyline</h1>
+<p>The source of data is the <a href="https://docs.google.com/document/d/1S2_63MUbvQs7fxWQrcuCNSl03fmDl1Vr3FjNjnbWK14/edit#">transcript</a> of episode 14 of #SWDpodcast shared by SWD.</p>
+<p>As mentioned above, the goal of this blog post is to explore the lexical content of the 12 interviews - in what ways they are both similar and different.</p>
+<p>The first phase is <em>text cleaning</em>. The original transcript contains over 16,000 words and not all of them are relevant for reaching the goal of the analysis. After a sequence of 5 steps, the vocabulary decreases to 2,690 words.</p>
+<p>The second phase focuses on words that help contrasting interviews. I attempt to extract 10 most <em>important words</em> from each interview – words that are both relevant to some interviews and separate them from the others. A selection of these words is then linked to stories and wisdom shared by the podcast guests.</p>
+<!-- Word importance not only helps finding words that are relevant from the content perspective, but also words that some guests overuse in comparison with others. -->
+<p>The third phase focuses on <em>similarities</em> and attempts to arrange 12 interviews in a number of homogeneous groups. The result is nicely depicted in a dendrogram and, maybe not surprisingly, the three most lexically similar interviewees turn out to be the three authors of the <a href="https://www.bigbookofdashboards.com/">Big Book of Dashboards</a>.</p>
+<p>Hope you enjoy it. Comments and suggestions are very much welcome!</p>
+</div>
+<div id="phase-1---text-cleaning" class="section level1">
+<h1>Phase 1 - Text cleaning</h1>
+<div id="approach" class="section level2">
+<h2>Approach</h2>
+<p>Text cleaning in this analysis involves 5 steps:</p>
+<ol style="list-style-type: decimal">
+<li>Extract the monologues of the 12 podcast guests from the transcript.</li>
+<li>Replace <a href="https://en.wikipedia.org/wiki/Contraction_(grammar)">contractions</a>. For example:</li>
+</ol>
+<pre class="r"><code>qdap::replace_contraction(&quot;It&#39;s a fascinating field&quot;)</code></pre>
+<pre><code>## [1] &quot;It is a fascinating field&quot;</code></pre>
+<ol start="3" style="list-style-type: decimal">
+<li>Split sentences into single words, <a href="https://en.wikipedia.org/wiki/N-gram">unigrams</a>. Here is a quote from Jeffrey Shaffer as an example:</li>
+</ol>
+<pre class="r"><code>library(tidyverse)
+example &lt;- tibble(sentense = &quot;I learned R and started doing visualizations in R&quot;) %&gt;% 
+  tidytext::unnest_tokens(output = &quot;word&quot;, input = sentense, token = &quot;words&quot;) %&gt;% 
+  rowid_to_column()
+knitr::kable(example, format = &quot;html&quot;) %&gt;% kableExtra::kable_styling()</code></pre>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+rowid
+</th>
+<th style="text-align:left;">
+word
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+i
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+learned
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:left;">
+r
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:left;">
+and
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:left;">
+started
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:left;">
+doing
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:left;">
+visualizations
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:left;">
+in
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:left;">
+r
+</td>
+</tr>
+</tbody>
+</table>
+<ol start="4" style="list-style-type: decimal">
+<li><a href="https://en.wikipedia.org/wiki/Lemmatisation">Lemmatize</a> words. For example:</li>
+</ol>
+<pre class="r"><code>example &lt;- mutate(example, word_lemma = textstem::lemmatize_words(word))
+knitr::kable(example, format = &quot;html&quot;) %&gt;% kableExtra::kable_styling()</code></pre>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+rowid
+</th>
+<th style="text-align:left;">
+word
+</th>
+<th style="text-align:left;">
+word_lemma
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+i
+</td>
+<td style="text-align:left;">
+i
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+learned
+</td>
+<td style="text-align:left;">
+learn
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:left;">
+r
+</td>
+<td style="text-align:left;">
+r
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:left;">
+and
+</td>
+<td style="text-align:left;">
+and
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:left;">
+started
+</td>
+<td style="text-align:left;">
+start
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:left;">
+doing
+</td>
+<td style="text-align:left;">
+do
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:left;">
+visualizations
+</td>
+<td style="text-align:left;">
+visualization
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:left;">
+in
+</td>
+<td style="text-align:left;">
+in
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:left;">
+r
+</td>
+<td style="text-align:left;">
+r
+</td>
+</tr>
+</tbody>
+</table>
+<ol start="5" style="list-style-type: decimal">
+<li>Remove <a href="https://en.wikipedia.org/wiki/Stop_words">stop words</a>. Stop words from the <a href="http://www.jmlr.org/papers/volume5/lewis04a/lewis04a.pdf">SMART information retrieval system</a> available in <code>tm</code> package served as the basis and were adjusted for the purpose of this analysis<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>. For example:</li>
+</ol>
+<pre class="r"><code>example &lt;- mutate(example, stop_word = word %in% tm::stopwords(kind = &quot;SMART&quot;))
+knitr::kable(example, format = &quot;html&quot;) %&gt;% kableExtra::kable_styling()</code></pre>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+rowid
+</th>
+<th style="text-align:left;">
+word
+</th>
+<th style="text-align:left;">
+word_lemma
+</th>
+<th style="text-align:left;">
+stop_word
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+i
+</td>
+<td style="text-align:left;">
+i
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+learned
+</td>
+<td style="text-align:left;">
+learn
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:left;">
+r
+</td>
+<td style="text-align:left;">
+r
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:left;">
+and
+</td>
+<td style="text-align:left;">
+and
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:left;">
+started
+</td>
+<td style="text-align:left;">
+start
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:left;">
+doing
+</td>
+<td style="text-align:left;">
+do
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:left;">
+visualizations
+</td>
+<td style="text-align:left;">
+visualization
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:left;">
+in
+</td>
+<td style="text-align:left;">
+in
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:left;">
+r
+</td>
+<td style="text-align:left;">
+r
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="results" class="section level2">
+<h2>Results</h2>
+<p>Before the stop words are removed, there are still 14,930 words. Five most frequently lemmatized words here are:</p>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+word
+</th>
+<th style="text-align:left;">
+lemmatized word
+</th>
+<th style="text-align:right;">
+freq
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+things
+</td>
+<td style="text-align:left;">
+thing
+</td>
+<td style="text-align:right;">
+57
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+started
+</td>
+<td style="text-align:left;">
+start
+</td>
+<td style="text-align:right;">
+35
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+books
+</td>
+<td style="text-align:left;">
+book
+</td>
+<td style="text-align:right;">
+31
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+years
+</td>
+<td style="text-align:left;">
+year
+</td>
+<td style="text-align:right;">
+29
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+learning
+</td>
+<td style="text-align:left;">
+learn
+</td>
+<td style="text-align:right;">
+26
+</td>
+</tr>
+</tbody>
+</table>
+<p>Ten most frequent stop words are:</p>
+<p><img src="/post/2019-05-08-swdchallenge-artisanal-data_files/figure-html/unnamed-chunk-7-1.png" width="403.2" style="display: block; margin: auto;" /></p>
+<p>Stop words are about 60-80% of all words in the interviews<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>. After removing them, the word count decreases from 14,930 to 2,690.</p>
+<p><img src="/post/2019-05-08-swdchallenge-artisanal-data_files/figure-html/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+</div>
+<div id="phase-2---word-importance" class="section level1">
+<h1>Phase 2 - Word importance</h1>
+<p><a href="https://www.coursera.org/lecture/ml-foundations/calculating-tf-idf-vectors-1rg5n">Tf–idf</a>, short for term frequency–inverse document frequency, is used to measure the importance of words within text documents. The tf–idf value increases proportionally to the number of times a word appears in the document and is offset by the number of documents in the collection that contain the word<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>. This helps to adjust for the fact that some words appear more frequently in general. For example, the following words have zero importance because they appear in each of 12 interviews: <em>data, year, learn, make, thing, work</em>.</p>
+<p>The idea is that if a word appears in all interviews then it is not particularly important for any single interview. This is not obligatory true because some word may be used a hundred times in one interview and only once in all other eleven interviews. Nevertheless, such word will have zero importance. This needs to be considered when using tf-idf.</p>
+<p>Without further ado, here are 10 most important words within each of 12 interviews according to tf-idf:</p>
+<p><img src="/post/2019-05-08-swdchallenge-artisanal-data_files/figure-html/unnamed-chunk-11-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>A selection of important words, highlighted with dark blue on the plot, are now linked to stories and advices shared by the podcast guests:</p>
+<p><strong>Alberto Cairo</strong> talks about balancing out the visual appeal of the <font color="#4f81bd">graphic</font> with the <font color="#4f81bd">informative power</font> of the <font color="#4f81bd">graphic</font> and how representatives of different professions tend to lean towards either emphasizing the visual <font color="#4f81bd">appeal</font> of the <font color="#4f81bd">graphic</font> at the expense of the <font color="#4f81bd">informative power</font> or vice versa.</p>
+<p><strong>RJ Andrews</strong> shares his path from <font color="#4f81bd">mechanical engineering</font> through <font color="#4f81bd">MBA</font>, connecting <font color="#4f81bd">strategy</font> with data to how Alberto Cairo’s The Functional Art inspired him to become the best data <font color="#4f81bd">storyteller</font> he can.</p>
+<p><strong>Moritz Stefaner</strong> gives two <font color="#4f81bd">tips</font> about feedback <font color="#4f81bd">loops</font>. First, <em>“be open to what data has to say and listen to it. Don’t come with a preconceived notion of how you would like to have the data look”</em>. Second, <em>“after you put out a visualization, make sure you understand how it’s being received, how it’s being used, how people respond to it”</em>.</p>
+<p><strong>Andy Cotgreave</strong> stressed the importance of getting feedback, practicing, practicing, practicing and having <font color="#4f81bd">fun</font>! <em>“Things like #<font color="#4f81bd">Makeover</font> Monday, storytelling with data monthly challenges, these are great ways to get out of your comfort zone and have <font color="#4f81bd">fun</font>. Have <font color="#4f81bd">fun</font>. My gosh, you are allowed to have <font color="#4f81bd">fun</font>!”</em></p>
+<p>Interestingly, 10 most important words within each interview do not necessarily highlight the theme of the interview. It may be a specific style of a person as well. Shirley Wu uses a phrase <font color="#4f81bd"><em>“kind of”</em></font> 29 times, as in, <em>“It was kind of through my involvement with …”</em>. This phrase ends up being Shirley’s 5th most important word, according to tf-idf, out of 205 unique words she used.</p>
+</div>
+<div id="phase-3---lexical-similarity" class="section level1">
+<h1>Phase 3 - Lexical similarity</h1>
+<p>After looking at differences between twelve interviews, it may be interesting to get a feeling of their <a href="https://en.wikipedia.org/wiki/Lexical_similarity">lexical similarity</a> – the degree to which the vocabularies of two interviews are similar. Keeping it simple, I represent each interview as a vector</p>
+<ul>
+<li>in a space defined by unique non-stop words used in the podcast, and</li>
+<li>with coordinates defined by tf-idf of words used in the interview.</li>
+</ul>
+<p>Then I use the Euclidean distance to calculate pairwise distances between interview vectors. Pairwise distances then allow grouping the most similar interviews into clusters. I use a hierarchical clustering which does not require to commit to a number of clusters and offers a nice way for visualizing the result with a <a href="https://www.coursera.org/lecture/ml-clustering-and-retrieval/the-dendrogram-MfcBU">dendrogram</a>. Hierarchical clustering uses the Ward method.</p>
+<p>A dendrogram is a diagram representing a tree. To simplify the reading of labels, the dendrogram here is oriented horizontally – see below. Keeping the tree analogy, the dendrogram has 12 <em>leaves</em> on the right that represent 12 podcast interviews. As we move to the left, some leaves begin to <em>fuse</em> into branches. These correspond to observations that are similar to each other. As we move further to the left, branches themselves fuse, either with leaves or other branches. The earlier (closer to the right) fusions occur, the more similar the groups of observations are to each other. On the other hand, observations that fuse later (closer to the left) can be quite different<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a>.</p>
+<p><img src="/post/2019-05-08-swdchallenge-artisanal-data_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<p>Interestingly, the most similar are three interviews by Jeffrey Shaffer, Andy Cotgreave and Steve Wexler - the three authors of the <a href="https://www.bigbookofdashboards.com/">Big Book of Dashboards</a>. Let’s see which words are common to two most similar interviews of Andy and Jeffrey: <em>dashboard, excel, storytelling, tableau</em>. No surprise!</p>
+<p><br></p>
+<p>If you enjoyed reading this #SWDchallenge blog post, or you have a suggestion for improving it, I will be happy to hear! Please leave a comment below. No login required, just check “I’d rather post as a guest”.</p>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>SMART stop words were supplemented with the names of podcast host and guests. One stop word was removed, it is a letter <em>“r”</em>, which is used by one of the podcast guests to refer to R as a software. It is definitely worth knowing prepackaged stop words!<a href="#fnref1" class="footnote-back">↩</a></p></li>
+<li id="fn2"><p>This proportion depends on the list of stop words. For example, the <a href="http://snowball.tartarus.org/algorithms/english/stop.txt">Snowball</a> stop word list would give a lower 40-60% proportion.<a href="#fnref2" class="footnote-back">↩</a></p></li>
+<li id="fn3"><p>Source: <a href="https://en.wikipedia.org/wiki/Tf%E2%80%93idf" class="uri">https://en.wikipedia.org/wiki/Tf%E2%80%93idf</a><a href="#fnref3" class="footnote-back">↩</a></p></li>
+<li id="fn4"><p>James, G., Witten, D., Hastie, T., &amp; Tibshirani, R. (2013). An introduction to statistical learning (Vol. 112, p. 18). New York: springer. Available online: <a href="http://www-bcf.usc.edu/~gareth/ISL/" class="uri">http://www-bcf.usc.edu/~gareth/ISL/</a><a href="#fnref4" class="footnote-back">↩</a></p></li>
+</ol>
+</div>

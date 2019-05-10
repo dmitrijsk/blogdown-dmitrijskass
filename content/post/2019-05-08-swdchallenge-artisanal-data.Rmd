@@ -1,0 +1,410 @@
+---
+title: '#SWDchallenge: artisanal data'
+author: Dmitrijs Kass
+date: '2019-05-10'
+categories:
+  - data-viz
+  - text analysis
+tags:
+  - SWDchallenge
+slug: swdchallenge-artisanal-data
+output:
+  blogdown::html_page:
+    toc: yes
+---
+
+This post is a participation in [#SWDchallenge: artisanal data](http://www.storytellingwithdata.com/blog/2019/5/1/swdchallenge-artisanal-data).
+
+The story is about the similarity and contrast between words used by 12 data visualization professionals that appeared on the 14th episode of [#SWDpodcast](http://www.storytellingwithdata.com/podcast). I find a lot of wisdom and inspiration in this episode.  [Storytelling with Data](http://www.storytellingwithdata.com/book) (SWD) book has been on my shelf for over a year and it is this podcast episode that sparkled interest in me about data visualization and made me read the book in few days and start participating in data viz challenges.
+
+Analysis below uses simple but useful methods of text mining and statistics. It is performed in [R](https://www.r-project.org/), a free software environment for statistical computing and graphics. Data manipulation is powered by [tidyverse](https://www.tidyverse.org/), visualization by `ggplot2` package, text analysis by `tidytext`, `tm`, `textstem` and `qdap` packages and visualization of the dendrogram by `factoextra` package.
+
+
+
+# Storyline
+
+The source of data is the [transcript](https://docs.google.com/document/d/1S2_63MUbvQs7fxWQrcuCNSl03fmDl1Vr3FjNjnbWK14/edit#) of episode 14 of #SWDpodcast shared by SWD. 
+
+As mentioned above, the goal of this blog post is to explore the lexical content of the 12 interviews - in what ways they are both similar and different.
+
+The first phase is *text cleaning*. The original transcript contains over 16,000 words and not all of them are relevant for reaching the goal of the analysis. After a sequence of 5 steps, the vocabulary decreases to 2,690 words.
+
+The second phase focuses on words that help contrasting interviews. I attempt to extract 10 most *important words* from each interview -- words that are both relevant to some interviews and separate them from the others. A selection of these words is then linked to stories and wisdom shared by the podcast guests.
+
+<!-- Word importance not only helps finding words that are relevant from the content perspective, but also words that some guests overuse in comparison with others. -->
+
+The third phase focuses on *similarities* and attempts to arrange 12 interviews in a number of homogeneous groups. The result is nicely depicted in a dendrogram and, maybe not surprisingly, the three most lexically similar interviewees turn out to be the three authors of the [Big Book of Dashboards](https://www.bigbookofdashboards.com/).
+
+Hope you enjoy it. Comments and suggestions are very much welcome!
+
+
+
+# Phase 1 - Text cleaning
+
+## Approach
+
+Text cleaning in this analysis involves 5 steps:
+
+1. Extract the monologues of the 12 podcast guests from the transcript.
+2. Replace [contractions](https://en.wikipedia.org/wiki/Contraction_(grammar)). For example:
+
+```{r}
+qdap::replace_contraction("It's a fascinating field")
+```
+
+3. Split sentences into single words, [unigrams](https://en.wikipedia.org/wiki/N-gram). Here is a quote from Jeffrey Shaffer as an example:
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+example <- tibble(sentense = "I learned R and started doing visualizations in R") %>% 
+  tidytext::unnest_tokens(output = "word", input = sentense, token = "words") %>% 
+  rowid_to_column()
+knitr::kable(example, format = "html") %>% kableExtra::kable_styling()
+```
+
+4. [Lemmatize](https://en.wikipedia.org/wiki/Lemmatisation) words. For example:
+
+```{r}
+example <- mutate(example, word_lemma = textstem::lemmatize_words(word))
+knitr::kable(example, format = "html") %>% kableExtra::kable_styling()
+```
+
+5. Remove [stop words](https://en.wikipedia.org/wiki/Stop_words). Stop words from the [SMART information retrieval system](http://www.jmlr.org/papers/volume5/lewis04a/lewis04a.pdf) available in `tm` package served as the basis and were adjusted for the purpose of this analysis[^1]. For example:
+
+```{r}
+example <- mutate(example, stop_word = word %in% tm::stopwords(kind = "SMART"))
+knitr::kable(example, format = "html") %>% kableExtra::kable_styling()
+```
+
+## Results
+
+```{r echo = FALSE}
+
+# Packages.
+library(tidyverse)
+
+# Colours.
+dark_grey <- "grey30"
+light_grey <- "grey80"
+swd_light_blue <- "#95b3d7"
+swd_dark_blue <- "#4f81bd"
+swd_orange <- "#4f81bd" # this is now dark blue; used to be #f79646.
+
+# Text import ----
+
+raw_text <- readLines("swd_podcast_episode_14_learning_dataviz.txt", encoding = "ansi")
+
+# Text cleaning ----
+
+# 1. Extract the monologues of the 12 podcast guests from the transcript.
+
+toc <- raw_text[11:25]
+names(toc) <- str_replace_all(toc, pattern = "(.*)\\|(.*)", replacement = "\\2") %>% str_trim()
+
+content <- raw_text[29:length(raw_text)]
+content <- content[content != ""]
+
+toc_lines <- purrr::map_int(.x = toc, .f = function(x) str_which(string = content, pattern = fixed(x)))
+toc_lines <- tibble(interview = names(toc_lines),
+                    interview_index = toc_lines)
+
+# First and last paragraph of each interview is intro and outro of the host.
+paragraphs_to_ignore <- sapply(c(-1, 0, 1), function(x) toc_lines$interview_index + x) %>% as.vector() %>% sort()
+
+content_df <- tibble(paragraph_id = 1:length(content),
+                     paragraph = content) %>% 
+  left_join(toc_lines, by = c("paragraph_id" = "interview_index")) %>% 
+  fill(interview, .direction = "down") %>% 
+  mutate(ignore = interview %in% c("Intro", "Summary", "Updates") | paragraph_id %in% paragraphs_to_ignore) %>% 
+  filter(!ignore)
+
+
+# 2. Replace contractions.
+
+# Before applying `qdap::replace_contractions()` we need to replace apostrophes from Windows-1252 code page (146) to a ASCII (39).
+# Otherwise, the function may not work (did not work on one of two computers I tried).
+
+content_df$paragraph <- str_replace_all(string = content_df$paragraph,
+                                        pattern = gtools::chr(146), # https://en.wikipedia.org/wiki/Windows-1252
+                                        replacement = gtools::chr(39))
+
+content_df$paragraph <- qdap::replace_contraction(content_df$paragraph)
+
+# 3., 4., 5. Tokenize, lemmatize, mark stop words.
+
+# Define stop words.
+
+# Know your stop words! For example, the SMART set (as documented in Appendix 11
+# of http://jmlr.csail.mit.edu/papers/volume5/lewis04a/) has all single letters
+# on English alphabet, including "r", which in the text may mean a programming
+# language R and in this case you probably don't want to consider it as a stop
+# word.
+
+names_of_guests <- str_to_lower(names(toc)) %>% str_split(pattern = "\\s") %>% unlist()
+stopwords_vec <- setdiff(c(tm::stopwords(kind = "SMART"), names_of_guests, "cole"), "r")
+
+# Tokenize by words, lemmatize and mark stop words.
+tokens <- content_df %>% 
+  tidytext::unnest_tokens(output = "word", input = paragraph, token = "words") %>% 
+  mutate(word_lemma = textstem::lemmatize_words(word),
+         stop_word = word_lemma %in% stopwords_vec)
+
+# Transform some words back after lemmatization.
+tokens <- tokens %>% 
+  mutate(word_lemma = case_when(word_lemma == "numb" ~ "number", 
+                                word_lemma == "datum" ~ "data",
+                                word_lemma == "infographics" ~ "infographic",
+                                TRUE ~ word_lemma))
+
+```
+
+Before the stop words are removed, there are still `r scales::comma(nrow(tokens))` words. Five most frequently lemmatized words here are:
+
+```{r echo = FALSE}
+tokens %>%
+  filter(!stop_word & word != word_lemma) %>%
+  count(word, word_lemma, sort = TRUE) %>% 
+  top_n(n = 5, wt = n) %>% 
+  knitr::kable(format = "html", col.names = c("word", "lemmatized word", "freq")) %>% 
+  kableExtra::kable_styling()
+```
+
+Ten most frequent stop words are:
+
+```{r echo = FALSE, fig.height=3, fig.width=4.2, fig.align='center'}
+# Plot stop words.
+tokens %>% 
+  filter(stop_word) %>% 
+  count(word_lemma, sort = TRUE) %>% 
+  slice(1:10) %>% 
+  mutate(word_lemma = reorder(word_lemma, -n)) %>% 
+  ggplot(aes(x = word_lemma, y = n, label = n)) +
+  geom_col(fill = light_grey) +
+  # geom_text(hjust = "right", nudge_y = -10, size = 3.5, colour = "white") +
+  # coord_flip() +
+  labs(title = "Ten most frequent stop words in the interviews",
+       x = "stop words", 
+       y = "word frequency") +
+  theme_minimal() +
+  theme(panel.grid = element_blank())
+```
+
+```{r echo=FALSE}
+# Calculate word frequency.
+tokens_freq <- tokens %>% 
+  group_by(interview, stop_word, word_lemma) %>% 
+  summarise(n = n()) %>% 
+  ungroup()
+
+stop_df <- tokens_freq %>% 
+  group_by(interview, stop_word) %>% 
+  summarize(n_stop_words = sum(n)) %>% 
+  ungroup()
+
+stop_df <- stop_df %>% 
+  filter(stop_word) %>% 
+  select(-stop_word)
+  
+tokens_freq_groups <- tokens_freq %>% 
+  filter(!stop_word) %>% 
+  group_by(interview) %>% 
+  summarize(n_nonstop_words = sum(n),
+            n_distinct_words = n_distinct(word_lemma)) %>% 
+  mutate(n_repetitive_words = n_nonstop_words - n_distinct_words) %>% 
+  left_join(stop_df, by = "interview") %>% 
+  mutate(interview = reorder(interview, n_nonstop_words + n_stop_words)) %>% 
+  select(-n_nonstop_words) %>% 
+  gather(key, value, -interview) %>% 
+  mutate(key = fct_rev(key))
+
+# Remove stop words.
+tokens_freq <- tokens_freq %>% 
+  filter(!stop_word)
+```
+
+Stop words are about 60-80% of all words in the interviews[^2]. After removing them, the word count decreases from `r scales::comma(nrow(tokens))` to `r scales::comma(nrow(tokens_freq))`.
+
+```{r echo = FALSE, fig.height=5, fig.width=7, fig.align='center'}
+tokens_freq_groups %>% 
+  ggplot(aes(x = interview, y = value, fill = key, label = value)) +
+  geom_col(position = "stack") +
+  coord_flip() +
+  scale_y_continuous(minor_breaks = NULL) +
+  scale_fill_manual(values = c("n_stop_words" = light_grey, "n_repetitive_words" = swd_light_blue, "n_distinct_words" = swd_dark_blue),
+                    labels = c("stop words", "non-stop word repetitions", "unique non-stop words")) +
+  labs(title = "60-80% of words in the interviews are stop words and may be removed.",
+       subtitle = "Using stop words from the SMART information retrieval system.",
+       x = NULL, 
+       y = "word count", 
+       fill = NULL) +
+  theme_minimal() +
+  theme(legend.position = "top", 
+        axis.ticks.y = element_blank(), 
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(), 
+        panel.grid.major.x = element_line(linetype = "dashed")) +
+  guides(fill = guide_legend(reverse = TRUE))
+```
+
+
+# Phase 2 - Word importance
+
+```{r echo = FALSE}
+# Add TF-IDF.
+tokens_tfidf <- tokens_freq %>% 
+  tidytext::bind_tf_idf(word_lemma, interview, n) %>% 
+  # Arrange by facet and word frequency.
+  arrange(interview, tf_idf) %>% 
+  # Add order column of row numbers
+  mutate(order = row_number())
+
+# Filter top 10 important words in each interview by TF-IDF.
+tokens_top10 <- tokens_tfidf %>% 
+  group_by(interview) %>% 
+  arrange(desc(tf_idf)) %>% 
+  slice(1:10) %>% 
+  ungroup() %>% 
+  # Arrange by facet and word frequency.
+  arrange(interview, tf_idf) %>% 
+  # Add order column of row numbers
+  mutate(order = row_number())
+
+zero_tfidf <- tokens_tfidf %>% 
+  filter(tf_idf == 0) %>% 
+  pull(word_lemma) %>% 
+  unique()
+
+zero_tfidf <- paste(zero_tfidf, sep = ",")
+```
+
+[Tf–idf](https://www.coursera.org/lecture/ml-foundations/calculating-tf-idf-vectors-1rg5n), short for term frequency–inverse document frequency, is used to measure the importance of words within text documents. The tf–idf value increases proportionally to the number of times a word appears in the document and is offset by the number of documents in the collection that contain the word[^3]. This helps to adjust for the fact that some words appear more frequently in general. For example, the following words have zero importance because they appear in each of 12 interviews: *`r zero_tfidf`*.
+
+The idea is that if a word appears in all interviews then it is not particularly important for any single interview. This is not obligatory true because some word may be used a hundred times in one interview and only once in all other eleven interviews. Nevertheless, such word will have zero importance. This needs to be considered when using tf-idf.
+
+Without further ado, here are 10 most important words within each of 12 interviews according to tf-idf:
+
+```{r echo = FALSE, fig.height=15, fig.align='center'}
+word_to_highlight <- c("tip", "loop", "kind", "makeover", "fun", "informative", "power", "graphic", "appeal",
+                       "strategy", "mechanical", "engineer", "mba", "storyteller")
+
+p <- tokens_top10 %>% 
+  mutate(highlight = word_lemma %in% word_to_highlight,
+         interview = factor(interview, 
+                            levels = c(
+                              "Andy Cotgreave", # yes
+                              "Elijah Meeks", 
+                              "Jeffrey Shaffer", 
+                              "Moritz Stefaner", # yes
+                              "Jen Christiansen",
+                              "Jon Schwabish", 
+                              "Steve Wexler",
+                              "Shirley Wu", # yes
+                              "Naomi Robbins",
+                              "Robert Kosara",
+                              "Alberto Cairo", # yes
+                              "RJ Andrews" # yes 
+                              )
+                            )) %>% 
+  ggplot(aes(x = order, y = tf_idf)) +
+  geom_col(aes(fill = highlight == TRUE & interview != "Jon Schwabish"), show.legend = FALSE) +
+  coord_flip() +
+  facet_wrap(~interview, scales = "free", ncol = 2) +
+  scale_x_continuous(breaks = tokens_top10$order,
+                     labels = tokens_top10$word_lemma) +
+  theme_minimal() +
+  scale_fill_manual(values = c(swd_light_blue, swd_orange))
+
+p + 
+  labs(title = "Ten important words of each interview",
+       subtitle = "Important words reveal how each interview is different from a lexical poit of view.\nImportance is measured by tf-idf.\nWords highlighted in dark blue are discussed below this plot.",
+       x = NULL, 
+       y = NULL) +
+  theme(strip.background = element_blank(), 
+        panel.grid = element_blank(), 
+        strip.text = element_text(colour = dark_grey, face = "bold", size = 12),
+        axis.text = element_text(colour = dark_grey),
+        title = element_text(colour = dark_grey, size = 14),
+        plot.subtitle = element_text(colour = dark_grey, size = 10),
+        axis.text.x = element_blank(),
+        axis.text.y = element_text(hjust = 0, size = 11),
+        panel.spacing.x = unit(2,"line"), 
+        panel.spacing.y = unit(1.5,"line"))
+```
+
+A selection of important words, highlighted with dark blue on the plot, are now linked to stories and advices shared by the podcast guests:
+
+**Alberto Cairo** talks about balancing out the visual appeal of the <font color="#4f81bd">graphic</font> with the <font color="#4f81bd">informative power</font> of the <font color="#4f81bd">graphic</font> and how representatives of different professions tend to lean towards either emphasizing the visual <font color="#4f81bd">appeal</font> of the <font color="#4f81bd">graphic</font> at the expense of the <font color="#4f81bd">informative power</font> or vice versa. 
+
+**RJ Andrews** shares his path from <font color="#4f81bd">mechanical engineering</font> through <font color="#4f81bd">MBA</font>, connecting <font color="#4f81bd">strategy</font> with data to how Alberto Cairo's The Functional Art inspired him to become the best data <font color="#4f81bd">storyteller</font> he can.
+
+**Moritz Stefaner** gives two <font color="#4f81bd">tips</font> about feedback  <font color="#4f81bd">loops</font>. First, *"be open to what data has to say and listen to it. Don't come with a preconceived notion of how you would like to have the data look"*. Second, *"after you put out a visualization, make sure you understand how it's being received, how it's being used, how people respond to it"*.
+
+**Andy Cotgreave** stressed the importance of getting feedback, practicing, practicing, practicing and having <font color="#4f81bd">fun</font>! *"Things like #<font color="#4f81bd">Makeover</font> Monday, storytelling with data monthly challenges, these are great ways to get out of your comfort zone and have <font color="#4f81bd">fun</font>. Have <font color="#4f81bd">fun</font>. My gosh, you are allowed to have <font color="#4f81bd">fun</font>!"*
+
+```{r echo = FALSE}
+shirley_wu_unique_words <- tokens_tfidf %>% 
+  filter(interview == "Shirley Wu") %>% 
+  pull(word_lemma) %>% 
+  unique() %>% 
+  length()
+```
+
+Interestingly, 10 most important words within each interview do not necessarily highlight the theme of the interview. It may be a specific style of a person as well. Shirley Wu uses a phrase <font color="#4f81bd">*"kind of"*</font> 29 times, as in, *"It was kind of through my involvement with ..."*. This phrase ends up being Shirley's 5th most important word, according to tf-idf, out of `r shirley_wu_unique_words` unique words she used.
+
+
+# Phase 3 - Lexical similarity
+
+After looking at differences between twelve interviews, it may be interesting to get a feeling of their [lexical similarity](https://en.wikipedia.org/wiki/Lexical_similarity) -- the degree to which the vocabularies of two interviews  are similar. Keeping it simple, I represent each interview as a vector
+
+* in a space defined by unique non-stop words used in the podcast, and 
+* with coordinates defined by tf-idf of words used in the interview.
+
+Then I use the Euclidean distance to calculate pairwise distances between interview vectors. Pairwise distances then allow grouping the most similar interviews into clusters. I use a hierarchical clustering which does not require to commit to a number of clusters and offers a nice way for visualizing the result with a [dendrogram](https://www.coursera.org/lecture/ml-clustering-and-retrieval/the-dendrogram-MfcBU). Hierarchical clustering uses the Ward method.
+
+A dendrogram is a diagram representing a tree. To simplify the reading of labels, the dendrogram here is oriented horizontally -- see below. Keeping the tree analogy, the dendrogram has 12 *leaves* on the right that represent 12 podcast interviews. As we move to the left, some leaves begin to *fuse* into branches. These correspond to observations that are similar to each other. As we move further to the left, branches themselves fuse, either with leaves or other branches. The earlier (closer to the right) fusions occur, the more similar the groups of observations are to each other. On the other hand, observations that fuse later (closer to the left) can be quite different[^4].
+
+```{r echo = FALSE, warning=FALSE}
+top_global <- tokens_tfidf %>% 
+  select(interview, word_lemma, tf_idf) %>% 
+  arrange(desc(tf_idf)) %>% 
+  slice(1:100)
+
+top_spread <- tokens_tfidf %>% 
+  filter(word_lemma %in% top_global$word_lemma) %>% 
+  select(interview, word_lemma, tf_idf) %>% 
+  spread(word_lemma, tf_idf, fill = 0) %>% 
+  as.data.frame()
+
+rownames(top_spread) <- top_spread$interview
+
+andy_jeffrey_common_words <- data.frame(t(top_spread[-1]), stringsAsFactors = FALSE) %>% 
+  rownames_to_column() %>%
+  filter(Andy.Cotgreave > 0, Jeffrey.Shaffer > 0) %>% 
+  pull(rowname)
+
+dd <- dist(scale(top_spread[-1]), method = "euclidean")
+set.seed(1)
+hc <- hclust(dd, method = "ward.D2")
+factoextra::fviz_dend(hc, k = 10, cex = 0.6, horiz = TRUE, 
+                      k_colors = c(rep("black", 7), swd_dark_blue, rep("black", 2)), # "jco"
+                      rect = TRUE, 
+                      rect_border = c(rep("white", 7), swd_dark_blue, rep("white", 2)), # "jco" # "jco",
+                      rect_fill = TRUE,
+                      main = "Dendrogram of lexical similarities between 12 interviews.\nThree most similar interviewees are three authors of the Big Book of Dashboards!",
+                      ylab = "Euclidean distance between interview texts based on tf-idf")
+```
+
+Interestingly, the most similar are three interviews by Jeffrey Shaffer, Andy Cotgreave	and Steve Wexler - the three authors of the [Big Book of Dashboards](https://www.bigbookofdashboards.com/). Let's see which words are common to two most similar interviews of Andy and Jeffrey: *`r paste(andy_jeffrey_common_words, sep = ",")`*. No surprise!
+
+<br>
+
+If you enjoyed reading this #SWDchallenge blog post, or you have a suggestion for improving it, I will be happy to hear! Please leave a comment below. No login required, just check "I'd rather post as a guest".
+
+
+
+
+
+[^1]: SMART stop words were supplemented with the names of podcast host and guests. One stop word was removed, it is a letter *"r"*, which is used by one of the podcast guests to refer to R as a software. It is definitely worth knowing prepackaged stop words!
+[^2]: This proportion depends on the list of stop words. For example, the [Snowball](http://snowball.tartarus.org/algorithms/english/stop.txt) stop word list would give a lower 40-60% proportion.
+[^3]: Source: https://en.wikipedia.org/wiki/Tf%E2%80%93idf
+[^4]: James, G., Witten, D., Hastie, T., & Tibshirani, R. (2013). An introduction to statistical learning (Vol. 112, p. 18). New York: springer. Available online: http://www-bcf.usc.edu/~gareth/ISL/

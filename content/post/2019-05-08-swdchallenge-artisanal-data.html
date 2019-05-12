@@ -38,7 +38,6 @@ output:
 <p>The second phase focuses on words that help contrasting interviews. I attempt to extract 10 most <em>important words</em> from each interview – words that are both relevant to some interviews and separate them from the others. A selection of these words is then linked to stories and wisdom shared by the podcast guests.</p>
 <!-- Word importance not only helps finding words that are relevant from the content perspective, but also words that some guests overuse in comparison with others. -->
 <p>The third phase focuses on <em>similarities</em> and attempts to arrange 12 interviews in a number of homogeneous groups. The result is nicely depicted in a dendrogram and, maybe not surprisingly, the three most lexically similar interviewees turn out to be the three authors of the <a href="https://www.bigbookofdashboards.com/">Big Book of Dashboards</a>.</p>
-<p>Hope you enjoy it. Comments and suggestions are very much welcome!</p>
 </div>
 <div id="phase-1---text-cleaning" class="section level1">
 <h1>Phase 1 - Text cleaning</h1>
@@ -55,368 +54,57 @@ output:
 <li>Split sentences into single words, <a href="https://en.wikipedia.org/wiki/N-gram">unigrams</a>. Here is a quote from Jeffrey Shaffer as an example:</li>
 </ol>
 <pre class="r"><code>library(tidyverse)
-example &lt;- tibble(sentense = &quot;I learned R and started doing visualizations in R&quot;) %&gt;% 
+sentense &lt;- &quot;I learned R and started doing visualizations in R&quot;
+example &lt;- tibble(sentense) %&gt;% 
   tidytext::unnest_tokens(output = &quot;word&quot;, input = sentense, token = &quot;words&quot;) %&gt;% 
   rowid_to_column()
-knitr::kable(example, format = &quot;html&quot;) %&gt;% kableExtra::kable_styling()</code></pre>
-<table class="table" style="margin-left: auto; margin-right: auto;">
-<thead>
-<tr>
-<th style="text-align:right;">
-rowid
-</th>
-<th style="text-align:left;">
-word
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:left;">
-i
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-2
-</td>
-<td style="text-align:left;">
-learned
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-3
-</td>
-<td style="text-align:left;">
-r
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4
-</td>
-<td style="text-align:left;">
-and
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-5
-</td>
-<td style="text-align:left;">
-started
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-6
-</td>
-<td style="text-align:left;">
-doing
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-7
-</td>
-<td style="text-align:left;">
-visualizations
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-8
-</td>
-<td style="text-align:left;">
-in
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-9
-</td>
-<td style="text-align:left;">
-r
-</td>
-</tr>
-</tbody>
-</table>
+example</code></pre>
+<pre><code>## # A tibble: 9 x 2
+##   rowid word          
+##   &lt;int&gt; &lt;chr&gt;         
+## 1     1 i             
+## 2     2 learned       
+## 3     3 r             
+## 4     4 and           
+## 5     5 started       
+## 6     6 doing         
+## 7     7 visualizations
+## 8     8 in            
+## 9     9 r</code></pre>
 <ol start="4" style="list-style-type: decimal">
 <li><a href="https://en.wikipedia.org/wiki/Lemmatisation">Lemmatize</a> words. For example:</li>
 </ol>
 <pre class="r"><code>example &lt;- mutate(example, word_lemma = textstem::lemmatize_words(word))
-knitr::kable(example, format = &quot;html&quot;) %&gt;% kableExtra::kable_styling()</code></pre>
-<table class="table" style="margin-left: auto; margin-right: auto;">
-<thead>
-<tr>
-<th style="text-align:right;">
-rowid
-</th>
-<th style="text-align:left;">
-word
-</th>
-<th style="text-align:left;">
-word_lemma
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:left;">
-i
-</td>
-<td style="text-align:left;">
-i
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-2
-</td>
-<td style="text-align:left;">
-learned
-</td>
-<td style="text-align:left;">
-learn
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-3
-</td>
-<td style="text-align:left;">
-r
-</td>
-<td style="text-align:left;">
-r
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4
-</td>
-<td style="text-align:left;">
-and
-</td>
-<td style="text-align:left;">
-and
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-5
-</td>
-<td style="text-align:left;">
-started
-</td>
-<td style="text-align:left;">
-start
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-6
-</td>
-<td style="text-align:left;">
-doing
-</td>
-<td style="text-align:left;">
-do
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-7
-</td>
-<td style="text-align:left;">
-visualizations
-</td>
-<td style="text-align:left;">
-visualization
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-8
-</td>
-<td style="text-align:left;">
-in
-</td>
-<td style="text-align:left;">
-in
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-9
-</td>
-<td style="text-align:left;">
-r
-</td>
-<td style="text-align:left;">
-r
-</td>
-</tr>
-</tbody>
-</table>
+example</code></pre>
+<pre><code>## # A tibble: 9 x 3
+##   rowid word           word_lemma   
+##   &lt;int&gt; &lt;chr&gt;          &lt;chr&gt;        
+## 1     1 i              i            
+## 2     2 learned        learn        
+## 3     3 r              r            
+## 4     4 and            and          
+## 5     5 started        start        
+## 6     6 doing          do           
+## 7     7 visualizations visualization
+## 8     8 in             in           
+## 9     9 r              r</code></pre>
 <ol start="5" style="list-style-type: decimal">
 <li>Remove <a href="https://en.wikipedia.org/wiki/Stop_words">stop words</a>. Stop words from the <a href="http://www.jmlr.org/papers/volume5/lewis04a/lewis04a.pdf">SMART information retrieval system</a> available in <code>tm</code> package served as the basis and were adjusted for the purpose of this analysis<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>. For example:</li>
 </ol>
 <pre class="r"><code>example &lt;- mutate(example, stop_word = word %in% tm::stopwords(kind = &quot;SMART&quot;))
-knitr::kable(example, format = &quot;html&quot;) %&gt;% kableExtra::kable_styling()</code></pre>
-<table class="table" style="margin-left: auto; margin-right: auto;">
-<thead>
-<tr>
-<th style="text-align:right;">
-rowid
-</th>
-<th style="text-align:left;">
-word
-</th>
-<th style="text-align:left;">
-word_lemma
-</th>
-<th style="text-align:left;">
-stop_word
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:left;">
-i
-</td>
-<td style="text-align:left;">
-i
-</td>
-<td style="text-align:left;">
-TRUE
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-2
-</td>
-<td style="text-align:left;">
-learned
-</td>
-<td style="text-align:left;">
-learn
-</td>
-<td style="text-align:left;">
-FALSE
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-3
-</td>
-<td style="text-align:left;">
-r
-</td>
-<td style="text-align:left;">
-r
-</td>
-<td style="text-align:left;">
-TRUE
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4
-</td>
-<td style="text-align:left;">
-and
-</td>
-<td style="text-align:left;">
-and
-</td>
-<td style="text-align:left;">
-TRUE
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-5
-</td>
-<td style="text-align:left;">
-started
-</td>
-<td style="text-align:left;">
-start
-</td>
-<td style="text-align:left;">
-FALSE
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-6
-</td>
-<td style="text-align:left;">
-doing
-</td>
-<td style="text-align:left;">
-do
-</td>
-<td style="text-align:left;">
-TRUE
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-7
-</td>
-<td style="text-align:left;">
-visualizations
-</td>
-<td style="text-align:left;">
-visualization
-</td>
-<td style="text-align:left;">
-FALSE
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-8
-</td>
-<td style="text-align:left;">
-in
-</td>
-<td style="text-align:left;">
-in
-</td>
-<td style="text-align:left;">
-TRUE
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-9
-</td>
-<td style="text-align:left;">
-r
-</td>
-<td style="text-align:left;">
-r
-</td>
-<td style="text-align:left;">
-TRUE
-</td>
-</tr>
-</tbody>
-</table>
+example</code></pre>
+<pre><code>## # A tibble: 9 x 4
+##   rowid word           word_lemma    stop_word
+##   &lt;int&gt; &lt;chr&gt;          &lt;chr&gt;         &lt;lgl&gt;    
+## 1     1 i              i             TRUE     
+## 2     2 learned        learn         FALSE    
+## 3     3 r              r             TRUE     
+## 4     4 and            and           TRUE     
+## 5     5 started        start         FALSE    
+## 6     6 doing          do            TRUE     
+## 7     7 visualizations visualization FALSE    
+## 8     8 in             in            TRUE     
+## 9     9 r              r             TRUE</code></pre>
 </div>
 <div id="results" class="section level2">
 <h2>Results</h2>
@@ -510,7 +198,7 @@ learn
 <p><strong>RJ Andrews</strong> shares his path from <font color="#4f81bd">mechanical engineering</font> through <font color="#4f81bd">MBA</font>, connecting <font color="#4f81bd">strategy</font> with data to how Alberto Cairo’s The Functional Art inspired him to become the best data <font color="#4f81bd">storyteller</font> he can.</p>
 <p><strong>Moritz Stefaner</strong> gives two <font color="#4f81bd">tips</font> about feedback <font color="#4f81bd">loops</font>. First, <em>“be open to what data has to say and listen to it. Don’t come with a preconceived notion of how you would like to have the data look”</em>. Second, <em>“after you put out a visualization, make sure you understand how it’s being received, how it’s being used, how people respond to it”</em>.</p>
 <p><strong>Andy Cotgreave</strong> stressed the importance of getting feedback, practicing, practicing, practicing and having <font color="#4f81bd">fun</font>! <em>“Things like #<font color="#4f81bd">Makeover</font> Monday, storytelling with data monthly challenges, these are great ways to get out of your comfort zone and have <font color="#4f81bd">fun</font>. Have <font color="#4f81bd">fun</font>. My gosh, you are allowed to have <font color="#4f81bd">fun</font>!”</em></p>
-<p>Interestingly, 10 most important words within each interview do not necessarily highlight the theme of the interview. It may be a specific style of a person as well. Shirley Wu uses a phrase <font color="#4f81bd"><em>“kind of”</em></font> 29 times, as in, <em>“It was kind of through my involvement with …”</em>. This phrase ends up being Shirley’s 5th most important word, according to tf-idf, out of 205 unique words she used.</p>
+<p>Interestingly, 10 most important words within each interview do not necessarily highlight the theme of the interview. It may be a specific style of a speech as well. Shirley Wu uses a phrase <font color="#4f81bd"><em>“kind of”</em></font> 29 times, as in, <em>“It was kind of through my involvement with …”</em>. This phrase ends up being Shirley’s 5th most important word, according to tf-idf, out of 205 unique words she used.</p>
 </div>
 <div id="phase-3---lexical-similarity" class="section level1">
 <h1>Phase 3 - Lexical similarity</h1>
@@ -524,7 +212,7 @@ learn
 <p><img src="/post/2019-05-08-swdchallenge-artisanal-data_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
 <p>Interestingly, the most similar are three interviews by Jeffrey Shaffer, Andy Cotgreave and Steve Wexler - the three authors of the <a href="https://www.bigbookofdashboards.com/">Big Book of Dashboards</a>. Let’s see which words are common to two most similar interviews of Andy and Jeffrey: <em>dashboard, excel, storytelling, tableau</em>. No surprise!</p>
 <p><br></p>
-<p>If you enjoyed reading this #SWDchallenge blog post, or you have a suggestion for improving it, I will be happy to hear! Please leave a comment below. No login required, just check “I’d rather post as a guest”.</p>
+<p>Did you find this post interesting or useful? If not, I’d be glad to improve it. Please leave a comment below, no login required if you check “I’d rather post as a guest”.</p>
 </div>
 <div class="footnotes">
 <hr />

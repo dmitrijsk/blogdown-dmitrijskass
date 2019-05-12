@@ -35,7 +35,6 @@ The second phase focuses on words that help contrasting interviews. I attempt to
 
 The third phase focuses on *similarities* and attempts to arrange 12 interviews in a number of homogeneous groups. The result is nicely depicted in a dendrogram and, maybe not surprisingly, the three most lexically similar interviewees turn out to be the three authors of the [Big Book of Dashboards](https://www.bigbookofdashboards.com/).
 
-Hope you enjoy it. Comments and suggestions are very much welcome!
 
 
 
@@ -56,24 +55,25 @@ qdap::replace_contraction("It's a fascinating field")
 
 ```{r message=FALSE, warning=FALSE}
 library(tidyverse)
-example <- tibble(sentense = "I learned R and started doing visualizations in R") %>% 
+sentense <- "I learned R and started doing visualizations in R"
+example <- tibble(sentense) %>% 
   tidytext::unnest_tokens(output = "word", input = sentense, token = "words") %>% 
   rowid_to_column()
-knitr::kable(example, format = "html") %>% kableExtra::kable_styling()
+example
 ```
 
 4. [Lemmatize](https://en.wikipedia.org/wiki/Lemmatisation) words. For example:
 
 ```{r}
 example <- mutate(example, word_lemma = textstem::lemmatize_words(word))
-knitr::kable(example, format = "html") %>% kableExtra::kable_styling()
+example
 ```
 
 5. Remove [stop words](https://en.wikipedia.org/wiki/Stop_words). Stop words from the [SMART information retrieval system](http://www.jmlr.org/papers/volume5/lewis04a/lewis04a.pdf) available in `tm` package served as the basis and were adjusted for the purpose of this analysis[^1]. For example:
 
 ```{r}
 example <- mutate(example, stop_word = word %in% tm::stopwords(kind = "SMART"))
-knitr::kable(example, format = "html") %>% kableExtra::kable_styling()
+example
 ```
 
 ## Results
@@ -316,7 +316,7 @@ p <- tokens_top10 %>%
 
 p + 
   labs(title = "Ten important words of each interview",
-       subtitle = "Important words reveal how each interview is different from a lexical poit of view.\nImportance is measured by tf-idf.\nWords highlighted in dark blue are discussed below this plot.",
+       subtitle = "Word importance is measured by tf-idf.\nImportant words reveal how each interview is different from a lexical poit of view.\nWords highlighted in dark blue are discussed below this plot.",
        x = NULL, 
        y = NULL) +
   theme(strip.background = element_blank(), 
@@ -349,7 +349,7 @@ shirley_wu_unique_words <- tokens_tfidf %>%
   length()
 ```
 
-Interestingly, 10 most important words within each interview do not necessarily highlight the theme of the interview. It may be a specific style of a person as well. Shirley Wu uses a phrase <font color="#4f81bd">*"kind of"*</font> 29 times, as in, *"It was kind of through my involvement with ..."*. This phrase ends up being Shirley's 5th most important word, according to tf-idf, out of `r shirley_wu_unique_words` unique words she used.
+Interestingly, 10 most important words within each interview do not necessarily highlight the theme of the interview. It may be a specific style of a speech as well. Shirley Wu uses a phrase <font color="#4f81bd">*"kind of"*</font> 29 times, as in, *"It was kind of through my involvement with ..."*. This phrase ends up being Shirley's 5th most important word, according to tf-idf, out of `r shirley_wu_unique_words` unique words she used.
 
 
 # Phase 3 - Lexical similarity
@@ -398,7 +398,7 @@ Interestingly, the most similar are three interviews by Jeffrey Shaffer, Andy Co
 
 <br>
 
-If you enjoyed reading this #SWDchallenge blog post, or you have a suggestion for improving it, I will be happy to hear! Please leave a comment below. No login required, just check "I'd rather post as a guest".
+Did you find this post interesting or useful? If not, I'd be glad to improve it. Please leave a comment below, no login required if you check "I'd rather post as a guest".
 
 
 

@@ -286,7 +286,7 @@ Other words that have zero idf in this analysis are *`r zero_tfidf`*.
 
 **Term frequency-inverse document frequency (tf-idf)** is a multiplication of tf and idf. 
 
-Notice that the value of a term's tf is local (document-specific), while its idf is global (single value within a collection of documents). For example, **tf** of the word *"learn"* in one interview is 0.01, in another it is 0.02. Its **idf** is constant within the collection of interviews - zero. Therefore, no matter how often it appears in an any single interview, its **tf-idf** is always zero. Ant it has the lowest rank in the list of important words, measured by tf-idf - exactly as in the plot above.
+Notice that the value of a term's tf is local (document-specific), while its idf is global (single value within a collection of documents). For example, **tf** of the word *"learn"* in one interview is 0.01, in another it is 0.02. Its **idf** is constant within the collection of interviews - zero. Therefore, no matter how often it appears in an any single interview, its **tf-idf** is always zero. And it has the lowest rank in the list of important words, measured by tf-idf - exactly as in the plot above.
 
 <br>
 

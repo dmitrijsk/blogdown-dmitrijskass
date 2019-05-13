@@ -222,7 +222,7 @@ gg_subtitle <- paste(str_wrap(
   str_wrap("A word 'copy' is important in the context of recommending Austin Kleon's book Steal Like an Artist. A word 'fun' is important in recommending the listeners to 'get out of your comfort zone and have fun'. 'Have fun. My gosh, you are allowed to have fun!' invites Andy.", width = 77),
   sep = "\n")
 
-gg_caption <- "Source: transcript of #SWD podcast episode 'learning dataviz'.\nIllustration by Dmitrijs Kass in R with ggplot2."
+gg_caption <- "Source: transcript of #SWD podcast episode 'learning dataviz'.\nIllustration by @DmitrijsKass in R with ggplot2."
 
 set.seed(3)
 slopes_tf_tfidf %>% 
@@ -246,7 +246,7 @@ slopes_tf_tfidf %>%
                      sec.axis = dup_axis(), 
                      breaks = c(1:3, 5, 10, 50, 100, 300), 
                      minor_breaks = NULL) +
-  scale_x_discrete(labels = c("rank of words\nbytf\n", "rank of words\nby tf-idf\n"), 
+  scale_x_discrete(labels = c("rank of words\nby tf\n", "rank of words\nby tf-idf\n"), 
                    position = "top", 
                    expand = expand_scale(mult = 0.2, add = 0)) +
   labs(x = NULL,
@@ -293,7 +293,7 @@ Notice that the value of a term's tf is local (document-specific), while its idf
 **References:**
 
 * Learn about text analysis in a tidy way with [Text Mining with R](https://www.tidytextmining.com/)
-* R code for this blog post is available at my [GitHub repository]().
+* R code for this blog post is available at my [GitHub repository](https://github.com/dmitrijsk/blogdown-dmitrijskass/blob/redo-swd-artisanal-data/content/post/2019-05-08-swdchallenge-artisanal-data.R).
 
 
 

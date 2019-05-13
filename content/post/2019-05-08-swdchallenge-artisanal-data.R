@@ -3,6 +3,9 @@ library(tidyverse)
 library(ggrepel)
 library(scales)
 
+
+
+
 # Text import ----
 
 raw_text <- readLines("swd_podcast_episode_14_learning_dataviz.txt", encoding = "ansi")
@@ -14,11 +17,11 @@ raw_text <- readLines("swd_podcast_episode_14_learning_dataviz.txt", encoding = 
 
 # Step 1: Extract interviews from the transcript.
 
-toc <- raw_text[11:25]
+toc <- raw_text[11:25] # toc = table of content.
 names(toc) <- str_replace_all(toc, pattern = "(.*)\\|(.*)", replacement = "\\2") %>% str_trim()
 
 content <- raw_text[29:length(raw_text)]
-content <- content[content != ""]
+content <- content[content != ""] # Remove empty text elements.
 
 toc_lines <- purrr::map_int(.x = toc, .f = function(x) str_which(string = content, pattern = fixed(x)))
 toc_lines <- tibble(interview = names(toc_lines),
@@ -143,7 +146,7 @@ gg_subtitle <- paste(str_wrap(
   str_wrap("A word 'copy' is important in the context of recommending Austin Kleon's book Steal Like an Artist. A word 'fun' is important in recommending the listeners to 'get out of your comfort zone and have fun'. 'Have fun. My gosh, you are allowed to have fun!' invites Andy.", width = 77),
   sep = "\n")
 
-gg_caption <- "Source: transcript of #SWD podcast episode 'learning dataviz'.\nIllustration by Dmitrijs Kass in R with ggplot2."
+gg_caption <- "Source: transcript of #SWD podcast episode 'learning dataviz'.\nIllustration by @DmitrijsKass in R with ggplot2."
 
 # Viz.
 set.seed(3) # for `geom_text_repel`.
@@ -168,7 +171,7 @@ slopes_tf_tfidf %>%
                      sec.axis = dup_axis(), 
                      breaks = c(1:3, 5, 10, 50, 100, 300), 
                      minor_breaks = NULL) +
-  scale_x_discrete(labels = c("rank of words\nbytf\n", "rank of words\nby tf-idf\n"), 
+  scale_x_discrete(labels = c("rank of words\nby tf\n", "rank of words\nby tf-idf\n"), 
                    position = "top", 
                    expand = expand_scale(mult = 0.2, add = 0)) +
   labs(x = NULL,

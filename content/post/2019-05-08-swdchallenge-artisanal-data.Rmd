@@ -13,11 +13,13 @@ output:
     toc: yes
 ---
 
-This post is a participation in [#SWDchallenge: artisanal data](http://www.storytellingwithdata.com/blog/2019/5/1/swdchallenge-artisanal-data).
+This post is a participation in [#SWDchallenge: artisanal data](http://www.storytellingwithdata.com/blog/2019/5/1/swdchallenge-artisanal-data). Along with that it visualizes the **tf-idf - effect of multiplying tf by idf**. Variations of tf-idf, term frequency-inverse document frequency, are often used by search engines and text-based recommender systems.
+
+----
 
 I use the [transcript](https://docs.google.com/document/d/1S2_63MUbvQs7fxWQrcuCNSl03fmDl1Vr3FjNjnbWK14/edit#) of the "learning dataviz" episode of [#SWDpodcast](http://www.storytellingwithdata.com/podcast), where 12 data visualization professionals share their stories and recommendations.
 
-I find a lot of wisdom and inspiration in this episode. [Storytelling with Data](http://www.storytellingwithdata.com/book) (SWD) book has been on my shelf for over a year and it is this podcast episode that sparkled interest in me about data visualization and made me read the book in few days and start participating in data viz challenges. So I thought it would enjoy spending more time with this episode by analysing the words in it.
+I find a lot of wisdom and inspiration in this episode. [Storytelling with Data](http://www.storytellingwithdata.com/book) (SWD) book has been on my shelf for over a year and it is this podcast episode that sparkled interest in me about data visualization and made me read the book in few days and start participating in data viz challenges. So I thought I would enjoy spending more time with this episode by analysing the words in it.
 
 The goal of the analysis is to visualize how importance of words changes when measured by **tf** (**term frequency**) versus  [**tf-idf** (**term frequency-inverse document frequency**)](http://www.tfidf.com/). The latter gives higher weight to words that are "common locally and rare globally"[^1]. Here, locally means "in any single interview" and globally means "in a collection of all 12 interviews".
 
@@ -50,7 +52,7 @@ example
 ```
 
 
-# tf-idf: the effect of idf on tf
+# tf-idf: the effect of idf on tf {#tfidf}
 
 ```{r echo = FALSE}
 
@@ -170,11 +172,7 @@ tokens_freq <- tokens_freq %>%
 ```{r echo = FALSE}
 # Add TF-IDF.
 tokens_tfidf <- tokens_freq %>% 
-  tidytext::bind_tf_idf(word_lemma, interview, n) %>% 
-  # Arrange by facet and word frequency.
-  arrange(interview, tf_idf) %>% 
-  # Add order column of row numbers
-  mutate(order = row_number())
+  tidytext::bind_tf_idf(word_lemma, interview, n)
 
 zero_tfidf <- tokens_tfidf %>% 
   filter(tf_idf == 0) %>% 
@@ -184,7 +182,7 @@ zero_tfidf <- tokens_tfidf %>%
 zero_tfidf <- paste(zero_tfidf, sep = ",")
 ```
 
-If you are not familiar with terms tf (term frequency) and idf (inverse document frequency) then they are described below. Otherwise, here is the illustration:
+If you are not familiar with terms tf (term frequency) and idf (inverse document frequency) then they are described [below](#about-tf-idf) with examples. Otherwise, here is the illustration:
 
 ```{r message=FALSE, warning=FALSE, echo = FALSE, fig.width=5, fig.height=7.5, fig.align='center'}
 library(ggrepel)
@@ -263,30 +261,61 @@ slopes_tf_tfidf %>%
         plot.caption = element_text(size = 8, colour = "grey40", hjust = 0.5, margin = margin(t = 15)))
 ```
 
-# about tf-idf
+# about tf-idf {#about-tf-idf}
 
 Few definitions. Here, the *term* means a single word. In general, a term may be a combination of two words, a sentence, etc. A *document* is an interview - any single interview from the "learning dataviz" episode. A *collection of documents* is a collection of all 12 interviews in the same episode.
 
 **Term frequency (tf)** measures how frequently a term occurs in a document. Since every document is different in length, it is often divided by the document length: 
 
 $$tf(t) = \frac{\text{Number of times term t appears in a document}}{\text{Total number of terms in the document}}.$$
-The shortcoming of tf is that it is calculated using each single document in isolation from other documents in the collection. 
+
+```{r echo=FALSE}
+andy_one_word <- tokens_tfidf %>% 
+  filter(interview == "Andy Cotgreave" & word_lemma == "learn")
+```
+
+For example, if the word "learn" is used 8 times and the interview contains 540 words then tf equals
+
+$$tf(learn)=8/540\approx0.015.$$
+
+The shortcoming of tf is that it is calculated using a single document in isolation from other documents in the collection. 
 
 **Inverse document frequency (idf)** measures how important a term is. Even if stop words were removed, high term frequency does not obligatory mean that the term is important. Idf is computed as the logarithm of the number of the documents in the collection divided by the number of documents where the specific term appears:
 
 $$idf(t) = log_e\left(\frac{\text{Total number of documents}}{\text{Number of documents with term t in it}}\right).$$
 
-For example, the "learning dataviz" episode of #SWDpodcast is, well, about learning data visualization. Naturally, words "data" and "learn" appear frequently in each of 12 interviews. Does it mean that these words are important? In describing the podcast episode - yes. In describing any particular interview from this episode - no, because all interviewees use these two words.
+The "learning dataviz" episode of #SWDpodcast is, well, about learning data visualization. Naturally, the word "learn" appears at least once in each of 12 interviews. Does it mean that this word is important? In describing the podcast episode - yes. In describing any particular interview from this episode - no, because all interviewees use the word "learn".
 
-Mathematically, if the word "learn" appears in all 12 interviews then its idf is zero: 
+The word "learn" appears in all 12 interviews, so its idf is zero: 
 
-$$log_e(12/12)=log_e(1)=0$$
+$$idf(learn)=log_e(12/12)=log_e(1)=0$$
 
-Other words that have zero idf in this analysis are *`r zero_tfidf`*.
+It means that the word is not important in describing the interview. Other words that have zero importance here are *`r setdiff(zero_tfidf, "learn")`*.
 
-**Term frequency-inverse document frequency (tf-idf)** is a multiplication of tf and idf. 
+**Term frequency-inverse document frequency (tf-idf)** is a multiplication of tf and idf:
 
-Notice that the value of a term's tf is local (document-specific), while its idf is global (single value within a collection of documents). For example, **tf** of the word *"learn"* in one interview is 0.01, in another it is 0.02. Its **idf** is constant within the collection of interviews - zero. Therefore, no matter how often it appears in an any single interview, its **tf-idf** is always zero. And it has the lowest rank in the list of important words, measured by tf-idf - exactly as in the plot above.
+$$tfidf(t) = tf(t) \times idf(t).$$
+
+It does not matter how high $tf(learn)$ is, if $idf(learn)=0$, its $tfidf(learn)$ will also be zero.
+
+
+Notice that the value of a term's tf is **local** (document-specific), while its idf is **global** (single value within a collection of documents). For example, tf of the word "learn" in Andy's interview is 0.015 and 0.001 Jeffrey's interview. Its idf is constant within the collection of interviews - zero. Therefore, no matter how often it appears in an any single interview, its tf-idf is always zero. And it has the lowest rank in the list of important words, measured by tf-idf - exactly as in the plot [above](#tfidf).
+
+Here is the data used for plotting:
+
+```{r echo = FALSE}
+tokens_tfidf %>% 
+  filter(interview == "Andy Cotgreave") %>% 
+  add_count(name = "total_words", wt = n) %>% 
+  mutate(word_tf_rank = row_number(-tf),
+         word_tfidf_rank = row_number(-tf_idf)) %>%
+  filter(word_tf_rank %in% 1:6 | word_tfidf_rank %in% 1:6) %>% 
+  mutate_if(is.double, function(x) round(x, 3)) %>% 
+  ungroup() %>% 
+  select(word_lemma, freq = n, total_words, tf, idf, tf_idf, tf_rank = word_tf_rank, tfidf_rank = word_tfidf_rank) %>% 
+  arrange(desc(freq))
+```
+
 
 <br>
 
@@ -299,7 +328,7 @@ Notice that the value of a term's tf is local (document-specific), while its idf
 
 <br>
 
-Did you find this post interesting or useful? If not, I'd be glad to improve it. Please leave a comment below, no login required if you check "I'd rather post as a guest".
+Any comments or suggestions? I'd be glad to know! Please leave them below, no login required if you check "I'd rather post as a guest".
 
 
 

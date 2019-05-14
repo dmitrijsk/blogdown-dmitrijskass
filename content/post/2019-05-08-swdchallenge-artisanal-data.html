@@ -17,14 +17,15 @@ output:
 <div id="TOC">
 <ul>
 <li><a href="#text-cleaning">text cleaning</a></li>
-<li><a href="#tf-idf-the-effect-of-idf-on-tf">tf-idf: the effect of idf on tf</a></li>
+<li><a href="#tfidf">tf-idf: the effect of idf on tf</a></li>
 <li><a href="#about-tf-idf">about tf-idf</a></li>
 </ul>
 </div>
 
-<p>This post is a participation in <a href="http://www.storytellingwithdata.com/blog/2019/5/1/swdchallenge-artisanal-data">#SWDchallenge: artisanal data</a>.</p>
+<p>This post is a participation in <a href="http://www.storytellingwithdata.com/blog/2019/5/1/swdchallenge-artisanal-data">#SWDchallenge: artisanal data</a>. Along with that it visualizes the <strong>tf-idf - effect of multiplying tf by idf</strong>. Variations of tf-idf, term frequency-inverse document frequency, are often used by search engines and text-based recommender systems.</p>
+<hr />
 <p>I use the <a href="https://docs.google.com/document/d/1S2_63MUbvQs7fxWQrcuCNSl03fmDl1Vr3FjNjnbWK14/edit#">transcript</a> of the “learning dataviz” episode of <a href="http://www.storytellingwithdata.com/podcast">#SWDpodcast</a>, where 12 data visualization professionals share their stories and recommendations.</p>
-<p>I find a lot of wisdom and inspiration in this episode. <a href="http://www.storytellingwithdata.com/book">Storytelling with Data</a> (SWD) book has been on my shelf for over a year and it is this podcast episode that sparkled interest in me about data visualization and made me read the book in few days and start participating in data viz challenges. So I thought it would enjoy spending more time with this episode by analysing the words in it.</p>
+<p>I find a lot of wisdom and inspiration in this episode. <a href="http://www.storytellingwithdata.com/book">Storytelling with Data</a> (SWD) book has been on my shelf for over a year and it is this podcast episode that sparkled interest in me about data visualization and made me read the book in few days and start participating in data viz challenges. So I thought I would enjoy spending more time with this episode by analysing the words in it.</p>
 <p>The goal of the analysis is to visualize how importance of words changes when measured by <strong>tf</strong> (<strong>term frequency</strong>) versus <a href="http://www.tfidf.com/"><strong>tf-idf</strong> (<strong>term frequency-inverse document frequency</strong>)</a>. The latter gives higher weight to words that are “common locally and rare globally”<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>. Here, locally means “in any single interview” and globally means “in a collection of all 12 interviews”.</p>
 <p>Analysis is performed in <a href="https://www.r-project.org/">R</a>, a free software environment for statistical computing and graphics, using the tools mainly from the <a href="https://www.tidyverse.org/">tidyverse</a> packages, including <a href="https://ggplot2.tidyverse.org/">ggplot2</a> for visualization.</p>
 <div id="text-cleaning" class="section level1">
@@ -61,25 +62,44 @@ example</code></pre>
 ## 8 in             in            TRUE     
 ## 9 r              r             TRUE</code></pre>
 </div>
-<div id="tf-idf-the-effect-of-idf-on-tf" class="section level1">
+<div id="tfidf" class="section level1">
 <h1>tf-idf: the effect of idf on tf</h1>
-<p>If you are not familiar with terms tf (term frequency) and idf (inverse document frequency) then they are described below. Otherwise, here is the illustration:</p>
+<p>If you are not familiar with terms tf (term frequency) and idf (inverse document frequency) then they are described <a href="#about-tf-idf">below</a> with examples. Otherwise, here is the illustration:</p>
 <p><img src="/post/2019-05-08-swdchallenge-artisanal-data_files/figure-html/unnamed-chunk-5-1.png" width="480" style="display: block; margin: auto;" /></p>
 </div>
 <div id="about-tf-idf" class="section level1">
 <h1>about tf-idf</h1>
 <p>Few definitions. Here, the <em>term</em> means a single word. In general, a term may be a combination of two words, a sentence, etc. A <em>document</em> is an interview - any single interview from the “learning dataviz” episode. A <em>collection of documents</em> is a collection of all 12 interviews in the same episode.</p>
 <p><strong>Term frequency (tf)</strong> measures how frequently a term occurs in a document. Since every document is different in length, it is often divided by the document length:</p>
-<p><span class="math display">\[tf(t) = \frac{\text{Number of times term t appears in a document}}{\text{Total number of terms in the document}}.\]</span>
-The shortcoming of tf is that it is calculated using each single document in isolation from other documents in the collection.</p>
+<p><span class="math display">\[tf(t) = \frac{\text{Number of times term t appears in a document}}{\text{Total number of terms in the document}}.\]</span></p>
+<p>For example, if the word “learn” is used 8 times and the interview contains 540 words then tf equals</p>
+<p><span class="math display">\[tf(learn)=8/540\approx0.015.\]</span></p>
+<p>The shortcoming of tf is that it is calculated using a single document in isolation from other documents in the collection.</p>
 <p><strong>Inverse document frequency (idf)</strong> measures how important a term is. Even if stop words were removed, high term frequency does not obligatory mean that the term is important. Idf is computed as the logarithm of the number of the documents in the collection divided by the number of documents where the specific term appears:</p>
 <p><span class="math display">\[idf(t) = log_e\left(\frac{\text{Total number of documents}}{\text{Number of documents with term t in it}}\right).\]</span></p>
-<p>For example, the “learning dataviz” episode of #SWDpodcast is, well, about learning data visualization. Naturally, words “data” and “learn” appear frequently in each of 12 interviews. Does it mean that these words are important? In describing the podcast episode - yes. In describing any particular interview from this episode - no, because all interviewees use these two words.</p>
-<p>Mathematically, if the word “learn” appears in all 12 interviews then its idf is zero:</p>
-<p><span class="math display">\[log_e(12/12)=log_e(1)=0\]</span></p>
-<p>Other words that have zero idf in this analysis are <em>data, year, learn, make, thing, work</em>.</p>
-<p><strong>Term frequency-inverse document frequency (tf-idf)</strong> is a multiplication of tf and idf.</p>
-<p>Notice that the value of a term’s tf is local (document-specific), while its idf is global (single value within a collection of documents). For example, <strong>tf</strong> of the word <em>“learn”</em> in one interview is 0.01, in another it is 0.02. Its <strong>idf</strong> is constant within the collection of interviews - zero. Therefore, no matter how often it appears in an any single interview, its <strong>tf-idf</strong> is always zero. And it has the lowest rank in the list of important words, measured by tf-idf - exactly as in the plot above.</p>
+<p>The “learning dataviz” episode of #SWDpodcast is, well, about learning data visualization. Naturally, the word “learn” appears at least once in each of 12 interviews. Does it mean that this word is important? In describing the podcast episode - yes. In describing any particular interview from this episode - no, because all interviewees use the word “learn”.</p>
+<p>The word “learn” appears in all 12 interviews, so its idf is zero:</p>
+<p><span class="math display">\[idf(learn)=log_e(12/12)=log_e(1)=0\]</span></p>
+<p>It means that the word is not important in describing the interview. Other words that have zero importance here are <em>data, year, make, thing, work</em>.</p>
+<p><strong>Term frequency-inverse document frequency (tf-idf)</strong> is a multiplication of tf and idf:</p>
+<p><span class="math display">\[tfidf(t) = tf(t) \times idf(t).\]</span></p>
+<p>It does not matter how high <span class="math inline">\(tf(learn)\)</span> is, if <span class="math inline">\(idf(learn)=0\)</span>, its <span class="math inline">\(tfidf(learn)\)</span> will also be zero.</p>
+<p>Notice that the value of a term’s tf is <strong>local</strong> (document-specific), while its idf is <strong>global</strong> (single value within a collection of documents). For example, tf of the word “learn” in Andy’s interview is 0.015 and 0.001 Jeffrey’s interview. Its idf is constant within the collection of interviews - zero. Therefore, no matter how often it appears in an any single interview, its tf-idf is always zero. And it has the lowest rank in the list of important words, measured by tf-idf - exactly as in the plot <a href="#tfidf">above</a>.</p>
+<p>Here is the data used for plotting:</p>
+<pre><code>## # A tibble: 11 x 8
+##    word_lemma  freq total_words    tf   idf tf_idf tf_rank tfidf_rank
+##    &lt;chr&gt;      &lt;int&gt;       &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;   &lt;int&gt;      &lt;int&gt;
+##  1 data          21         540 0.039 0      0           1        266
+##  2 tableau       11         540 0.02  0.875  0.018       2          1
+##  3 work          10         540 0.019 0      0           3        271
+##  4 book           9         540 0.017 0.087  0.001       4        246
+##  5 good           8         540 0.015 0.087  0.001       5        248
+##  6 learn          8         540 0.015 0      0           6        268
+##  7 amaze          5         540 0.009 1.79   0.017      12          2
+##  8 fun            4         540 0.007 1.39   0.01       24          6
+##  9 single         4         540 0.007 1.79   0.013      28          4
+## 10 week           4         540 0.007 1.79   0.013      33          5
+## 11 copy           3         540 0.006 2.48   0.014      40          3</code></pre>
 <p><br></p>
 <p><strong>References:</strong></p>
 <ul>
@@ -87,7 +107,7 @@ The shortcoming of tf is that it is calculated using each single document in iso
 <li>R code for this blog post is available at my <a href="https://github.com/dmitrijsk/blogdown-dmitrijskass/blob/redo-swd-artisanal-data/content/post/2019-05-08-swdchallenge-artisanal-data.R">GitHub repository</a>.</li>
 </ul>
 <p><br></p>
-<p>Did you find this post interesting or useful? If not, I’d be glad to improve it. Please leave a comment below, no login required if you check “I’d rather post as a guest”.</p>
+<p>Any comments or suggestions? I’d be glad to know! Please leave them below, no login required if you check “I’d rather post as a guest”.</p>
 </div>
 <div class="footnotes">
 <hr />

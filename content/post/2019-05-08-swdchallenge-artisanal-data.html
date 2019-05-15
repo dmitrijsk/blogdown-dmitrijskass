@@ -85,9 +85,9 @@ example</code></pre>
 <p><strong>Term frequency-inverse document frequency (tf-idf)</strong> is a multiplication of tf and idf:</p>
 <p><span class="math display">\[tfidf(t) = tf(t) \times idf(t).\]</span></p>
 <p>It does not matter how high <span class="math inline">\(tf(learn)\)</span> is, if <span class="math inline">\(idf(learn)=0\)</span>, its <span class="math inline">\(tfidf(learn)\)</span> will also be zero.</p>
-<p>Notice that the value of a term’s tf is <strong>local</strong> (document-specific), while its idf is <strong>global</strong> (single value within a collection of documents). For example, tf of the word “learn” in Andy’s interview is 0.015 and 0.001 Jeffrey’s interview. Its idf is constant within the collection of interviews - zero. Therefore, no matter how often it appears in an any single interview, its tf-idf is always zero. And it has the lowest rank in the list of important words, measured by tf-idf - exactly as in the plot <a href="#tfidf">above</a>.</p>
-<p>Here is the data used for plotting - top an bottom six most important words in Andy Cotgreave’s interview:</p>
-<table class="table table-striped table-condensed" style="margin-left: auto; margin-right: auto;">
+<p>Notice that the value of a term’s tf is <strong>local</strong> (document-specific), while its idf is <strong>global</strong> (single value within a collection of documents). For example, tf of the word “learn” in Andy’s interview is 0.015 and 0.001 in Jeffrey’s interview. Any word’s idf is constant within the collection of documents - for the “word” it is zero. Therefore, no matter how often it appears in any single interview, its tf-idf is always zero.</p>
+<p>Here is the data used for <a href="#tfidf">the plot above</a> - top an bottom six most important words in Andy Cotgreave’s interview:</p>
+<table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
 <th style="text-align:left;">
@@ -97,7 +97,8 @@ word
 count
 </th>
 <th style="text-align:right;">
-total words
+total
+words
 </th>
 <th style="text-align:right;">
 tf
@@ -109,10 +110,12 @@ idf
 tf-idf
 </th>
 <th style="text-align:right;">
-rank by tf
+rank
+by tf
 </th>
 <th style="text-align:right;">
-rank by idf
+rank
+by idf
 </th>
 </tr>
 </thead>

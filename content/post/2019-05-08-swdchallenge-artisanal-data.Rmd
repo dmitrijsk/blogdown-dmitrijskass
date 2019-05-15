@@ -299,9 +299,9 @@ $$tfidf(t) = tf(t) \times idf(t).$$
 It does not matter how high $tf(learn)$ is, if $idf(learn)=0$, its $tfidf(learn)$ will also be zero.
 
 
-Notice that the value of a term's tf is **local** (document-specific), while its idf is **global** (single value within a collection of documents). For example, tf of the word "learn" in Andy's interview is 0.015 and 0.001 Jeffrey's interview. Its idf is constant within the collection of interviews - zero. Therefore, no matter how often it appears in an any single interview, its tf-idf is always zero. And it has the lowest rank in the list of important words, measured by tf-idf - exactly as in the plot [above](#tfidf).
+Notice that the value of a term's tf is **local** (document-specific), while its idf is **global** (single value within a collection of documents). For example, tf of the word "learn" in Andy's interview is 0.015 and 0.001 in Jeffrey's interview. Any word's idf is constant within the collection of documents - for the "word" it is zero. Therefore, no matter how often it appears in any single interview, its tf-idf is always zero.
 
-Here is the data used for plotting - top an bottom six most important words in Andy Cotgreave's interview:
+Here is the data used for [the plot above](#tfidf) - top an bottom six most important words in Andy Cotgreave's interview:
 
 ```{r echo = FALSE}
 t <- tokens_tfidf %>% 
@@ -315,9 +315,9 @@ t <- tokens_tfidf %>%
   select(word_lemma, freq = n, total_words, tf, idf, tf_idf, tf_rank = word_tf_rank, tfidf_rank = word_tfidf_rank) %>% 
   arrange(desc(freq))
 
-cols <- c("word", "count", "total words", "tf", "idf", "tf-idf", "rank by tf", "rank by idf")
+cols <- c("word", "count", "total\nwords", "tf", "idf", "tf-idf", "rank\nby tf", "rank\nby idf")
 knitr::kable(t, format = "html", col.names = cols) %>% 
-  kableExtra::kable_styling(full_width = TRUE, bootstrap_options = c("striped", "condensed"))
+  kableExtra::kable_styling(full_width = TRUE)
 ```
 
 

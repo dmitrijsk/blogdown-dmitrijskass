@@ -13,6 +13,7 @@ output:
     toc: yes
 ---
 
+<script src="/rmarkdown-libs/kePrint/kePrint.js"></script>
 
 <div id="TOC">
 <ul>
@@ -64,7 +65,7 @@ example</code></pre>
 </div>
 <div id="tfidf" class="section level1">
 <h1>tf-idf: the effect of idf on tf</h1>
-<p>If you are not familiar with terms tf (term frequency) and idf (inverse document frequency) then they are described <a href="#about-tf-idf">below</a> with examples. Otherwise, here is the illustration:</p>
+<p>If you are not familiar with tf (term frequency) and idf (inverse document frequency) then they are described <a href="#about-tf-idf">below</a> with examples. Otherwise, here is the illustration:</p>
 <p><img src="/post/2019-05-08-swdchallenge-artisanal-data_files/figure-html/unnamed-chunk-5-1.png" width="480" style="display: block; margin: auto;" /></p>
 </div>
 <div id="about-tf-idf" class="section level1">
@@ -80,26 +81,330 @@ example</code></pre>
 <p>The “learning dataviz” episode of #SWDpodcast is, well, about learning data visualization. Naturally, the word “learn” appears at least once in each of 12 interviews. Does it mean that this word is important? In describing the podcast episode - yes. In describing any particular interview from this episode - no, because all interviewees use the word “learn”.</p>
 <p>The word “learn” appears in all 12 interviews, so its idf is zero:</p>
 <p><span class="math display">\[idf(learn)=log_e(12/12)=log_e(1)=0\]</span></p>
-<p>It means that the word is not important in describing the interview. Other words that have zero importance here are <em>data, year, make, thing, work</em>.</p>
+<p>It means that the word “learn” is not important in the context of 12 interviews. Other words that have zero importance here are <em>data, year, make, thing, work</em>.</p>
 <p><strong>Term frequency-inverse document frequency (tf-idf)</strong> is a multiplication of tf and idf:</p>
 <p><span class="math display">\[tfidf(t) = tf(t) \times idf(t).\]</span></p>
 <p>It does not matter how high <span class="math inline">\(tf(learn)\)</span> is, if <span class="math inline">\(idf(learn)=0\)</span>, its <span class="math inline">\(tfidf(learn)\)</span> will also be zero.</p>
 <p>Notice that the value of a term’s tf is <strong>local</strong> (document-specific), while its idf is <strong>global</strong> (single value within a collection of documents). For example, tf of the word “learn” in Andy’s interview is 0.015 and 0.001 Jeffrey’s interview. Its idf is constant within the collection of interviews - zero. Therefore, no matter how often it appears in an any single interview, its tf-idf is always zero. And it has the lowest rank in the list of important words, measured by tf-idf - exactly as in the plot <a href="#tfidf">above</a>.</p>
-<p>Here is the data used for plotting:</p>
-<pre><code>## # A tibble: 11 x 8
-##    word_lemma  freq total_words    tf   idf tf_idf tf_rank tfidf_rank
-##    &lt;chr&gt;      &lt;int&gt;       &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;   &lt;int&gt;      &lt;int&gt;
-##  1 data          21         540 0.039 0      0           1        266
-##  2 tableau       11         540 0.02  0.875  0.018       2          1
-##  3 work          10         540 0.019 0      0           3        271
-##  4 book           9         540 0.017 0.087  0.001       4        246
-##  5 good           8         540 0.015 0.087  0.001       5        248
-##  6 learn          8         540 0.015 0      0           6        268
-##  7 amaze          5         540 0.009 1.79   0.017      12          2
-##  8 fun            4         540 0.007 1.39   0.01       24          6
-##  9 single         4         540 0.007 1.79   0.013      28          4
-## 10 week           4         540 0.007 1.79   0.013      33          5
-## 11 copy           3         540 0.006 2.48   0.014      40          3</code></pre>
+<p>Here is the data used for plotting - top an bottom six most important words in Andy Cotgreave’s interview:</p>
+<table class="table table-striped table-condensed" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+word
+</th>
+<th style="text-align:right;">
+count
+</th>
+<th style="text-align:right;">
+total words
+</th>
+<th style="text-align:right;">
+tf
+</th>
+<th style="text-align:right;">
+idf
+</th>
+<th style="text-align:right;">
+tf-idf
+</th>
+<th style="text-align:right;">
+rank by tf
+</th>
+<th style="text-align:right;">
+rank by idf
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+data
+</td>
+<td style="text-align:right;">
+21
+</td>
+<td style="text-align:right;">
+540
+</td>
+<td style="text-align:right;">
+0.039
+</td>
+<td style="text-align:right;">
+0.000
+</td>
+<td style="text-align:right;">
+0.000
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+266
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+tableau
+</td>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+540
+</td>
+<td style="text-align:right;">
+0.020
+</td>
+<td style="text-align:right;">
+0.875
+</td>
+<td style="text-align:right;">
+0.018
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+work
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+540
+</td>
+<td style="text-align:right;">
+0.019
+</td>
+<td style="text-align:right;">
+0.000
+</td>
+<td style="text-align:right;">
+0.000
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+271
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+book
+</td>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:right;">
+540
+</td>
+<td style="text-align:right;">
+0.017
+</td>
+<td style="text-align:right;">
+0.087
+</td>
+<td style="text-align:right;">
+0.001
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+246
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+good
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+540
+</td>
+<td style="text-align:right;">
+0.015
+</td>
+<td style="text-align:right;">
+0.087
+</td>
+<td style="text-align:right;">
+0.001
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+248
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+learn
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+540
+</td>
+<td style="text-align:right;">
+0.015
+</td>
+<td style="text-align:right;">
+0.000
+</td>
+<td style="text-align:right;">
+0.000
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+268
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+amaze
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+540
+</td>
+<td style="text-align:right;">
+0.009
+</td>
+<td style="text-align:right;">
+1.792
+</td>
+<td style="text-align:right;">
+0.017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+fun
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+540
+</td>
+<td style="text-align:right;">
+0.007
+</td>
+<td style="text-align:right;">
+1.386
+</td>
+<td style="text-align:right;">
+0.010
+</td>
+<td style="text-align:right;">
+24
+</td>
+<td style="text-align:right;">
+6
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+single
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+540
+</td>
+<td style="text-align:right;">
+0.007
+</td>
+<td style="text-align:right;">
+1.792
+</td>
+<td style="text-align:right;">
+0.013
+</td>
+<td style="text-align:right;">
+28
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+week
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+540
+</td>
+<td style="text-align:right;">
+0.007
+</td>
+<td style="text-align:right;">
+1.792
+</td>
+<td style="text-align:right;">
+0.013
+</td>
+<td style="text-align:right;">
+33
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+copy
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+540
+</td>
+<td style="text-align:right;">
+0.006
+</td>
+<td style="text-align:right;">
+2.485
+</td>
+<td style="text-align:right;">
+0.014
+</td>
+<td style="text-align:right;">
+40
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+</tbody>
+</table>
 <p><br></p>
 <p><strong>References:</strong></p>
 <ul>

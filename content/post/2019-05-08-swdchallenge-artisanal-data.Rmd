@@ -182,7 +182,7 @@ zero_tfidf <- tokens_tfidf %>%
 zero_tfidf <- paste(zero_tfidf, sep = ",")
 ```
 
-If you are not familiar with terms tf (term frequency) and idf (inverse document frequency) then they are described [below](#about-tf-idf) with examples. Otherwise, here is the illustration:
+If you are not familiar with tf (term frequency) and idf (inverse document frequency) then they are described [below](#about-tf-idf) with examples. Otherwise, here is the illustration:
 
 ```{r message=FALSE, warning=FALSE, echo = FALSE, fig.width=5, fig.height=7.5, fig.align='center'}
 library(ggrepel)
@@ -213,7 +213,7 @@ slopes_tf_tfidf <- tokens_tfidf %>%
 
 gg_title <- 'tf-idf: the effect of idf on tf.'
 gg_subtitle <- paste(str_wrap(
-  "As an example, these are some of words used by Andy Cotgreave in the 'learning dataviz' episode of #SWDpodast. Although words such as 'data' and 'learn' are the 1st and the 5th most frequent, they are not important when compared to other 11 interviews on the same podcast episode. This is because all 12 interviews are about learning data visualization.", width = 77),
+  "These are top an bottom six most important words in Andy Cotgreave's interview in the 'learning dataviz' episode of #SWDpodast. Although words such as 'data' and 'learn' are the 1st and the 5th most frequent, they are not important when viewed in the context of other 11 interviews on the same podcast episode. This is because all 12 interviews are about learning data visualization.", width = 77),
   "",
   str_wrap("Notice how idf diminishes the weights of words that appear in many interviews (e.g. 'data', 'learn') and promotes other words (e.g. 'copy', 'fun') as more relevant for a particular interview.", width = 77),
   "",
@@ -290,7 +290,7 @@ The word "learn" appears in all 12 interviews, so its idf is zero:
 
 $$idf(learn)=log_e(12/12)=log_e(1)=0$$
 
-It means that the word is not important in describing the interview. Other words that have zero importance here are *`r setdiff(zero_tfidf, "learn")`*.
+It means that the word "learn" is not important in the context of 12 interviews. Other words that have zero importance here are *`r setdiff(zero_tfidf, "learn")`*.
 
 **Term frequency-inverse document frequency (tf-idf)** is a multiplication of tf and idf:
 
@@ -301,10 +301,10 @@ It does not matter how high $tf(learn)$ is, if $idf(learn)=0$, its $tfidf(learn)
 
 Notice that the value of a term's tf is **local** (document-specific), while its idf is **global** (single value within a collection of documents). For example, tf of the word "learn" in Andy's interview is 0.015 and 0.001 Jeffrey's interview. Its idf is constant within the collection of interviews - zero. Therefore, no matter how often it appears in an any single interview, its tf-idf is always zero. And it has the lowest rank in the list of important words, measured by tf-idf - exactly as in the plot [above](#tfidf).
 
-Here is the data used for plotting:
+Here is the data used for plotting - top an bottom six most important words in Andy Cotgreave's interview:
 
 ```{r echo = FALSE}
-tokens_tfidf %>% 
+t <- tokens_tfidf %>% 
   filter(interview == "Andy Cotgreave") %>% 
   add_count(name = "total_words", wt = n) %>% 
   mutate(word_tf_rank = row_number(-tf),
@@ -314,6 +314,10 @@ tokens_tfidf %>%
   ungroup() %>% 
   select(word_lemma, freq = n, total_words, tf, idf, tf_idf, tf_rank = word_tf_rank, tfidf_rank = word_tfidf_rank) %>% 
   arrange(desc(freq))
+
+cols <- c("word", "count", "total words", "tf", "idf", "tf-idf", "rank by tf", "rank by idf")
+knitr::kable(t, format = "html", col.names = cols) %>% 
+  kableExtra::kable_styling(full_width = TRUE, bootstrap_options = c("striped", "condensed"))
 ```
 
 

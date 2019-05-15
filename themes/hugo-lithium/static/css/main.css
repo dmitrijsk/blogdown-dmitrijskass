@@ -29,6 +29,26 @@ code {
   background-color: rgba(0, 0, 0, 0.02);
 }
 
+/*Tables*/
+table {
+	border-collapse:collapse;
+	font-size: 0.9em;
+	margin-left:auto; 
+    margin-right:auto;
+}
+tr:nth-child(even) {background-color: #f2f2f2;}
+th {
+  border-bottom: 1px solid #ddd;
+  line-height: 23px;
+  vertical-align: bottom;
+}
+td {
+	/*padding-left: 0px;
+	padding-right: 15px;*/
+	width: 5%;
+}
+
+
 /*Font-size of categories and tags under the page title*/
 .terms { font-size: 12px; }
 

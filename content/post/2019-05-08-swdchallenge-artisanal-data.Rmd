@@ -268,7 +268,7 @@ Multiplication of tf by idf, which gives tf-idf, diminished the importance of wo
 A word "copy" is used only in Andy's interview and he uses it three times. It is used in the context of recommending Austin Kleon's book "Steal Like an Artist". A word "fun" is used in two other interviews, but Andy uses is most frequency. He recommends listeners to *"get out of your comfort zone and have fun"*. And continues with saying *"Have fun. My gosh, you are allowed to have fun!"*. Let's do it!
 
 
-```{r message=FALSE, warning=FALSE, echo = FALSE, fig.width=5, fig.height=6, fig.align='center'}
+```{r message=FALSE, warning=FALSE, echo = FALSE, fig.width=5.5, fig.height=6, fig.align='center'}
 library(ggrepel)
 
 swd_light_blue <- "#95b3d7"
@@ -286,9 +286,11 @@ reverselog_trans <- function(base = exp(1)) {
 
 slopes_tf_tfidf <- tokens_tfidf %>% 
   filter(interview == "Andy Cotgreave") %>% 
-  mutate(word_tf_rank = rank(-tf, ties.method = "min"),
-         word_tfidf_rank = rank(-tf_idf, ties.method = "max")) %>%
-  filter(row_number(-tf) %in% 1:6 | row_number(-tf_idf) %in% 1:6) %>% 
+  add_count(name = "total_words", wt = n) %>% 
+  # arrange(desc(word_lemma)) %>% 
+  mutate(word_tf_rank = row_number(-tf),
+         word_tfidf_rank = row_number(-tf_idf)) %>%
+  filter(word_tf_rank %in% 1:6 | word_tfidf_rank %in% 1:6) %>% 
   ungroup()
 
 slopes_tf_tfidf_gathered <- slopes_tf_tfidf %>% 
@@ -300,7 +302,7 @@ gg_title <- 'tf-idf: the effect of idf on tf'
 gg_subtitle <- "Comparison of two measures of word importance"
 gg_caption <- "Source: transcript of #SWD podcast episode 'learning dataviz'.\nIllustration by @DmitrijsKass in R with ggplot2."
 
-set.seed(3)
+set.seed(1)
 slopes_tf_tfidf_gathered %>% 
   ggplot(aes(x = key, y = value, group = word_lemma, label = word_lemma)) +
   geom_point(colour = swd_light_blue, size = 2) +
@@ -349,7 +351,6 @@ terms_in_documents <- tokens_tfidf %>%
   summarise(documents = n_distinct(interview))
 
 t <- slopes_tf_tfidf %>% 
-  add_count(name = "total_words", wt = n) %>% 
   left_join(terms_in_documents, by = "word_lemma") %>% 
   select(word_lemma, freq = n, total_words, tf, documents, idf, tf_idf, tf_rank = word_tf_rank, tfidf_rank = word_tfidf_rank) %>% 
   arrange(desc(freq))

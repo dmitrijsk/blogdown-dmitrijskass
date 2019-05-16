@@ -13,15 +13,15 @@ output:
     toc: yes
 ---
 
-This post is a participation in [#SWDchallenge: artisanal data](http://www.storytellingwithdata.com/blog/2019/5/1/swdchallenge-artisanal-data).
+This post is a participation in [#SWDchallenge: artisanal data](http://www.storytellingwithdata.com/blog/2019/5/1/swdchallenge-artisanal-data). Along with that it **visualizes two common measures of word importance: tf and tf-idf**. Variations of tf-idf, term frequency-inverse document frequency, are often used by search engines and text-based recommender systems.
+
+----
 
 I use the [transcript](https://docs.google.com/document/d/1S2_63MUbvQs7fxWQrcuCNSl03fmDl1Vr3FjNjnbWK14/edit#) of the "learning dataviz" episode of [#SWDpodcast](http://www.storytellingwithdata.com/podcast), where 12 data visualization professionals share their stories and recommendations.
 
-I find a lot of wisdom and inspiration in this episode. [Storytelling with Data](http://www.storytellingwithdata.com/book) (SWD) book has been on my shelf for over a year and it is this podcast episode that sparkled interest in me about data visualization and made me read the book in few days and start participating in data viz challenges. So I thought it would enjoy spending more time with this episode by analysing the words in it.
+I find a lot of wisdom and inspiration in this episode. [Storytelling with Data](http://www.storytellingwithdata.com/book) (SWD) book has been on my shelf for over a year and it is this podcast episode that sparkled interest in me about data visualization and made me read the book in few days and start participating in data viz challenges. So I thought I would enjoy spending more time with this episode by analysing the words in it.
 
-The goal of the analysis is to visualize how importance of words changes when measured by **tf** (**term frequency**) versus  [**tf-idf** (**term frequency-inverse document frequency**)](http://www.tfidf.com/). The latter gives higher weight to words that are "common locally and rare globally"[^1]. Here, locally means "in any single interview" and globally means "in a collection of all 12 interviews".
-
-Analysis is performed in [R](https://www.r-project.org/), a free software environment for statistical computing and graphics, using the tools mainly from the [tidyverse](https://www.tidyverse.org/) packages, including [ggplot2](https://ggplot2.tidyverse.org/) for visualization. 
+Analysis is performed in [R](https://www.r-project.org/), a free software environment for statistical computing and graphics, mainly using the [tidyverse](https://www.tidyverse.org/) packages, including [ggplot2](https://ggplot2.tidyverse.org/) for visualization. 
 
 
 # text cleaning
@@ -32,7 +32,7 @@ Text cleaning involves five steps:
 2. Replace [contractions](https://en.wikipedia.org/wiki/Contraction_(grammar)). For example: *"It's a fascinating field"* becomes *"It is a fascinating field"*.
 3. Split sentences into single words. 
 4. [Lemmatize](https://en.wikipedia.org/wiki/Lemmatisation) words. 
-5. Remove [stop words](https://en.wikipedia.org/wiki/Stop_words), the most common[^2] words in English language.
+5. Remove [stop words](https://en.wikipedia.org/wiki/Stop_words), the most common[^1] words in English language.
 
 Here is a quote from Jeffrey Shaffer's interview to illustrate steps 3-5:
 
@@ -50,7 +50,6 @@ example
 ```
 
 
-# tf-idf: the effect of idf on tf
 
 ```{r echo = FALSE}
 
@@ -170,11 +169,7 @@ tokens_freq <- tokens_freq %>%
 ```{r echo = FALSE}
 # Add TF-IDF.
 tokens_tfidf <- tokens_freq %>% 
-  tidytext::bind_tf_idf(word_lemma, interview, n) %>% 
-  # Arrange by facet and word frequency.
-  arrange(interview, tf_idf) %>% 
-  # Add order column of row numbers
-  mutate(order = row_number())
+  tidytext::bind_tf_idf(word_lemma, interview, n)
 
 zero_tfidf <- tokens_tfidf %>% 
   filter(tf_idf == 0) %>% 
@@ -184,9 +179,96 @@ zero_tfidf <- tokens_tfidf %>%
 zero_tfidf <- paste(zero_tfidf, sep = ",")
 ```
 
-If you are not familiar with terms tf (term frequency) and idf (inverse document frequency) then they are described below. Otherwise, here is the illustration:
 
-```{r message=FALSE, warning=FALSE, echo = FALSE, fig.width=5, fig.height=7.5, fig.align='center'}
+
+
+
+# about tf-idf {#about-tf-idf}
+
+If you are already familiar with tf (term frequency), idf (inverse document frequency) and tf-idf (term frequency-inverse document frequency) then you may skip this section and go directly to the [visual comparison of these two measures of word importance](#tfidf).
+
+
+
+Few definitions. Here, 
+
+* *term* is a single word (in general, a term may be a combination of two words, a sentence, etc.)
+* *document* is an interview - any single interview from the "learning dataviz" episode. 
+* *collection of documents* is a collection of 12 interviews in the episode.
+
+**Term frequency (tf)** measures how frequently a term occurs in a document. Since every document is different in length, it is often divided by the document length[^2]: 
+
+$$\text{tf}(t) = \frac{\text{Number of times term t appears in a document}}{\text{Total number of terms in the document}}.$$
+
+```{r echo=FALSE}
+andy_one_word <- tokens_tfidf %>% 
+  filter(interview == "Andy Cotgreave" & word_lemma == "learn")
+```
+
+For example, if the word "learn" is used 8 times and the interview contains 540 words then
+
+$$\text{tf}(learn)=8/540\approx0.015.$$
+
+When used to measure word importance, the shortcoming of tf is that it is calculated using a single document in isolation from other documents in the collection. Notice that a word's tf may be different for each document within a collection.
+
+**Inverse document frequency (idf)** measures how important a term is in the context of other documents. Idf is computed as the logarithm of the number of the documents in the collection divided by the number of documents where the specific term appears:
+
+$$\text{idf}(t) = log_e\left(\frac{\text{Total number of documents}}{\text{Number of documents with term t in it}}\right).$$
+
+Here is the relationship between a number of documents with term $t$ in it and the term's idf. I assume there are 12 documents in the collection:
+
+```{r echo = FALSE, fig.height=2.5, fig.width=5, fig.align='center'}
+tibble(n_docs_with_term = 1:12,
+       idf = log(12 / n_docs_with_term)) %>% 
+  ggplot(aes(x = n_docs_with_term, y = idf)) +
+  geom_point(size = 2) +
+  geom_line() +
+  labs(x = "Number of documents with term t in it",
+       y = "idf(t)") +
+  scale_y_continuous(breaks = seq(0, 3, by = 0.5), minor_breaks = NULL, expand = expand_scale(add = 0.05)) +
+  scale_x_continuous(breaks = 1:12) +
+  theme_classic() +
+  theme(panel.grid = element_blank(), 
+        axis.text.x = element_text(size = 10, colour = "grey30"),
+        axis.text.y = element_text(size = 10, colour = "grey30"), 
+        axis.title = element_text(size = 10, colour = "grey30"), 
+        plot.title = element_text(size = 11, colour = "grey30", hjust = 0))
+```
+
+
+
+The "learning dataviz" episode of #SWDpodcast is, well, about learning data visualization. Naturally, the word "learn" appears at least once in each of 12 interviews. Does it mean that this word is important? In describing the whole episode - yes. In describing any particular interview from this episode - no, at least in the understanding of idf. Because *all* interviewees use the word "learn". 
+
+The word "learn" appears in all 12 interviews, so its idf is zero: 
+
+$$\text{idf}(learn)=log_e(12/12)=log_e(1)=0$$
+
+It means that the word "learn" is completely unimportant to describe any specific interview in the context of other 11 interviews. Other words with zero importance here are *`r setdiff(zero_tfidf, "learn")`*.
+
+Notice that idf of each term is the same for all documents in a collection.
+
+
+
+**Term frequency-inverse document frequency (tf-idf)** is a multiplication of tf and idf:
+
+$$\text{tfidf}(t) = \text{tf}(t) \times \text{idf}(t).$$
+
+It does not matter how high $\text{tf}(learn)$ is, if $\text{idf}(learn)=0$, the $\text{tfidf}(learn)$ will also be zero. On the contrary, if a word is mentioned only in one interview from 12 then its tf gets multiplied by `r round(log(12/1), 2)`. This is what happened to the word "copy". Its importance rank increased from #40, measured by tf, to #3, measured by tf-idf.
+
+
+Tf-idf gives highest weight to words that are "common locally and rare globally"[^3]. "Common locally" refers to the tf component, while "rare globally" refers to the idf component.
+
+
+
+# tf-idf: the effect of idf on tf visualised {#tfidf}
+
+The plot below depicts changes in *ranks* (position relative to other words) for the most important words in Andy Cotgreave's interview in the "learning dataviz" episode of #SWDpodast measured by tf (on the left) and tf-idf (on the right). Tf gives the highest weight to words that are simply used most frequently. It is a local measure in a sense that it ignores other interviews in the same podcast episode. 
+
+Multiplication of tf by idf, which gives tf-idf, diminished the importance of words that are common across all interviews, such as "data" and "learn". At the same time it amplifies the importance of rare words, such as "copy" and "fun". 
+
+A word "copy" is used only in Andy's interview. It is used in the context of recommending Austin Kleon's book "Steal Like an Artist". A word "fun" is used only in two more interviews. Andy recommends listeners to *"get out of your comfort zone and have fun"*. And continues with saying *"Have fun. My gosh, you are allowed to have fun!"*. Let's do it!
+
+
+```{r message=FALSE, warning=FALSE, echo = FALSE, fig.width=6, fig.height=6.2, fig.align='center'}
 library(ggrepel)
 
 swd_light_blue <- "#95b3d7"
@@ -202,91 +284,84 @@ reverselog_trans <- function(base = exp(1)) {
             domain = c(1e-100, Inf))
 }
 
-
 slopes_tf_tfidf <- tokens_tfidf %>% 
   filter(interview == "Andy Cotgreave") %>% 
+  add_count(name = "total_words", wt = n) %>% 
+  # arrange(desc(word_lemma)) %>% 
   mutate(word_tf_rank = row_number(-tf),
          word_tfidf_rank = row_number(-tf_idf)) %>%
   filter(word_tf_rank %in% 1:6 | word_tfidf_rank %in% 1:6) %>% 
-  ungroup() %>% 
+  ungroup()
+
+slopes_tf_tfidf_gathered <- slopes_tf_tfidf %>% 
   select(interview, word_lemma, word_tf_rank, word_tfidf_rank) %>% 
   mutate(rank_inc = word_tf_rank > word_tfidf_rank) %>% 
   gather(key, value, word_tf_rank, word_tfidf_rank)
 
-gg_title <- 'tf-idf: the effect of idf on tf.'
-gg_subtitle <- paste(str_wrap(
-  "As an example, these are some of words used by Andy Cotgreave in the 'learning dataviz' episode of #SWDpodast. Although words such as 'data' and 'learn' are the 1st and the 5th most frequent, they are not important when compared to other 11 interviews on the same podcast episode. This is because all 12 interviews are about learning data visualization.", width = 77),
-  "",
-  str_wrap("Notice how idf diminishes the weights of words that appear in many interviews (e.g. 'data', 'learn') and promotes other words (e.g. 'copy', 'fun') as more relevant for a particular interview.", width = 77),
-  "",
-  str_wrap("A word 'copy' is important in the context of recommending Austin Kleon's book Steal Like an Artist. A word 'fun' is important in recommending the listeners to 'get out of your comfort zone and have fun'. 'Have fun. My gosh, you are allowed to have fun!' invites Andy.", width = 77),
-  sep = "\n")
-
+gg_title <- 'tf-idf: the effect of idf on tf'
+gg_subtitle <- "Comparison of two measures of word importance\nRanks are positions relative to other words\nHighest rank means highest importance"
 gg_caption <- "Source: transcript of #SWD podcast episode 'learning dataviz'.\nIllustration by @DmitrijsKass in R with ggplot2."
 
-set.seed(3)
-slopes_tf_tfidf %>% 
+set.seed(1)
+slopes_tf_tfidf_gathered %>% 
   ggplot(aes(x = key, y = value, group = word_lemma, label = word_lemma)) +
   geom_point(colour = swd_light_blue, size = 2) +
-  geom_point(data = filter(slopes_tf_tfidf, rank_inc == TRUE), colour = swd_dark_blue, size = 2) +
+  geom_point(data = filter(slopes_tf_tfidf_gathered, rank_inc == TRUE), colour = swd_dark_blue, size = 2) +
   geom_line(colour = swd_light_blue) +
-  geom_line(data = filter(slopes_tf_tfidf, rank_inc == TRUE), colour = swd_dark_blue, size = 1.05) +
-  geom_text_repel(data = filter(slopes_tf_tfidf, key == "word_tf_rank"), 
+  geom_line(data = filter(slopes_tf_tfidf_gathered, rank_inc == TRUE), colour = swd_dark_blue, size = 1.05) +
+  geom_text_repel(data = filter(slopes_tf_tfidf_gathered, key == "word_tf_rank"), 
                   mapping = aes(color = rank_inc),
                   nudge_x = -0.02, 
                   hjust = "outward",
+                  segment.colour = "grey20",
                   show.legend = FALSE) +
-  geom_text_repel(data = filter(slopes_tf_tfidf, key != "word_tf_rank"), 
+  geom_text_repel(data = filter(slopes_tf_tfidf_gathered, key != "word_tf_rank"), 
                   mapping = aes(color = rank_inc),
                   nudge_x = +0.02, 
                   hjust = "outward",
+                  segment.colour = "grey20",
                   show.legend = FALSE) +
   scale_color_manual(values = c("TRUE" = swd_dark_blue, "FALSE" = swd_light_blue)) +
   scale_y_continuous(trans = reverselog_trans(10), 
-                     sec.axis = dup_axis(), 
+                     sec.axis = dup_axis(name = str_wrap("rank of words by tf-idf", width = 8)), 
                      breaks = c(1:3, 5, 10, 50, 100, 300), 
                      minor_breaks = NULL) +
-  scale_x_discrete(labels = c("rank of words\nby tf\n", "rank of words\nby tf-idf\n"), 
+  scale_x_discrete(labels = NULL, 
                    position = "top", 
-                   expand = expand_scale(mult = 0.2, add = 0)) +
+                   expand = expand_scale(mult = 0.25, add = 0)) +
   labs(x = NULL,
-       y = NULL,
+       y = str_wrap("rank of words by tf", width = 8),
        title = gg_title,
        subtitle = gg_subtitle,
        caption = gg_caption) +
   theme_minimal() +
   theme(panel.grid = element_blank(), 
+        axis.title.y.left = element_text(angle = 0, colour = "grey30", vjust = 0.97),
+        axis.title.y.right = element_text(angle = 0, colour = "grey30", vjust = 0.97),
         axis.text.x = element_text(size = 12, colour = "grey30"),
         axis.text.y = element_text(size = 10, colour = "grey30"), 
-        plot.title = element_text(size = 15, colour = "grey30", hjust = 0.5),
-        plot.subtitle = element_text(size = 9.5, colour = "grey40", margin = margin(b = 15, t = 15)),
+        plot.title = element_text(size = 15, colour = "grey30", hjust = 0.5, margin = margin(b = 0)),
+        plot.subtitle = element_text(size = 13, colour = "grey50", hjust = 0.5, margin = margin(b = 15, t = 5)),
         plot.caption = element_text(size = 8, colour = "grey40", hjust = 0.5, margin = margin(t = 15)))
 ```
 
-# about tf-idf
+Below is the data used for plotting. There are 12 interviews. Andy Cotgreave's interview contains 540 words, 271 of them unique. Importance ranks are positions relative to other words.
 
-Few definitions. Here, the *term* means a single word. In general, a term may be a combination of two words, a sentence, etc. A *document* is an interview - any single interview from the "learning dataviz" episode. A *collection of documents* is a collection of all 12 interviews in the same episode.
+```{r echo = FALSE}
+terms_in_documents <- tokens_tfidf %>% 
+  group_by(word_lemma) %>% 
+  summarise(documents = n_distinct(interview))
 
-**Term frequency (tf)** measures how frequently a term occurs in a document. Since every document is different in length, it is often divided by the document length: 
+t <- slopes_tf_tfidf %>% 
+  left_join(terms_in_documents, by = "word_lemma") %>% 
+  select(word_lemma, freq = n, total_words, tf, documents, idf, tf_idf, tf_rank = word_tf_rank, tfidf_rank = word_tfidf_rank) %>% 
+  arrange(desc(freq), desc(tfidf_rank))
 
-$$tf(t) = \frac{\text{Number of times term t appears in a document}}{\text{Total number of terms in the document}}.$$
-The shortcoming of tf is that it is calculated using each single document in isolation from other documents in the collection. 
+cols <- c("word", "count", "total words", "tf", "documents with word", "idf", "tf-idf", "rank by tf", "rank by idf")
+knitr::kable(t, format = "html", col.names = cols, digits = 3)
+```
 
-**Inverse document frequency (idf)** measures how important a term is. Even if stop words were removed, high term frequency does not obligatory mean that the term is important. Idf is computed as the logarithm of the number of the documents in the collection divided by the number of documents where the specific term appears:
 
-$$idf(t) = log_e\left(\frac{\text{Total number of documents}}{\text{Number of documents with term t in it}}\right).$$
-
-For example, the "learning dataviz" episode of #SWDpodcast is, well, about learning data visualization. Naturally, words "data" and "learn" appear frequently in each of 12 interviews. Does it mean that these words are important? In describing the podcast episode - yes. In describing any particular interview from this episode - no, because all interviewees use these two words.
-
-Mathematically, if the word "learn" appears in all 12 interviews then its idf is zero: 
-
-$$log_e(12/12)=log_e(1)=0$$
-
-Other words that have zero idf in this analysis are *`r zero_tfidf`*.
-
-**Term frequency-inverse document frequency (tf-idf)** is a multiplication of tf and idf. 
-
-Notice that the value of a term's tf is local (document-specific), while its idf is global (single value within a collection of documents). For example, **tf** of the word *"learn"* in one interview is 0.01, in another it is 0.02. Its **idf** is constant within the collection of interviews - zero. Therefore, no matter how often it appears in an any single interview, its **tf-idf** is always zero. And it has the lowest rank in the list of important words, measured by tf-idf - exactly as in the plot above.
 
 <br>
 
@@ -299,10 +374,11 @@ Notice that the value of a term's tf is local (document-specific), while its idf
 
 <br>
 
-Did you find this post interesting or useful? If not, I'd be glad to improve it. Please leave a comment below, no login required if you check "I'd rather post as a guest".
+Any comments or suggestions? I'd be glad to know! Please leave them below, no login required if you check "I'd rather post as a guest".
 
 
 
 
-[^1]: I heard the phrase "common locally and rare globally" for the first time [here](https://www.coursera.org/lecture/ml-foundations/calculating-tf-idf-vectors-1rg5n) and I liked this definition a lot.
-[^2]: Stop words from the [SMART information retrieval system](http://www.jmlr.org/papers/volume5/lewis04a/lewis04a.pdf) available in `tm` package served as the basis. They were supplemented with the names of podcast host and guests. One stop word was removed, it is a letter *"r"*, which is used by one of the podcast guests to refer to R as a software. It is definitely worth knowing prepackaged stop words!
+[^1]: Stop words from the [SMART information retrieval system](http://www.jmlr.org/papers/volume5/lewis04a/lewis04a.pdf) available in `tm` package served as the basis. They were supplemented with the names of podcast host and guests. One stop word was removed, it is a letter *"r"*, which is used by one of the podcast guests to refer to R as a software. It is definitely worth knowing prepackaged stop words!
+[^2]: http://www.tfidf.com
+[^3]: I heard the phrase "common locally and rare globally" for the first time [here](https://www.coursera.org/lecture/ml-foundations/calculating-tf-idf-vectors-1rg5n) and I liked this definition a lot.

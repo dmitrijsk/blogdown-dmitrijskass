@@ -252,7 +252,7 @@ Notice that idf of each term is the same for all documents in a collection.
 
 $$\text{tfidf}(t) = \text{tf}(t) \times \text{idf}(t).$$
 
-It does not matter how high $tf(learn)$ is, if $idf(learn)=0$, the $tfidf(learn)$ will also be zero. On the contrary, if a word is mentioned only in one interview from 12 then its tf gets multiplied by `r round(log(12/1), 2)`. This is what happened to the word "copy". Its importance rank by tf and tf-idf is #40 and #3, respectively.
+It does not matter how high $\text{tf}(learn)$ is, if $\text{idf}(learn)=0$, the $\text{tfidf}(learn)$ will also be zero. On the contrary, if a word is mentioned only in one interview from 12 then its tf gets multiplied by `r round(log(12/1), 2)`. This is what happened to the word "copy". Its importance rank increased from #40, measured by tf, to #3, measured by tf-idf.
 
 
 Tf-idf gives highest weight to words that are "common locally and rare globally"[^3]. "Common locally" refers to the tf component, while "rare globally" refers to the idf component.
@@ -261,14 +261,14 @@ Tf-idf gives highest weight to words that are "common locally and rare globally"
 
 # tf-idf: the effect of idf on tf visualised {#tfidf}
 
-The plot below depicts changes in ranks for the most important words in Andy Cotgreave's interview in the "learning dataviz" episode of #SWDpodast measured by tf (on the left) and tf-idf (on the right). Tf gives the highest weight to words that are simply used most frequently. It is a local measure in a sense that it ignores other interviews in the same podcast episode. 
+The plot below depicts changes in *ranks* (position relative to other words) for the most important words in Andy Cotgreave's interview in the "learning dataviz" episode of #SWDpodast measured by tf (on the left) and tf-idf (on the right). Tf gives the highest weight to words that are simply used most frequently. It is a local measure in a sense that it ignores other interviews in the same podcast episode. 
 
 Multiplication of tf by idf, which gives tf-idf, diminished the importance of words that are common across all interviews, such as "data" and "learn". At the same time it amplifies the importance of rare words, such as "copy" and "fun". 
 
 A word "copy" is used only in Andy's interview. It is used in the context of recommending Austin Kleon's book "Steal Like an Artist". A word "fun" is used only in two more interviews. Andy recommends listeners to *"get out of your comfort zone and have fun"*. And continues with saying *"Have fun. My gosh, you are allowed to have fun!"*. Let's do it!
 
 
-```{r message=FALSE, warning=FALSE, echo = FALSE, fig.width=5.5, fig.height=6, fig.align='center'}
+```{r message=FALSE, warning=FALSE, echo = FALSE, fig.width=6, fig.height=6.2, fig.align='center'}
 library(ggrepel)
 
 swd_light_blue <- "#95b3d7"
@@ -299,7 +299,7 @@ slopes_tf_tfidf_gathered <- slopes_tf_tfidf %>%
   gather(key, value, word_tf_rank, word_tfidf_rank)
 
 gg_title <- 'tf-idf: the effect of idf on tf'
-gg_subtitle <- "Comparison of two measures of word importance"
+gg_subtitle <- "Comparison of two measures of word importance\nRanks are positions relative to other words\nHighest rank means highest importance"
 gg_caption <- "Source: transcript of #SWD podcast episode 'learning dataviz'.\nIllustration by @DmitrijsKass in R with ggplot2."
 
 set.seed(1)
@@ -323,19 +323,21 @@ slopes_tf_tfidf_gathered %>%
                   show.legend = FALSE) +
   scale_color_manual(values = c("TRUE" = swd_dark_blue, "FALSE" = swd_light_blue)) +
   scale_y_continuous(trans = reverselog_trans(10), 
-                     sec.axis = dup_axis(), 
+                     sec.axis = dup_axis(name = str_wrap("rank of words by tf-idf", width = 8)), 
                      breaks = c(1:3, 5, 10, 50, 100, 300), 
                      minor_breaks = NULL) +
-  scale_x_discrete(labels = c("rank of words\nby tf\n", "rank of words\nby tf-idf\n"), 
+  scale_x_discrete(labels = NULL, 
                    position = "top", 
-                   expand = expand_scale(mult = 0.2, add = 0)) +
+                   expand = expand_scale(mult = 0.25, add = 0)) +
   labs(x = NULL,
-       y = NULL,
+       y = str_wrap("rank of words by tf", width = 8),
        title = gg_title,
        subtitle = gg_subtitle,
        caption = gg_caption) +
   theme_minimal() +
   theme(panel.grid = element_blank(), 
+        axis.title.y.left = element_text(angle = 0, colour = "grey30", vjust = 0.97),
+        axis.title.y.right = element_text(angle = 0, colour = "grey30", vjust = 0.97),
         axis.text.x = element_text(size = 12, colour = "grey30"),
         axis.text.y = element_text(size = 10, colour = "grey30"), 
         plot.title = element_text(size = 15, colour = "grey30", hjust = 0.5, margin = margin(b = 0)),
@@ -343,7 +345,7 @@ slopes_tf_tfidf_gathered %>%
         plot.caption = element_text(size = 8, colour = "grey40", hjust = 0.5, margin = margin(t = 15)))
 ```
 
-Below is the data used for plotting. There are 12 interviews. Andy Cotgreave's interview contains 540 words, 271 of them unique.
+Below is the data used for plotting. There are 12 interviews. Andy Cotgreave's interview contains 540 words, 271 of them unique. Importance ranks are positions relative to other words.
 
 ```{r echo = FALSE}
 terms_in_documents <- tokens_tfidf %>% 
@@ -353,7 +355,7 @@ terms_in_documents <- tokens_tfidf %>%
 t <- slopes_tf_tfidf %>% 
   left_join(terms_in_documents, by = "word_lemma") %>% 
   select(word_lemma, freq = n, total_words, tf, documents, idf, tf_idf, tf_rank = word_tf_rank, tfidf_rank = word_tfidf_rank) %>% 
-  arrange(desc(freq))
+  arrange(desc(freq), desc(tfidf_rank))
 
 cols <- c("word", "count", "total words", "tf", "documents with word", "idf", "tf-idf", "rank by tf", "rank by idf")
 knitr::kable(t, format = "html", col.names = cols, digits = 3)

@@ -78,7 +78,7 @@ example</code></pre>
 <p><strong>Inverse document frequency (idf)</strong> measures how important a term is in the context of other documents. Idf is computed as the logarithm of the number of the documents in the collection divided by the number of documents where the specific term appears:</p>
 <p><span class="math display">\[\text{idf}(t) = log_e\left(\frac{\text{Total number of documents}}{\text{Number of documents with term t in it}}\right).\]</span></p>
 <p>Here is the relationship between a number of documents with term <span class="math inline">\(t\)</span> in it and the term’s idf. I assume there are 12 documents in the collection:</p>
-<p><img src="/post/2019-05-08-swdchallenge-artisanal-data_files/figure-html/unnamed-chunk-6-1.png" width="480" style="display: block; margin: auto;" /></p>
+<p><img src="/post/2019-05-08-swdchallenge-artisanal-data_files/figure-html/unnamed-chunk-4-1.png" width="480" style="display: block; margin: auto;" /></p>
 <p>The “learning dataviz” episode of #SWDpodcast is, well, about learning data visualization. Naturally, the word “learn” appears at least once in each of 12 interviews. Does it mean that this word is important? In describing the whole episode - yes. In describing any particular interview from this episode - no, at least in the understanding of idf. Because <em>all</em> interviewees use the word “learn”.</p>
 <p>The word “learn” appears in all 12 interviews, so its idf is zero:</p>
 <p><span class="math display">\[\text{idf}(learn)=log_e(12/12)=log_e(1)=0\]</span></p>
@@ -91,11 +91,12 @@ example</code></pre>
 </div>
 <div id="tfidf" class="section level1">
 <h1>tf-idf: the effect of idf on tf visualised</h1>
-<p>The plot below depicts changes in <em>ranks</em> (position relative to other words) for the most important words in Andy Cotgreave’s interview in the “learning dataviz” episode of #SWDpodast measured by tf (on the left) and tf-idf (on the right). Tf gives the highest weight to words that are simply used most frequently. It is a local measure in a sense that it ignores other interviews in the same podcast episode.</p>
+<p>Next I use the most important words, as measured by tf and tf-idf, from Andy Cotgreave’s interview in the “learning dataviz” episode of #SWDpodast. The plot below visualises changes in <em>ranks</em> - slopes go from tf ranks on the left to tf-idf ranks on the right. Ranks are positions relative to other words. Highest rank means highest importance. There are 271 unique words, so the lowest possible ranks is 271.</p>
+<p>Tf gives the highest weight to words that are simply used most frequently. It is a local measure in a sense that it ignores other interviews in the same podcast episode.</p>
 <p>Multiplication of tf by idf, which gives tf-idf, diminished the importance of words that are common across all interviews, such as “data” and “learn”. At the same time it amplifies the importance of rare words, such as “copy” and “fun”.</p>
-<p>A word “copy” is used only in Andy’s interview. It is used in the context of recommending Austin Kleon’s book “Steal Like an Artist”. A word “fun” is used only in two more interviews. Andy recommends listeners to <em>“get out of your comfort zone and have fun”</em>. And continues with saying <em>“Have fun. My gosh, you are allowed to have fun!”</em>. Let’s do it!</p>
-<p><img src="/post/2019-05-08-swdchallenge-artisanal-data_files/figure-html/unnamed-chunk-7-1.png" width="576" style="display: block; margin: auto;" /></p>
-<p>Below is the data used for plotting. There are 12 interviews. Andy Cotgreave’s interview contains 540 words, 271 of them unique. Importance ranks are positions relative to other words.</p>
+<p>A word “copy” is used only in Andy’s interview. It is used in the context of recommending Austin Kleon’s book “Steal Like an Artist”. A word “fun” is used only in two more interviews. Andy says <em>“… get out of your comfort zone and have fun. Have fun. My gosh, you are allowed to have fun …”</em>. Let’s do it!</p>
+<p><img src="/post/2019-05-08-swdchallenge-artisanal-data_files/figure-html/unnamed-chunk-5-1.png" width="576" style="display: block; margin: auto;" /></p>
+<p>Below is the data used for plotting. There are 12 interviews. Andy Cotgreave’s interview contains 540 words, 271 of them unique. There are six words with zero tf-idf (three of them in a table below), they share tf-idf ranks from 266 to 271.</p>
 <table>
 <thead>
 <tr>

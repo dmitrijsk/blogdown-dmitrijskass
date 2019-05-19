@@ -51,137 +51,6 @@ example
 
 
 
-```{r echo = FALSE}
-
-# Packages.
-library(tidyverse)
-
-# Colours.
-dark_grey <- "grey30"
-light_grey <- "grey80"
-swd_light_blue <- "#95b3d7"
-swd_dark_blue <- "#4f81bd"
-swd_orange <- "#4f81bd" # this is now dark blue; used to be #f79646.
-
-# Text import ----
-
-raw_text <- readLines("swd_podcast_episode_14_learning_dataviz.txt", encoding = "ansi")
-
-# Text cleaning ----
-
-# 1. Extract the monologues of the 12 podcast guests from the transcript.
-
-toc <- raw_text[11:25]
-names(toc) <- str_replace_all(toc, pattern = "(.*)\\|(.*)", replacement = "\\2") %>% str_trim()
-
-content <- raw_text[29:length(raw_text)]
-content <- content[content != ""]
-
-toc_lines <- purrr::map_int(.x = toc, .f = function(x) str_which(string = content, pattern = fixed(x)))
-toc_lines <- tibble(interview = names(toc_lines),
-                    interview_index = toc_lines)
-
-# First and last paragraph of each interview is intro and outro of the host.
-paragraphs_to_ignore <- sapply(c(-1, 0, 1), function(x) toc_lines$interview_index + x) %>% as.vector() %>% sort()
-
-content_df <- tibble(paragraph_id = 1:length(content),
-                     paragraph = content) %>% 
-  left_join(toc_lines, by = c("paragraph_id" = "interview_index")) %>% 
-  fill(interview, .direction = "down") %>% 
-  mutate(ignore = interview %in% c("Intro", "Summary", "Updates") | paragraph_id %in% paragraphs_to_ignore) %>% 
-  filter(!ignore)
-
-
-# 2. Replace contractions.
-
-# Before applying `qdap::replace_contractions()` we need to replace apostrophes from Windows-1252 code page (146) to a ASCII (39).
-# Otherwise, the function may not work (did not work on one of two computers I tried).
-
-content_df$paragraph <- str_replace_all(string = content_df$paragraph,
-                                        pattern = gtools::chr(146), # https://en.wikipedia.org/wiki/Windows-1252
-                                        replacement = gtools::chr(39))
-
-content_df$paragraph <- qdap::replace_contraction(content_df$paragraph)
-
-# 3., 4., 5. Tokenize, lemmatize, mark stop words.
-
-# Define stop words.
-
-# Know your stop words! For example, the SMART set (as documented in Appendix 11
-# of http://jmlr.csail.mit.edu/papers/volume5/lewis04a/) has all single letters
-# on English alphabet, including "r", which in the text may mean a programming
-# language R and in this case you probably don't want to consider it as a stop
-# word.
-
-names_of_guests <- str_to_lower(names(toc)) %>% str_split(pattern = "\\s") %>% unlist()
-stopwords_vec <- setdiff(c(tm::stopwords(kind = "SMART"), names_of_guests, "cole"), "r")
-
-# Tokenize by words, lemmatize and mark stop words.
-tokens <- content_df %>% 
-  tidytext::unnest_tokens(output = "word", input = paragraph, token = "words") %>% 
-  mutate(word_lemma = textstem::lemmatize_words(word),
-         stop_word = word_lemma %in% stopwords_vec)
-
-# Transform some words back after lemmatization.
-tokens <- tokens %>% 
-  mutate(word_lemma = case_when(word_lemma == "numb" ~ "number", 
-                                word_lemma == "datum" ~ "data",
-                                word_lemma == "infographics" ~ "infographic",
-                                TRUE ~ word_lemma))
-
-```
-
-
-```{r echo=FALSE}
-# Calculate word frequency.
-tokens_freq <- tokens %>% 
-  group_by(interview, stop_word, word_lemma) %>% 
-  summarise(n = n()) %>% 
-  ungroup()
-
-stop_df <- tokens_freq %>% 
-  group_by(interview, stop_word) %>% 
-  summarize(n_stop_words = sum(n)) %>% 
-  ungroup()
-
-stop_df <- stop_df %>% 
-  filter(stop_word) %>% 
-  select(-stop_word)
-  
-tokens_freq_groups <- tokens_freq %>% 
-  filter(!stop_word) %>% 
-  group_by(interview) %>% 
-  summarize(n_nonstop_words = sum(n),
-            n_distinct_words = n_distinct(word_lemma)) %>% 
-  mutate(n_repetitive_words = n_nonstop_words - n_distinct_words) %>% 
-  left_join(stop_df, by = "interview") %>% 
-  mutate(interview = reorder(interview, n_nonstop_words + n_stop_words)) %>% 
-  select(-n_nonstop_words) %>% 
-  gather(key, value, -interview) %>% 
-  mutate(key = fct_rev(key))
-
-# Remove stop words.
-tokens_freq <- tokens_freq %>% 
-  filter(!stop_word)
-```
-
-
-```{r echo = FALSE}
-# Add TF-IDF.
-tokens_tfidf <- tokens_freq %>% 
-  tidytext::bind_tf_idf(word_lemma, interview, n)
-
-zero_tfidf <- tokens_tfidf %>% 
-  filter(tf_idf == 0) %>% 
-  pull(word_lemma) %>% 
-  unique()
-
-zero_tfidf <- paste(zero_tfidf, sep = ",")
-```
-
-
-
-
 
 # about tf-idf {#about-tf-idf}
 
@@ -199,12 +68,20 @@ Few definitions. Here,
 
 $$\text{tf}(t) = \frac{\text{Number of times term t appears in a document}}{\text{Total number of terms in the document}}.$$
 
-```{r echo=FALSE}
-andy_one_word <- tokens_tfidf %>% 
-  filter(interview == "Andy Cotgreave" & word_lemma == "learn")
+
+```{r include = FALSE}
+# Text analysis from start to finish with plots and tables.
+source("2019-05-08-swdchallenge-artisanal-data.R")
 ```
 
-For example, if the word "learn" is used 8 times and the interview contains 540 words then
+
+```{r include = FALSE}
+one_word <- t_summary %>% 
+  filter(word_lemma == "learn")
+```
+
+
+For example, if the word "learn" is used `r one_word$freq` times and the interview contains `r one_word$total_words` words then
 
 $$\text{tf}(learn)=8/540\approx0.015.$$
 
@@ -217,23 +94,8 @@ $$\text{idf}(t) = log_e\left(\frac{\text{Total number of documents}}{\text{Numbe
 Here is the relationship between a number of documents with term $t$ in it and the term's idf. I assume there are 12 documents in the collection:
 
 ```{r echo = FALSE, fig.height=2.5, fig.width=5, fig.align='center'}
-tibble(n_docs_with_term = 1:12,
-       idf = log(12 / n_docs_with_term)) %>% 
-  ggplot(aes(x = n_docs_with_term, y = idf)) +
-  geom_point(size = 2) +
-  geom_line() +
-  labs(x = "Number of documents with term t in it",
-       y = "idf(t)") +
-  scale_y_continuous(breaks = seq(0, 3, by = 0.5), minor_breaks = NULL, expand = expand_scale(add = 0.05)) +
-  scale_x_continuous(breaks = 1:12) +
-  theme_classic() +
-  theme(panel.grid = element_blank(), 
-        axis.text.x = element_text(size = 10, colour = "grey30"),
-        axis.text.y = element_text(size = 10, colour = "grey30"), 
-        axis.title = element_text(size = 10, colour = "grey30"), 
-        plot.title = element_text(size = 11, colour = "grey30", hjust = 0))
+p_idf
 ```
-
 
 
 The "learning dataviz" episode of #SWDpodcast is, well, about learning data visualization. Naturally, the word "learn" appears at least once in each of 12 interviews. Does it mean that this word is important? In describing the whole episode - yes. In describing any particular interview from this episode - no, at least in the understanding of idf. Because *all* interviewees use the word "learn". 
@@ -261,104 +123,24 @@ Tf-idf gives highest weight to words that are "common locally and rare globally"
 
 # tf-idf: the effect of idf on tf visualised {#tfidf}
 
-The plot below depicts changes in *ranks* (position relative to other words) for the most important words in Andy Cotgreave's interview in the "learning dataviz" episode of #SWDpodast measured by tf (on the left) and tf-idf (on the right). Tf gives the highest weight to words that are simply used most frequently. It is a local measure in a sense that it ignores other interviews in the same podcast episode. 
+Next I use the most important words, as measured by tf and tf-idf, from Andy Cotgreave's interview in the "learning dataviz" episode of #SWDpodast. The plot below visualises changes in *ranks* - slopes go from tf ranks on the left to tf-idf ranks on the right. Ranks are positions relative to other words. Highest rank means highest importance. There are 271 unique words, so the lowest possible ranks is 271.
+
+Tf gives the highest weight to words that are simply used most frequently. It is a local measure in a sense that it ignores other interviews in the same podcast episode. 
 
 Multiplication of tf by idf, which gives tf-idf, diminished the importance of words that are common across all interviews, such as "data" and "learn". At the same time it amplifies the importance of rare words, such as "copy" and "fun". 
 
-A word "copy" is used only in Andy's interview. It is used in the context of recommending Austin Kleon's book "Steal Like an Artist". A word "fun" is used only in two more interviews. Andy recommends listeners to *"get out of your comfort zone and have fun"*. And continues with saying *"Have fun. My gosh, you are allowed to have fun!"*. Let's do it!
+A word "copy" is used only in Andy's interview. It is used in the context of recommending Austin Kleon's book "Steal Like an Artist". A word "fun" is used only in two more interviews. Andy says *"... get out of your comfort zone and have fun. Have fun. My gosh, you are allowed to have fun ..."*. Let's do it!
 
 
 ```{r message=FALSE, warning=FALSE, echo = FALSE, fig.width=6, fig.height=6.2, fig.align='center'}
-library(ggrepel)
-
-swd_light_blue <- "#95b3d7"
-swd_dark_blue <- "#4f81bd"
-
-# Source for `reverselog_trans()`: https://stackoverflow.com/questions/11053899/how-to-get-a-reversed-log10-scale-in-ggplot2
-library("scales")
-reverselog_trans <- function(base = exp(1)) {
-  trans <- function(x) -log(x, base)
-  inv <- function(x) base^(-x)
-  trans_new(paste0("reverselog-", format(base)), trans, inv, 
-            log_breaks(base = base), 
-            domain = c(1e-100, Inf))
-}
-
-slopes_tf_tfidf <- tokens_tfidf %>% 
-  filter(interview == "Andy Cotgreave") %>% 
-  add_count(name = "total_words", wt = n) %>% 
-  # arrange(desc(word_lemma)) %>% 
-  mutate(word_tf_rank = row_number(-tf),
-         word_tfidf_rank = row_number(-tf_idf)) %>%
-  filter(word_tf_rank %in% 1:6 | word_tfidf_rank %in% 1:6) %>% 
-  ungroup()
-
-slopes_tf_tfidf_gathered <- slopes_tf_tfidf %>% 
-  select(interview, word_lemma, word_tf_rank, word_tfidf_rank) %>% 
-  mutate(rank_inc = word_tf_rank > word_tfidf_rank) %>% 
-  gather(key, value, word_tf_rank, word_tfidf_rank)
-
-gg_title <- 'tf-idf: the effect of idf on tf'
-gg_subtitle <- "Comparison of two measures of word importance\nRanks are positions relative to other words\nHighest rank means highest importance"
-gg_caption <- "Source: transcript of #SWD podcast episode 'learning dataviz'.\nIllustration by @DmitrijsKass in R with ggplot2."
-
-set.seed(1)
-slopes_tf_tfidf_gathered %>% 
-  ggplot(aes(x = key, y = value, group = word_lemma, label = word_lemma)) +
-  geom_point(colour = swd_light_blue, size = 2) +
-  geom_point(data = filter(slopes_tf_tfidf_gathered, rank_inc == TRUE), colour = swd_dark_blue, size = 2) +
-  geom_line(colour = swd_light_blue) +
-  geom_line(data = filter(slopes_tf_tfidf_gathered, rank_inc == TRUE), colour = swd_dark_blue, size = 1.05) +
-  geom_text_repel(data = filter(slopes_tf_tfidf_gathered, key == "word_tf_rank"), 
-                  mapping = aes(color = rank_inc),
-                  nudge_x = -0.02, 
-                  hjust = "outward",
-                  segment.colour = "grey20",
-                  show.legend = FALSE) +
-  geom_text_repel(data = filter(slopes_tf_tfidf_gathered, key != "word_tf_rank"), 
-                  mapping = aes(color = rank_inc),
-                  nudge_x = +0.02, 
-                  hjust = "outward",
-                  segment.colour = "grey20",
-                  show.legend = FALSE) +
-  scale_color_manual(values = c("TRUE" = swd_dark_blue, "FALSE" = swd_light_blue)) +
-  scale_y_continuous(trans = reverselog_trans(10), 
-                     sec.axis = dup_axis(name = str_wrap("rank of words by tf-idf", width = 8)), 
-                     breaks = c(1:3, 5, 10, 50, 100, 300), 
-                     minor_breaks = NULL) +
-  scale_x_discrete(labels = NULL, 
-                   position = "top", 
-                   expand = expand_scale(mult = 0.25, add = 0)) +
-  labs(x = NULL,
-       y = str_wrap("rank of words by tf", width = 8),
-       title = gg_title,
-       subtitle = gg_subtitle,
-       caption = gg_caption) +
-  theme_minimal() +
-  theme(panel.grid = element_blank(), 
-        axis.title.y.left = element_text(angle = 0, colour = "grey30", vjust = 0.97),
-        axis.title.y.right = element_text(angle = 0, colour = "grey30", vjust = 0.97),
-        axis.text.x = element_text(size = 12, colour = "grey30"),
-        axis.text.y = element_text(size = 10, colour = "grey30"), 
-        plot.title = element_text(size = 15, colour = "grey30", hjust = 0.5, margin = margin(b = 0)),
-        plot.subtitle = element_text(size = 13, colour = "grey50", hjust = 0.5, margin = margin(b = 15, t = 5)),
-        plot.caption = element_text(size = 8, colour = "grey40", hjust = 0.5, margin = margin(t = 15)))
+p_slopes
 ```
 
-Below is the data used for plotting. There are 12 interviews. Andy Cotgreave's interview contains 540 words, 271 of them unique. Importance ranks are positions relative to other words.
+Below is the data used for plotting. There are 12 interviews. Andy Cotgreave's interview contains 540 words, 271 of them unique. There are six words with zero tf-idf (three of them in a table below), they share tf-idf ranks from 266 to 271.
 
 ```{r echo = FALSE}
-terms_in_documents <- tokens_tfidf %>% 
-  group_by(word_lemma) %>% 
-  summarise(documents = n_distinct(interview))
-
-t <- slopes_tf_tfidf %>% 
-  left_join(terms_in_documents, by = "word_lemma") %>% 
-  select(word_lemma, freq = n, total_words, tf, documents, idf, tf_idf, tf_rank = word_tf_rank, tfidf_rank = word_tfidf_rank) %>% 
-  arrange(desc(freq), desc(tfidf_rank))
-
 cols <- c("word", "count", "total words", "tf", "documents with word", "idf", "tf-idf", "rank by tf", "rank by idf")
-knitr::kable(t, format = "html", col.names = cols, digits = 3)
+knitr::kable(t_summary, format = "html", col.names = cols, digits = 3)
 ```
 
 

@@ -98,7 +98,6 @@ p_idf
 ```
 
 
-
 The "learning dataviz" episode of #SWDpodcast is, well, about learning data visualization. Naturally, the word "learn" appears at least once in each of 12 interviews. Does it mean that this word is important? In describing the whole episode - yes. In describing any particular interview from this episode - no, at least in the understanding of idf. Because *all* interviewees use the word "learn". 
 
 The word "learn" appears in all 12 interviews, so its idf is zero: 

@@ -177,7 +177,7 @@ reverselog_trans <- function(base = exp(1)) {
 
 # Plot titles.
 gg_title <- 'tf-idf: the effect of idf on tf'
-gg_subtitle <- "Comparison of two measures of word importance: tf (term frequency) and tf-idf (term frequency-inverse document frequency). Ranks are positions relative to other words. Highest rank means highest importance. Lowest rank is 271."
+gg_subtitle <- "Comparison of two measures of word importance: tf (term frequency) and tf-idf (term frequency-inverse document frequency). Ranks are positions relative to other words. Highest rank is 1, means highest importance. Lowest rank is 271."
 gg_caption <- "Source: transcript of #SWD podcast episode 'learning dataviz'.\nIllustration by @DmitrijsKass in R with ggplot2."
 
 # Viz.

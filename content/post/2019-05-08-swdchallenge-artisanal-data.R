@@ -177,8 +177,8 @@ reverselog_trans <- function(base = exp(1)) {
 
 # Plot titles.
 gg_title <- 'tf-idf: the effect of idf on tf'
-gg_subtitle <- "Comparison of two measures of word importance: tf (term frequency) and tf-idf (term frequency-inverse document frequency). Ranks are positions relative to other words. Highest rank is 1, means highest importance. Lowest rank is 271."
-gg_caption <- "Source: transcript of #SWD podcast episode 'learning dataviz'.\nIllustration by @DmitrijsKass in R with ggplot2."
+gg_subtitle <- "Comparison of two measures of word importance: tf (term frequency) and tf-idf (term frequency-inverse document frequency). Ranks are positions relative to other words; the highest rank is 1, which means the highest importance, the lowest rank is 271."
+gg_caption <- "Source: transcript of Andy Cotgreave's interview in the \"learning dataviz\" episode of #SWDpodcast.\nIllustration by @DmitrijsKass in R with ggplot2."
 
 # Viz.
 set.seed(1)
@@ -203,7 +203,7 @@ p_slopes <- slopes_tf_tfidf_gathered %>%
   scale_color_manual(values = c("TRUE" = swd_dark_blue, "FALSE" = swd_light_blue)) +
   scale_y_continuous(trans = reverselog_trans(10), 
                      sec.axis = dup_axis(name = str_wrap("rank of words by tf-idf", width = 8)), 
-                     breaks = c(1:3, 5, 10, 50, 100, 300), 
+                     breaks = c(1:3, 5, 10, 50, 100, 271), 
                      minor_breaks = NULL) +
   scale_x_discrete(labels = NULL, 
                    position = "top", 
@@ -211,7 +211,7 @@ p_slopes <- slopes_tf_tfidf_gathered %>%
   labs(x = NULL,
        y = str_wrap("rank of words by tf", width = 8),
        title = gg_title,
-       subtitle = str_wrap(gg_subtitle, width = 77),
+       subtitle = str_wrap(gg_subtitle, width = 84),
        caption = gg_caption) +
   theme_minimal() +
   theme(panel.grid = element_blank(), 
@@ -220,7 +220,7 @@ p_slopes <- slopes_tf_tfidf_gathered %>%
         axis.text.x = element_text(size = 12, colour = "grey30"),
         axis.text.y = element_text(size = 10, colour = "grey30"), 
         plot.title = element_text(size = 15, colour = "grey30", hjust = 0.5, margin = margin(b = 0)),
-        plot.subtitle = element_text(size = 12, colour = "grey50", hjust = 0.5, margin = margin(t = 10, b = 15)),
+        plot.subtitle = element_text(size = 11.5, colour = "grey50", hjust = 0.5, margin = margin(t = 10, b = 15)),
         plot.caption = element_text(size = 8, colour = "grey40", hjust = 0.5, margin = margin(t = 15)))
 
 ggsave(plot = p_slopes, filename = "tfidf-the-effect-of-idf-on-tf.png", width = 6, height = 7.8, units = "in")

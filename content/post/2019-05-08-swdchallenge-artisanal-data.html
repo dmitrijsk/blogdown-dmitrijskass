@@ -25,8 +25,8 @@ output:
 <p>This post is a participation in <a href="http://www.storytellingwithdata.com/blog/2019/5/1/swdchallenge-artisanal-data">#SWDchallenge: artisanal data</a>. Along with that it <strong>visualizes two common measures of word importance: tf and tf-idf</strong>. Variations of tf-idf, term frequency-inverse document frequency, are often used by search engines and text-based recommender systems.</p>
 <hr />
 <p>I use the <a href="https://docs.google.com/document/d/1S2_63MUbvQs7fxWQrcuCNSl03fmDl1Vr3FjNjnbWK14/edit#">transcript</a> of the “learning dataviz” episode of <a href="http://www.storytellingwithdata.com/podcast">#SWDpodcast</a>, where 12 data visualization professionals share their stories and recommendations.</p>
-<p>I find a lot of wisdom and inspiration in this episode. <a href="http://www.storytellingwithdata.com/book">Storytelling with Data</a> (SWD) book has been on my shelf for over a year and it is this podcast episode that sparkled interest in me about data visualization and made me read the book in few days and start participating in data viz challenges. So I thought I would enjoy spending more time with this episode by analysing the words in it.</p>
-<p>Analysis is performed in <a href="https://www.r-project.org/">R</a>, a free software environment for statistical computing and graphics, mainly using the <a href="https://www.tidyverse.org/">tidyverse</a> packages, including <a href="https://ggplot2.tidyverse.org/">ggplot2</a> for visualization.</p>
+<p>I find a lot of wisdom and inspiration in this episode. <a href="http://www.storytellingwithdata.com/book">The Storytelling with Data</a> (SWD) book has been on my shelf for over a year and it is this podcast episode that sparked an interest in me about data visualization and inspired me to read the book in a few days and start participating in data viz challenges. So I thought I would enjoy spending more time with this episode by analysing the words in it.</p>
+<p>The analysis was performed in <a href="https://www.r-project.org/">R</a>, a free software environment for statistical computing and graphics, mainly using the <a href="https://www.tidyverse.org/">tidyverse</a> packages, including <a href="https://ggplot2.tidyverse.org/">ggplot2</a> for visualization.</p>
 <div id="text-cleaning" class="section level1">
 <h1>text cleaning</h1>
 <p>Text cleaning involves five steps:</p>
@@ -64,7 +64,7 @@ example</code></pre>
 <div id="about-tf-idf" class="section level1">
 <h1>about tf-idf</h1>
 <p>If you are already familiar with tf (term frequency), idf (inverse document frequency) and tf-idf (term frequency-inverse document frequency) then you may skip this section and go directly to the <a href="#tfidf">visual comparison of these two measures of word importance</a>.</p>
-<p>Few definitions. Here,</p>
+<p>Few definitions in the context of this analysis:</p>
 <ul>
 <li><em>term</em> is a single word (in general, a term may be a combination of two words, a sentence, etc.)</li>
 <li><em>document</em> is an interview - any single interview from the “learning dataviz” episode.</li>
@@ -75,28 +75,28 @@ example</code></pre>
 <p>For example, if the word “learn” is used 8 times and the interview contains 540 words then</p>
 <p><span class="math display">\[\text{tf}(learn)=8/540\approx0.015.\]</span></p>
 <p>When used to measure word importance, the shortcoming of tf is that it is calculated using a single document in isolation from other documents in the collection. Notice that a word’s tf may be different for each document within a collection.</p>
-<p><strong>Inverse document frequency (idf)</strong> measures how important a term is in the context of other documents. Idf is computed as the logarithm of the number of the documents in the collection divided by the number of documents where the specific term appears:</p>
+<p><strong>Inverse document frequency (idf)</strong> measures how important a term is in the context of other documents. Idf is computed as the logarithm of the number of documents in the collection divided by the number of documents where the specific term appears:</p>
 <p><span class="math display">\[\text{idf}(t) = log_e\left(\frac{\text{Total number of documents}}{\text{Number of documents with term t in it}}\right).\]</span></p>
 <p>Here is the relationship between a number of documents with term <span class="math inline">\(t\)</span> in it and the term’s idf. I assume there are 12 documents in the collection:</p>
 <p><img src="/post/2019-05-08-swdchallenge-artisanal-data_files/figure-html/unnamed-chunk-4-1.png" width="480" style="display: block; margin: auto;" /></p>
-<p>The “learning dataviz” episode of #SWDpodcast is, well, about learning data visualization. Naturally, the word “learn” appears at least once in each of 12 interviews. Does it mean that this word is important? In describing the whole episode - yes. In describing any particular interview from this episode - no, at least in the understanding of idf. Because <em>all</em> interviewees use the word “learn”.</p>
+<p>The “learning dataviz” episode of #SWDpodcast is about learning data visualization. Naturally, the word “learn” appears at least once in each of the 12 interviews. Does it mean that this word is important? In describing the whole episode - yes. In describing any particular interview from this episode - no, at least in the understanding of idf. Because <em>all</em> interviewees use the word “learn”.</p>
 <p>The word “learn” appears in all 12 interviews, so its idf is zero:</p>
 <p><span class="math display">\[\text{idf}(learn)=log_e(12/12)=log_e(1)=0\]</span></p>
-<p>It means that the word “learn” is completely unimportant to describe any specific interview in the context of other 11 interviews. Other words with zero importance here are <em>data, year, make, thing, work</em>.</p>
-<p>Notice that idf of each term is the same for all documents in a collection.</p>
+<p>This means that the word “learn” is completely unimportant to describe any specific interview in the context of the other 11 interviews. Other words with zero importance here are <em>data, year, make, thing, work</em>.</p>
+<p>Notice that the idf of each term is the same for all documents in a collection.</p>
 <p><strong>Term frequency-inverse document frequency (tf-idf)</strong> is a multiplication of tf and idf:</p>
 <p><span class="math display">\[\text{tfidf}(t) = \text{tf}(t) \times \text{idf}(t).\]</span></p>
-<p>It does not matter how high <span class="math inline">\(\text{tf}(learn)\)</span> is, if <span class="math inline">\(\text{idf}(learn)=0\)</span>, the <span class="math inline">\(\text{tfidf}(learn)\)</span> will also be zero. On the contrary, if a word is mentioned only in one interview from 12 then its tf gets multiplied by 2.48. This is what happened to the word “copy”. Its importance rank increased from #40, measured by tf, to #3, measured by tf-idf.</p>
-<p>Tf-idf gives highest weight to words that are “common locally and rare globally”<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>. “Common locally” refers to the tf component, while “rare globally” refers to the idf component.</p>
+<p>It does not matter how high <span class="math inline">\(\text{tf}(learn)\)</span> is, if <span class="math inline">\(\text{idf}(learn)=0\)</span>, the <span class="math inline">\(\text{tfidf}(learn)\)</span> will also be zero. On the contrary, if a word is only mentioned in one interview from 12 then its tf gets multiplied by 2.48. This is what happened to the word “copy”. Its importance rank increased from #40, measured by tf, to #3, measured by tf-idf.</p>
+<p>Tf-idf gives the highest weight to words that are “common locally and rare globally”<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>. “Common locally” refers to the tf component, while “rare globally” refers to the idf component.</p>
 </div>
 <div id="tfidf" class="section level1">
 <h1>tf-idf: the effect of idf on tf visualised</h1>
-<p>Next I use the most important words, as measured by tf and tf-idf, from Andy Cotgreave’s interview in the “learning dataviz” episode of #SWDpodast. The plot below visualises changes in <em>ranks</em> - slopes go from tf ranks on the left to tf-idf ranks on the right. Ranks are positions relative to other words. Highest rank means highest importance. There are 271 unique words, so the lowest possible ranks is 271.</p>
-<p>Tf gives the highest weight to words that are simply used most frequently. It is a local measure in a sense that it ignores other interviews in the same podcast episode.</p>
-<p>Multiplication of tf by idf, which gives tf-idf, diminished the importance of words that are common across all interviews, such as “data” and “learn”. At the same time it amplifies the importance of rare words, such as “copy” and “fun”.</p>
-<p>A word “copy” is used only in Andy’s interview. It is used in the context of recommending Austin Kleon’s book “Steal Like an Artist”. A word “fun” is used only in two more interviews. Andy says <em>“… get out of your comfort zone and have fun. Have fun. My gosh, you are allowed to have fun …”</em>. Let’s do it!</p>
+<p>Next I use the most important words, as measured by tf and tf-idf, from Andy Cotgreave’s interview in the “learning dataviz” episode of #SWDpodcast. The plot below visualises changes in <em>ranks</em> - slopes go from tf ranks on the left to tf-idf ranks on the right. Ranks are positions relative to other words; the highest rank means the highest importance. There are 271 unique words, so the lowest possible rank is 271.</p>
+<p>Tf gives the highest weight to words that are simply used most frequently. It is a local measure in the sense that it ignores other interviews in the same podcast episode.</p>
+<p>Multiplication of tf by idf, which gives tf-idf, diminishes the importance of words that are common across all interviews, such as “data” and “learn”. At the same time it amplifies the importance of rare words, such as “copy” and “fun”.</p>
+<p>The word “copy” is used only in Andy’s interview. It is used in the context of recommending Austin Kleon’s book “Steal Like an Artist”. The word “fun” is used only in two more interviews. Andy says <em>“… get out of your comfort zone and have fun. Have fun. My gosh, you are allowed to have fun …”</em>. Let’s do it!</p>
 <p><img src="/post/2019-05-08-swdchallenge-artisanal-data_files/figure-html/unnamed-chunk-5-1.png" width="576" style="display: block; margin: auto;" /></p>
-<p>Below is the data used for plotting. There are 12 interviews. Andy Cotgreave’s interview contains 540 words, 271 of them unique. There are six words with zero tf-idf (three of them in a table below), they share tf-idf ranks from 266 to 271.</p>
+<p>Below is the data used for plotting. There are 12 interviews. Andy Cotgreave’s interview contains 540 words, 271 of them unique. There are six words with zero tf-idf (three of them in the table below); they share tf-idf ranks from 266 to 271.</p>
 <table>
 <thead>
 <tr>
@@ -463,7 +463,7 @@ copy
 <div class="footnotes">
 <hr />
 <ol>
-<li id="fn1"><p>Stop words from the <a href="http://www.jmlr.org/papers/volume5/lewis04a/lewis04a.pdf">SMART information retrieval system</a> available in <code>tm</code> package served as the basis. They were supplemented with the names of podcast host and guests. One stop word was removed, it is a letter <em>“r”</em>, which is used by one of the podcast guests to refer to R as a software. It is definitely worth knowing prepackaged stop words!<a href="#fnref1" class="footnote-back">↩</a></p></li>
+<li id="fn1"><p>Stop words from the <a href="http://www.jmlr.org/papers/volume5/lewis04a/lewis04a.pdf">SMART information retrieval system</a> available in <code>tm</code> package served as the basis. They were supplemented with the names of podcast host and guests. One stop word was removed; it was the letter <em>“r”</em>, which is used by one of the podcast guests to refer to R as a software. It is definitely worth knowing prepackaged stop words!<a href="#fnref1" class="footnote-back">↩</a></p></li>
 <li id="fn2"><p><a href="http://www.tfidf.com" class="uri">http://www.tfidf.com</a><a href="#fnref2" class="footnote-back">↩</a></p></li>
 <li id="fn3"><p>I heard the phrase “common locally and rare globally” for the first time <a href="https://www.coursera.org/lecture/ml-foundations/calculating-tf-idf-vectors-1rg5n">here</a> and I liked this definition a lot.<a href="#fnref3" class="footnote-back">↩</a></p></li>
 </ol>

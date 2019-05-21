@@ -150,7 +150,7 @@ knitr::kable(t_summary, format = "html", col.names = cols, digits = 3)
 **References:**
 
 * Learn about text analysis in a tidy way with [Text Mining with R](https://www.tidytextmining.com/)
-* R code for this blog post is available at my [GitHub repository](https://github.com/dmitrijsk/blogdown-dmitrijskass/blob/redo-swd-artisanal-data/content/post/2019-05-08-swdchallenge-artisanal-data.R).
+* R code for this blog post is available at my [GitHub repository](https://github.com/dmitrijsk/blogdown-dmitrijskass/blob/master/content/post/2019-05-08-swdchallenge-artisanal-data.R).
 
 
 

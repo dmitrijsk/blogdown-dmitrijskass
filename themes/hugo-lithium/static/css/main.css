@@ -27,6 +27,7 @@ a {
 
 code {
   background-color: rgba(0, 0, 0, 0.02);
+  max-width: 100%;
 }
 
 /*Rescale images: https://stackoverflow.com/questions/45827291/resize-a-plot-generated-in-r-in-a-web-page-generated-by-blogdown-to-different-sc*/
@@ -36,6 +37,7 @@ img {
 
 /*Tables*/
 table {
+	max-width: 100%;
 	border-collapse:collapse;
 	font-size: 0.9em;
 	margin-left:auto; 

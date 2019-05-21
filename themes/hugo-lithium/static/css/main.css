@@ -59,6 +59,11 @@ td {
 /*Font-size of categories and tags under the page title*/
 .terms { font-size: 12px; }
 
+/*Width of formulas*/
+.mjx-math {
+  max-width: 100%;
+}
+
 .wrapper {
   overflow: hidden;
   position: relative;

@@ -27,21 +27,17 @@ a {
 
 code {
   background-color: rgba(0, 0, 0, 0.02);
-  max-width: 100%;
 }
 
 /*Rescale images: https://stackoverflow.com/questions/45827291/resize-a-plot-generated-in-r-in-a-web-page-generated-by-blogdown-to-different-sc*/
-img {
-  max-width: 100%;
-}
+/*https://bookdown.org/yihui/blogdown/templates.html*/
+img, iframe, video { max-width: 100%; }
 
 /*Tables*/
 table {
-	max-width: 100%;
 	border-collapse:collapse;
 	font-size: 0.9em;
-	margin-left:auto; 
-    margin-right:auto;
+	margin: auto;
 }
 tr:nth-child(even) {background-color: #f2f2f2;}
 th {
@@ -58,11 +54,6 @@ td {
 
 /*Font-size of categories and tags under the page title*/
 .terms { font-size: 12px; }
-
-/*Width of formulas*/
-.mjx-math {
-  max-width: 100%;
-}
 
 .wrapper {
   overflow: hidden;

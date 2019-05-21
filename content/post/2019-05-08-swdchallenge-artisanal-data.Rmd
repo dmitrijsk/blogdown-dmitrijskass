@@ -19,9 +19,9 @@ This post is a participation in [#SWDchallenge: artisanal data](http://www.story
 
 I use the [transcript](https://docs.google.com/document/d/1S2_63MUbvQs7fxWQrcuCNSl03fmDl1Vr3FjNjnbWK14/edit#) of the "learning dataviz" episode of [#SWDpodcast](http://www.storytellingwithdata.com/podcast), where 12 data visualization professionals share their stories and recommendations.
 
-I find a lot of wisdom and inspiration in this episode. [Storytelling with Data](http://www.storytellingwithdata.com/book) (SWD) book has been on my shelf for over a year and it is this podcast episode that sparkled interest in me about data visualization and made me read the book in few days and start participating in data viz challenges. So I thought I would enjoy spending more time with this episode by analysing the words in it.
+I find a lot of wisdom and inspiration in this episode. [The Storytelling with Data](http://www.storytellingwithdata.com/book) (SWD) book has been on my shelf for over a year and it is this podcast episode that sparked an interest in me about data visualization and inspired me to read the book in a few days and start participating in data viz challenges. So I thought I would enjoy spending more time with this episode by analysing the words in it.
 
-Analysis is performed in [R](https://www.r-project.org/), a free software environment for statistical computing and graphics, mainly using the [tidyverse](https://www.tidyverse.org/) packages, including [ggplot2](https://ggplot2.tidyverse.org/) for visualization. 
+The analysis was performed in [R](https://www.r-project.org/), a free software environment for statistical computing and graphics, mainly using the [tidyverse](https://www.tidyverse.org/) packages, including [ggplot2](https://ggplot2.tidyverse.org/) for visualization.
 
 
 # text cleaning
@@ -58,7 +58,7 @@ If you are already familiar with tf (term frequency), idf (inverse document freq
 
 
 
-Few definitions. Here, 
+Few definitions in the context of this analysis:
 
 * *term* is a single word (in general, a term may be a combination of two words, a sentence, etc.)
 * *document* is an interview - any single interview from the "learning dataviz" episode. 
@@ -87,7 +87,7 @@ $$\text{tf}(learn)=8/540\approx0.015.$$
 
 When used to measure word importance, the shortcoming of tf is that it is calculated using a single document in isolation from other documents in the collection. Notice that a word's tf may be different for each document within a collection.
 
-**Inverse document frequency (idf)** measures how important a term is in the context of other documents. Idf is computed as the logarithm of the number of the documents in the collection divided by the number of documents where the specific term appears:
+**Inverse document frequency (idf)** measures how important a term is in the context of other documents. Idf is computed as the logarithm of the number of documents in the collection divided by the number of documents where the specific term appears:
 
 $$\text{idf}(t) = log_e\left(\frac{\text{Total number of documents}}{\text{Number of documents with term t in it}}\right).$$
 
@@ -98,15 +98,15 @@ p_idf
 ```
 
 
-The "learning dataviz" episode of #SWDpodcast is, well, about learning data visualization. Naturally, the word "learn" appears at least once in each of 12 interviews. Does it mean that this word is important? In describing the whole episode - yes. In describing any particular interview from this episode - no, at least in the understanding of idf. Because *all* interviewees use the word "learn". 
+The "learning dataviz" episode of #SWDpodcast is about learning data visualization. Naturally, the word "learn" appears at least once in each of the 12 interviews. Does it mean that this word is important? In describing the whole episode - yes. In describing any particular interview from this episode - no, at least in the understanding of idf. Because *all* interviewees use the word "learn". 
 
 The word "learn" appears in all 12 interviews, so its idf is zero: 
 
 $$\text{idf}(learn)=log_e(12/12)=log_e(1)=0$$
 
-It means that the word "learn" is completely unimportant to describe any specific interview in the context of other 11 interviews. Other words with zero importance here are *`r setdiff(zero_tfidf, "learn")`*.
+This means that the word "learn" is completely unimportant to describe any specific interview in the context of the other 11 interviews. Other words with zero importance here are *`r setdiff(zero_tfidf, "learn")`*.
 
-Notice that idf of each term is the same for all documents in a collection.
+Notice that the idf of each term is the same for all documents in a collection.
 
 
 
@@ -114,29 +114,29 @@ Notice that idf of each term is the same for all documents in a collection.
 
 $$\text{tfidf}(t) = \text{tf}(t) \times \text{idf}(t).$$
 
-It does not matter how high $\text{tf}(learn)$ is, if $\text{idf}(learn)=0$, the $\text{tfidf}(learn)$ will also be zero. On the contrary, if a word is mentioned only in one interview from 12 then its tf gets multiplied by `r round(log(12/1), 2)`. This is what happened to the word "copy". Its importance rank increased from #40, measured by tf, to #3, measured by tf-idf.
+It does not matter how high $\text{tf}(learn)$ is, if $\text{idf}(learn)=0$, the $\text{tfidf}(learn)$ will also be zero. On the contrary, if a word is only mentioned in one interview from 12 then its tf gets multiplied by `r round(log(12/1), 2)`. This is what happened to the word "copy". Its importance rank increased from #40, measured by tf, to #3, measured by tf-idf.
 
 
-Tf-idf gives highest weight to words that are "common locally and rare globally"[^3]. "Common locally" refers to the tf component, while "rare globally" refers to the idf component.
+Tf-idf gives the highest weight to words that are "common locally and rare globally"[^3]. "Common locally" refers to the tf component, while "rare globally" refers to the idf component.
 
 
 
 # tf-idf: the effect of idf on tf visualised {#tfidf}
 
-Next I use the most important words, as measured by tf and tf-idf, from Andy Cotgreave's interview in the "learning dataviz" episode of #SWDpodast. The plot below visualises changes in *ranks* - slopes go from tf ranks on the left to tf-idf ranks on the right. Ranks are positions relative to other words. Highest rank means highest importance. There are 271 unique words, so the lowest possible ranks is 271.
+Next I use the most important words, as measured by tf and tf-idf, from Andy Cotgreave's interview in the "learning dataviz" episode of #SWDpodcast. The plot below visualises changes in *ranks* - slopes go from tf ranks on the left to tf-idf ranks on the right. Ranks are positions relative to other words; the highest rank means the highest importance. There are 271 unique words, so the lowest possible rank is 271.
 
-Tf gives the highest weight to words that are simply used most frequently. It is a local measure in a sense that it ignores other interviews in the same podcast episode. 
+Tf gives the highest weight to words that are simply used most frequently. It is a local measure in the sense that it ignores other interviews in the same podcast episode.
 
-Multiplication of tf by idf, which gives tf-idf, diminished the importance of words that are common across all interviews, such as "data" and "learn". At the same time it amplifies the importance of rare words, such as "copy" and "fun". 
+Multiplication of tf by idf, which gives tf-idf, diminishes the importance of words that are common across all interviews, such as "data" and "learn". At the same time it amplifies the importance of rare words, such as "copy" and "fun". 
 
-A word "copy" is used only in Andy's interview. It is used in the context of recommending Austin Kleon's book "Steal Like an Artist". A word "fun" is used only in two more interviews. Andy says *"... get out of your comfort zone and have fun. Have fun. My gosh, you are allowed to have fun ..."*. Let's do it!
+The word "copy" is used only in Andy's interview. It is used in the context of recommending Austin Kleon's book “Steal Like an Artist”. The word “fun” is used only in two more interviews. Andy says *"... get out of your comfort zone and have fun. Have fun. My gosh, you are allowed to have fun ..."*. Let's do it!
 
 
 ```{r message=FALSE, warning=FALSE, echo = FALSE, fig.width=6, fig.height=6.2, fig.align='center'}
 p_slopes
 ```
 
-Below is the data used for plotting. There are 12 interviews. Andy Cotgreave's interview contains 540 words, 271 of them unique. There are six words with zero tf-idf (three of them in a table below), they share tf-idf ranks from 266 to 271.
+Below is the data used for plotting. There are 12 interviews. Andy Cotgreave's interview contains 540 words, 271 of them unique. There are six words with zero tf-idf (three of them in the table below); they share tf-idf ranks from 266 to 271.
 
 ```{r echo = FALSE}
 cols <- c("word", "count", "total words", "tf", "documents with word", "idf", "tf-idf", "rank by tf", "rank by idf")
@@ -161,6 +161,6 @@ Any comments or suggestions? I'd be glad to know! Please leave them below, no lo
 
 
 
-[^1]: Stop words from the [SMART information retrieval system](http://www.jmlr.org/papers/volume5/lewis04a/lewis04a.pdf) available in `tm` package served as the basis. They were supplemented with the names of podcast host and guests. One stop word was removed, it is a letter *"r"*, which is used by one of the podcast guests to refer to R as a software. It is definitely worth knowing prepackaged stop words!
+[^1]: Stop words from the [SMART information retrieval system](http://www.jmlr.org/papers/volume5/lewis04a/lewis04a.pdf) available in `tm` package served as the basis. They were supplemented with the names of podcast host and guests. One stop word was removed; it was the letter *"r"*, which is used by one of the podcast guests to refer to R as a software. It is definitely worth knowing prepackaged stop words!
 [^2]: http://www.tfidf.com
 [^3]: I heard the phrase "common locally and rare globally" for the first time [here](https://www.coursera.org/lecture/ml-foundations/calculating-tf-idf-vectors-1rg5n) and I liked this definition a lot.

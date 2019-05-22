@@ -51,6 +51,8 @@ td {
 	width: 5%;
 }
 
+/*Center align twitter tweets*/
+.twitter-tweet { margin: auto; }
 
 /*Font-size of categories and tags under the page title*/
 .terms { font-size: 12px; }

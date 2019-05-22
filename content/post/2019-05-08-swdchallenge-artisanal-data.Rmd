@@ -161,7 +161,7 @@ knitr::kable(t_summary, format = "html", col.names = cols, digits = 3)
 
 <br>
 
-Any comments or suggestions? I'd be glad to know! Please leave them below, no login required if you check "I'd rather post as a guest".
+Any comments or suggestions? I'd be glad to know! Please leave them below, no login required if you check "I'd rather post as a guest". 
 
 
 

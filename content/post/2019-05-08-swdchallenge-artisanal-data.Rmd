@@ -32,11 +32,15 @@ Text cleaning involves five steps:
 2. Replace [contractions](https://en.wikipedia.org/wiki/Contraction_(grammar)). For example: *"It's a fascinating field"* becomes *"It is a fascinating field"*.
 3. Split sentences into single words. 
 4. [Lemmatize](https://en.wikipedia.org/wiki/Lemmatisation) words. 
-5. Remove [stop words](https://en.wikipedia.org/wiki/Stop_words), the most common[^1] words in English language.
+5. Remove [stop words](https://en.wikipedia.org/wiki/Stop_words), the most common[^1] words in English language. Skipping this step may lead to conclusions like on this map:
+
+```{r tweet_chunk, echo=FALSE}
+blogdown::shortcode('tweet', '1129765180987117569')
+```
 
 Here is a quote from Jeffrey Shaffer's interview to illustrate steps 3-5:
 
-```{r warning=FALSE, message=FALSE}
+```{r example_chunk, warning=FALSE, message=FALSE}
 library(tidyverse)
 library(tidytext)
 sentense <- "I learned R and started doing visualizations in R"
@@ -69,13 +73,13 @@ Few definitions in the context of this analysis:
 $$\text{tf}(t) = \frac{\text{Number of times term t appears in a document}}{\text{Total number of terms in the document}}.$$
 
 
-```{r include = FALSE}
+```{r source_chunk, include = FALSE}
 # Text analysis from start to finish with plots and tables.
 source("2019-05-08-swdchallenge-artisanal-data.R")
 ```
 
 
-```{r include = FALSE}
+```{r one_word_chunk, include = FALSE}
 one_word <- t_summary %>% 
   filter(word_lemma == "learn")
 ```
@@ -93,7 +97,7 @@ $$\text{idf}(t) = log_e\left(\frac{\text{Total number of documents}}{\text{Numbe
 
 Here is the relationship between a number of documents with term $t$ in it and the term's idf. I assume there are 12 documents in the collection:
 
-```{r echo = FALSE, fig.height=2.5, fig.width=5, fig.align='center'}
+```{r idf_plot_chunk, echo = FALSE, fig.height=2.5, fig.width=5, fig.align='center'}
 p_idf
 ```
 
@@ -132,13 +136,13 @@ Multiplication of tf by idf, which gives tf-idf, diminishes the importance of wo
 The word "copy" is used only in Andy's interview. It is used in the context of recommending Austin Kleon's book “Steal Like an Artist”. The word “fun” is used only in two more interviews. Andy says *"... get out of your comfort zone and have fun. Have fun. My gosh, you are allowed to have fun ..."*. Let's do it!
 
 
-```{r message=FALSE, warning=FALSE, echo = FALSE, fig.width=6, fig.height=6.2, fig.align='center'}
+```{r slopes_plot_chunk, message=FALSE, warning=FALSE, echo = FALSE, fig.width=6, fig.height=6.2, fig.align='center'}
 p_slopes
 ```
 
 Below is the data used for plotting. There are 12 interviews. Andy Cotgreave's interview contains 540 words, 271 of them unique. There are six words with zero tf-idf (three of them in the table below); they share tf-idf ranks from 266 to 271.
 
-```{r echo = FALSE}
+```{r summary_table_chunk, echo = FALSE}
 cols <- c("word", "count", "total words", "tf", "documents with word", "idf", "tf-idf", "rank by tf", "rank by idf")
 knitr::kable(t_summary, format = "html", col.names = cols, digits = 3)
 ```

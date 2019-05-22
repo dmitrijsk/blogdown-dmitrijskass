@@ -35,8 +35,9 @@ output:
 <li>Replace <a href="https://en.wikipedia.org/wiki/Contraction_(grammar)">contractions</a>. For example: <em>“It’s a fascinating field”</em> becomes <em>“It is a fascinating field”</em>.</li>
 <li>Split sentences into single words.</li>
 <li><a href="https://en.wikipedia.org/wiki/Lemmatisation">Lemmatize</a> words.</li>
-<li>Remove <a href="https://en.wikipedia.org/wiki/Stop_words">stop words</a>, the most common<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> words in English language.</li>
+<li>Remove <a href="https://en.wikipedia.org/wiki/Stop_words">stop words</a>, the most common<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> words in English language. Skipping this step may lead to conclusions like on this map:</li>
 </ol>
+{{% tweet "1129765180987117569" %}}
 <p>Here is a quote from Jeffrey Shaffer’s interview to illustrate steps 3-5:</p>
 <pre class="r"><code>library(tidyverse)
 library(tidytext)
@@ -78,11 +79,11 @@ example</code></pre>
 <p><strong>Inverse document frequency (idf)</strong> measures how important a term is in the context of other documents. Idf is computed as the logarithm of the number of documents in the collection divided by the number of documents where the specific term appears:</p>
 <p><span class="math display">\[\text{idf}(t) = log_e\left(\frac{\text{Total number of documents}}{\text{Number of documents with term t in it}}\right).\]</span></p>
 <p>Here is the relationship between a number of documents with term <span class="math inline">\(t\)</span> in it and the term’s idf. I assume there are 12 documents in the collection:</p>
-<p><img src="/post/2019-05-08-swdchallenge-artisanal-data_files/figure-html/unnamed-chunk-4-1.png" width="480" style="display: block; margin: auto;" /></p>
+<p><img src="/post/2019-05-08-swdchallenge-artisanal-data_files/figure-html/idf_plot_chunk-1.png" width="480" style="display: block; margin: auto;" /></p>
 <p>The “learning dataviz” episode of #SWDpodcast is about learning data visualization. Naturally, the word “learn” appears at least once in each of the 12 interviews. Does it mean that this word is important? In describing the whole episode - yes. In describing any particular interview from this episode - no, at least in the understanding of idf. Because <em>all</em> interviewees use the word “learn”.</p>
 <p>The word “learn” appears in all 12 interviews, so its idf is zero:</p>
 <p><span class="math display">\[\text{idf}(learn)=log_e(12/12)=log_e(1)=0\]</span></p>
-<p>This means that the word “learn” is completely unimportant to describe any specific interview in the context of the other 11 interviews. Other words with zero importance here are <em>data, year, make, thing, work</em>.</p>
+<p>This means that the word “learn” is completely unimportant to describe any specific interview in the context of the other 11 interviews. Other words with zero importance here are <em>data, make, thing, work, year</em>.</p>
 <p>Notice that the idf of each term is the same for all documents in a collection.</p>
 <p><strong>Term frequency-inverse document frequency (tf-idf)</strong> is a multiplication of tf and idf:</p>
 <p><span class="math display">\[\text{tfidf}(t) = \text{tf}(t) \times \text{idf}(t).\]</span></p>
@@ -95,7 +96,7 @@ example</code></pre>
 <p>Tf gives the highest weight to words that are simply used most frequently. It is a local measure in the sense that it ignores other interviews in the same podcast episode.</p>
 <p>Multiplication of tf by idf, which gives tf-idf, diminishes the importance of words that are common across all interviews, such as “data” and “learn”. At the same time it amplifies the importance of rare words, such as “copy” and “fun”.</p>
 <p>The word “copy” is used only in Andy’s interview. It is used in the context of recommending Austin Kleon’s book “Steal Like an Artist”. The word “fun” is used only in two more interviews. Andy says <em>“… get out of your comfort zone and have fun. Have fun. My gosh, you are allowed to have fun …”</em>. Let’s do it!</p>
-<p><img src="/post/2019-05-08-swdchallenge-artisanal-data_files/figure-html/unnamed-chunk-5-1.png" width="576" style="display: block; margin: auto;" /></p>
+<p><img src="/post/2019-05-08-swdchallenge-artisanal-data_files/figure-html/slopes_plot_chunk-1.png" width="576" style="display: block; margin: auto;" /></p>
 <p>Below is the data used for plotting. There are 12 interviews. Andy Cotgreave’s interview contains 540 words, 271 of them unique. There are six words with zero tf-idf (three of them in the table below); they share tf-idf ranks from 266 to 271.</p>
 <table>
 <thead>
@@ -214,7 +215,7 @@ work
 3
 </td>
 <td style="text-align:right;">
-271
+270
 </td>
 </tr>
 <tr>
@@ -272,7 +273,7 @@ learn
 6
 </td>
 <td style="text-align:right;">
-268
+267
 </td>
 </tr>
 <tr>
@@ -385,7 +386,7 @@ week
 0.013
 </td>
 <td style="text-align:right;">
-33
+32
 </td>
 <td style="text-align:right;">
 5
@@ -414,7 +415,7 @@ single
 0.013
 </td>
 <td style="text-align:right;">
-28
+27
 </td>
 <td style="text-align:right;">
 4

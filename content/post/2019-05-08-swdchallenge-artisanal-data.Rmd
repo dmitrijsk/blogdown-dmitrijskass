@@ -34,7 +34,7 @@ Text cleaning involves five steps:
 4. [Lemmatize](https://en.wikipedia.org/wiki/Lemmatisation) words. 
 5. Remove [stop words](https://en.wikipedia.org/wiki/Stop_words), the most common[^1] words in English language. Skipping this step may lead to conclusions like on this map:
 
-```{r tweet_chunk, echo=FALSE}
+```{r tweet_chunk, echo=FALSE, fig.align='center'}
 blogdown::shortcode('tweet', '1129765180987117569')
 ```
 

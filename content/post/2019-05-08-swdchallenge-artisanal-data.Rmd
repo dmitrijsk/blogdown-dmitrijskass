@@ -32,9 +32,9 @@ Text cleaning involves five steps:
 2. Replace [contractions](https://en.wikipedia.org/wiki/Contraction_(grammar)). For example: *"It's a fascinating field"* becomes *"It is a fascinating field"*.
 3. Split sentences into single words. 
 4. [Lemmatize](https://en.wikipedia.org/wiki/Lemmatisation) words. 
-5. Remove [stop words](https://en.wikipedia.org/wiki/Stop_words), the most common[^1] words in English language. Skipping this step may lead to conclusions like on this map:
+5. Remove [stop words](https://en.wikipedia.org/wiki/Stop_words), the most common[^1] words in English language. Skipping this step may lead to conclusions like on the map below:
 
-```{r tweet_chunk, echo=FALSE, fig.align='center'}
+```{r tweet_chunk, echo=FALSE}
 blogdown::shortcode('tweet', '1129765180987117569')
 ```
 

@@ -42,11 +42,12 @@ output:
 <pre class="r"><code>library(tidyverse)
 library(tidytext)
 sentense &lt;- &quot;I learned R and started doing visualizations in R&quot;
+stop_words &lt;- setdiff(tm::stopwords(kind = &quot;SMART&quot;), &quot;r&quot;)
 
 example &lt;- tibble(sentense) %&gt;% 
   unnest_tokens(output = &quot;word&quot;, input = sentense) %&gt;% 
   mutate(word_lemma = textstem::lemmatize_words(word),
-         stop_word = word %in% tm::stopwords(kind = &quot;SMART&quot;))
+         stop_word = word %in% stop_words)
 
 example</code></pre>
 <pre><code>## # A tibble: 9 x 3
@@ -54,13 +55,13 @@ example</code></pre>
 ##   &lt;chr&gt;          &lt;chr&gt;         &lt;lgl&gt;    
 ## 1 i              i             TRUE     
 ## 2 learned        learn         FALSE    
-## 3 r              r             TRUE     
+## 3 r              r             FALSE    
 ## 4 and            and           TRUE     
 ## 5 started        start         FALSE    
 ## 6 doing          do            TRUE     
 ## 7 visualizations visualization FALSE    
 ## 8 in             in            TRUE     
-## 9 r              r             TRUE</code></pre>
+## 9 r              r             FALSE</code></pre>
 </div>
 <div id="about-tf-idf" class="section level1">
 <h1>about tf-idf</h1>

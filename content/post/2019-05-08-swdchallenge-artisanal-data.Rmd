@@ -44,11 +44,12 @@ Here is a quote from Jeffrey Shaffer's interview to illustrate steps 3-5:
 library(tidyverse)
 library(tidytext)
 sentense <- "I learned R and started doing visualizations in R"
+stop_words <- setdiff(tm::stopwords(kind = "SMART"), "r")
 
 example <- tibble(sentense) %>% 
   unnest_tokens(output = "word", input = sentense) %>% 
   mutate(word_lemma = textstem::lemmatize_words(word),
-         stop_word = word %in% tm::stopwords(kind = "SMART"))
+         stop_word = word %in% stop_words)
 
 example
 ```

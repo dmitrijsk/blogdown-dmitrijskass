@@ -1,0 +1,10 @@
+---
+title: Branding your graph with ggplot2
+author: Dmitrijs Kass
+date: '2019-06-10'
+slug: branding-your-graph-with-ggplot2
+categories:
+  - data-viz
+tags:
+  - SWDchallenge
+---

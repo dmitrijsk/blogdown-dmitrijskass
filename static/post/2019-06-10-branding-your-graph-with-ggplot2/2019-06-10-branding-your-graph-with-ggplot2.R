@@ -104,6 +104,7 @@ p <- df %>%
 
 p
 
+# Source: https://stackoverflow.com/questions/42351011/customize-background-color-of-ggtitle
 g_title <- grobTree(rectGrob(gp = gpar(fill = cols["yellow"], 
                                        col = "#F6F6F6")),
                     textGrob(label = "Market size over time", 

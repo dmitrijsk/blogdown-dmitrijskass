@@ -75,7 +75,7 @@ idg070 %>%
 prop.test(259495, 259495 + 245478, p = 0.5, alternative = "greater")
 
 
-# https://data1.csb.gov.lv/pxweb/lv/iedz/iedz__dzimst/IDG080.px
+# https://data1.csb.gov.lv/pxweb/en/iedz/iedz__dzimst/IDG080.px
 # IDG080. Dzīvi dzimušie pēc mātes un tēva vecuma
 # IDG080. Live births by age of parents
 
@@ -137,7 +137,7 @@ idg080 %>%
 
 
 
-# https://data1.csb.gov.lv/pxweb/lv/iedz/iedz__dzimst/IDG090.px
+# https://data1.csb.gov.lv/pxweb/en/iedz/iedz__dzimst/IDG090.px
 # IDG090. Dzīvi dzimušie pēc mātes vecuma un bērna dzimšanas secības
 # IDG090. Live births by age of mother and child’s order of birth
 
@@ -148,7 +148,7 @@ idg090_orig %>%
   gather(year, n, -1, -2)
 
 
-# https://data1.csb.gov.lv/pxweb/lv/iedz/iedz__dzimst/IDG100.px
+# https://data1.csb.gov.lv/pxweb/en/iedz/iedz__dzimst/IDG100.px
 # IDG100. Mātes vidējais vecums pēc izglītības līmeņa un bērna dzimšanas secības
 # IDG100. Average age of mother by educational attainment and birth order of child
 
@@ -162,10 +162,11 @@ idg100 <- idg100_orig %>%
 idg100 %>% 
   filter(key %in% c("first child Total", "second child Total")) %>% 
   ggplot(aes(x = Year, y = age, colour = key)) +
-  geom_line()
+  geom_line() +
+  geom_point()
 
 
-# https://data1.csb.gov.lv/pxweb/lv/iedz/iedz__dzimst/IDG120.px
+# https://data1.csb.gov.lv/pxweb/en/iedz/iedz__dzimst/IDG120.px
 # IDG120. Dzīvi dzimušie pēc tautības
 # IDG120. Births by ethnicity
 
@@ -230,10 +231,10 @@ p <- eu_mean_age %>%
   geom_text(mapping = aes(label = GEO), 
             data = eu_mean_age %>% filter(TIME == max(eu_mean_age$TIME) & GEO == "Latvia"), 
             hjust = "left", nudge_x = 0.1) +
-  scale_x_continuous(breaks = min(eu_by_age$TIME):max(eu_by_age$TIME), 
+  scale_x_continuous(breaks = min(eu_mean_age$TIME):max(eu_mean_age$TIME), 
                      minor_breaks = NULL,
                      expand = expand_scale(add = c(0, 0.8))) +
-  scale_y_continuous(breaks = floor(min(eu_by_age$mean_age)):max(eu_by_age$mean_age), 
+  scale_y_continuous(breaks = floor(min(eu_mean_age$mean_age)):max(eu_mean_age$mean_age), 
                      minor_breaks = NULL) +
   scale_color_manual(values = c("TRUE" = "#9E3039", "FALSE" = "grey80")) +
   scale_size_manual(values = c("TRUE" = 1, "FALSE" = 0.1)) +

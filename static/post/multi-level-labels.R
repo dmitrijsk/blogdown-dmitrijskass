@@ -1,7 +1,7 @@
 
 library(dplyr)
 library(ggplot2)
-
+library(stringr)
 
 # Bar chart ----
 
@@ -53,7 +53,7 @@ data %>%
 format_dates <- function(x) {
   
   years <- lubridate::year(x)
-  months <- stringr::str_sub(strftime(x, format = "%B"), start = 1, end = 1)
+  months <- str_sub(str_to_upper(strftime(x, format = "%B")), start = 1, end = 1)
   
   if_else(is.na(lag(years)) | lag(years) != years, 
           true = paste(months, years, sep = "\n"), 

@@ -7,7 +7,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.align = 'center', fig.height = 3, fig.width = 6)
 ```
 
-In this post I review different approaches to creating multi-level x-axis labels with ggplot2. Multi-level labels imply some sort of hierarchical strusture in data. For example, survey questions may be assigned into groups or dates on the timeline may be assigned to years. The conceptual difference between the bar and the line charts here is that in the bar chart (plot A below) data points from different groups are not connected, while the line (plot B below) connects data points both within and between groups:
+Recently I faced a necessity to create **multi-level labels with ggplot2** and had no idea how to do it. Multi-level labels imply some sort of hierarchical strusture in data. For example, survey questions may be assigned into groups and dates on the timeline may be assigned into years. A 15-minute Google-fu provided me with various solutions described on Stack Overflow that worked with varying success for different types of charts. An important aspect is whether data points between groups should be connected. The bar chart (plot A below) is an example where data points from different groups are not connected and a line chart (plot B below) is an example where data points are connected both within and between groups:
 
 ```{r echo = FALSE, fig.height = 5, fig.width = 6, fig.align='center'}
 library(dplyr)
@@ -65,29 +65,9 @@ gridExtra::grid.arrange(p_bars, p_line, nrow = 2)
 ```
 
 
+## Data points between groups not connected
 
-## Options
-
-Recently I faced a necessity to create multi-level labels and had no idea how to do it. A 15-minute Google-fu provided me with various solutions described on Stack Overflow that worked with varying success for different types of charts. As mentioned above, an important aspect is whether data points between groups should be connected.
-
-```{r}
-# Super-categories for x-axis (in the end came up with a simple solution with labels).
-#
-# Faceting:
-# https://stackoverflow.com/questions/48552671/ggplot2-show-category-and-sub-category-for-x-axis-labels
-# https://stackoverflow.com/questions/44247239/grouping-on-the-x-axis-in-ggplot2
-#
-# Annotations:
-# https://stackoverflow.com/questions/20571306/multi-row-x-axis-labels-in-ggplot-line-chart
-#
-# Grobs:
-# https://stackoverflow.com/questions/44616530/axis-labels-on-two-lines-with-nested-x-variables-year-below-months/44616739
-#
-# https://github.com/tidyverse/ggplot2/issues/1966
-```
-
-
-**Data points between groups are not connected**
+### Alternative solutions
 
 Bar chart is a good example of a chart where data points between groups don't need to be connected. The most popular solutions employ faceting with either `facet_grid()` (for example, 
 [here](https://stackoverflow.com/questions/48552671/ggplot2-show-category-and-sub-category-for-x-axis-labels/48555862#48555862)) 
@@ -95,28 +75,8 @@ or `facet_wrap()` (for example,
 [here](https://stackoverflow.com/questions/44247239/grouping-on-the-x-axis-in-ggplot2/44249048#44249048)). 
 The latter does not have an argument `space` that lets the width of facets vary, which would force all bars to have the same width. Therefore, if a number of categories differs among groups then `facet_grid()` should be preferred. I really liked this approach and demonstrate it below in steps.
 
-**All data points are connected**
 
-Faceting approach does not fit when all data points need to be connected as demonstrated in the question 
-[here](https://stackoverflow.com/questions/20571306/multi-row-x-axis-labels-in-ggplot-line-chart).
-
-One solution offered 
-[here](https://stackoverflow.com/questions/20571306/multi-row-x-axis-labels-in-ggplot-line-chart/20574024#20574024)
-is to use annotations. I don't use this approach for two reasons:
-
-1. `coord_cartesian(clip = "off")` can cause unexpected results as it allows drawing of data points anywhere on the plot, including in the plot margins.
-2. Using fixed horizontal positions for text annotations in `annotate(geom = "text", x = 2.5 + 4 * (0:4)` does not depend on data and may not work for a different data set.
-
-Another solution with grobs 
-[here](https://stackoverflow.com/questions/44616530/axis-labels-on-two-lines-with-nested-x-variables-year-below-months/44616739#44616739) appears overly complicated to me.
-
-Instead, I have come up with, as I see it, a simpler solution that is deneralizable, i.e. does not depend on a particular data set.
-
-
-
-
-
-## Multi-level labels with faceting
+### Example of multi-level labels with faceting
 
 First, let's simulate the data for the chart. Let it be a result of a hypothetical survey with `r sum(TIMES)` questions labeled from Q1 to `r paste0("Q", sum(TIMES))` and combined into `r length(TIMES)` groups. These will substitute x-axis labels. The y-axis values are drawn from a uniform distribution and represent a proportion of respondents that correctly answered corresponding questions.
 
@@ -175,7 +135,29 @@ p +
 Done. What else could be done? We may remove the white space between facets by providing a `panel.spacing = unit(0.03, units = "cm")` argument to the `theme()` function. But I don't recommend it because the borders between groups get blurred and readability of the chart suffers.
 
 
-## Multi-level labels with text wrap
+
+
+## All data points are connected
+
+### Alternative solutions
+
+Faceting approach does not fit when all data points need to be connected as demonstrated in the question 
+[here](https://stackoverflow.com/questions/20571306/multi-row-x-axis-labels-in-ggplot-line-chart).
+
+One solution offered 
+[here](https://stackoverflow.com/questions/20571306/multi-row-x-axis-labels-in-ggplot-line-chart/20574024#20574024)
+is to use annotations. I don't use this approach for two reasons:
+
+1. `coord_cartesian(clip = "off")` can cause unexpected results as it allows drawing of data points anywhere on the plot, including in the plot margins.
+2. Using fixed horizontal positions for text annotations in `annotate(geom = "text", x = 2.5 + 4 * (0:4)` does not depend on data and may not work for a different data set.
+
+Another solution with grobs 
+[here](https://stackoverflow.com/questions/44616530/axis-labels-on-two-lines-with-nested-x-variables-year-below-months/44616739#44616739) appears overly complicated to me.
+
+Instead, I have come up with, as I see it, a simpler solution that is deneralizable, i.e. does not depend on a particular data set.
+
+
+# Example of multi-level labels with text wrap
 
 Again, we start with simulating data for the line chart. Let it be sales volume of some healthy product during 16 months from November 2018 to February 2020.
 
@@ -248,8 +230,29 @@ p_line <- data %>%
                minor_breaks = NULL,
                expand = expand_scale(add = 15),
                labels = format_dates) +
-  theme(axis.text.x = element_text(hjust = 0)) +
-  labs(tag = "B",
-       y = NULL)
+  theme(axis.text.x = element_text(hjust = 0),
+        axis.title = element_blank())
 
+p_line
 ```
+
+
+
+
+
+<!-- ```{r echo = FALSE} -->
+<!-- # Super-categories for x-axis (in the end came up with a simple solution with labels). -->
+<!-- # -->
+<!-- # Faceting: -->
+<!-- # https://stackoverflow.com/questions/48552671/ggplot2-show-category-and-sub-category-for-x-axis-labels -->
+<!-- # https://stackoverflow.com/questions/44247239/grouping-on-the-x-axis-in-ggplot2 -->
+<!-- # -->
+<!-- # Annotations: -->
+<!-- # https://stackoverflow.com/questions/20571306/multi-row-x-axis-labels-in-ggplot-line-chart -->
+<!-- # -->
+<!-- # Grobs: -->
+<!-- # https://stackoverflow.com/questions/44616530/axis-labels-on-two-lines-with-nested-x-variables-year-below-months/44616739 -->
+<!-- # -->
+<!-- # https://github.com/tidyverse/ggplot2/issues/1966 -->
+<!-- ``` -->
+

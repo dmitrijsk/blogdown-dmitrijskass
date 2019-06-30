@@ -15,9 +15,9 @@ output:
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.align = 'center', fig.height = 3, fig.width = 6)
 ```
 
-Recently I faced a necessity to create **multi-level labels with ggplot2** and had no idea how to do it. Multi-level labels imply some sort of hierarchical strusture in data. For example, survey questions may be assigned into groups; and dates on the timeline may be assigned into years. A 15-minute Google-fu provided me with various solutions described on Stack Overflow that worked with varying success for different types of charts. An important aspect is whether data points between groups should be connected. The bar chart (plot A below) is an example where data points from different groups are not connected and a line chart (plot B below) is an example where data points are connected both within and between groups:
+Recently I faced a necessity to create **multi-level labels with ggplot2** and had no idea how to do it. Multi-level labels imply some sort of hierarchical structure in data. For example, survey questions may be assigned into groups; and dates on the timeline may be assigned into years. A 15-minute Google-fu provided me with various solutions described on Stack Overflow that worked with varying success for different types of charts. An important aspect is whether data points between groups should be connected. The bar chart (plot A below) is an example where data points from different groups should not connected and a line chart (plot B below) is an example where data points should be connected both within and between groups:
 
-```{r echo = FALSE, fig.height = 5, fig.width = 6, fig.align='center'}
+```{r demo, echo = FALSE, fig.height = 5, fig.width = 6, fig.align='center'}
 library(dplyr)
 library(ggplot2)
 library(stringr)
@@ -72,24 +72,13 @@ p_line <- data %>%
 gridExtra::grid.arrange(p_bars, p_line, nrow = 2)
 ```
 
-Below I discuss alternative solution to multi-level labels for these two charts. I deliberately keep them simple, like no customization of y axis labels and colours.
+Below I discuss alternative solution to multi-level labels for these two charts. I deliberately keep them simple with no customization of colours, etc.
 
 # Bar chart
 
-## Alternative solutions
+First, let's simulate the data for the bar chart. Let it be a result of a hypothetical survey with `r sum(TIMES)` questions labelled from Q1 to `r paste0("Q", sum(TIMES))` (`question` column) and combined into `r length(TIMES)` groups (`group` column). These will substitute x axis labels. The y axis values are drawn from a uniform distribution and represent a proportion of respondents that correctly answered corresponding questions (`proportion` column).
 
-Bar chart is a good example of a chart where data points between groups don't need to be connected. The most popular solutions employ faceting with either `facet_grid()` (for example, 
-[here](https://stackoverflow.com/questions/48552671/ggplot2-show-category-and-sub-category-for-x-axis-labels/48555862#48555862)) 
-or `facet_wrap()` (for example, 
-[here](https://stackoverflow.com/questions/44247239/grouping-on-the-x-axis-in-ggplot2/44249048#44249048)). 
-The latter does not have an argument `space` that lets the width of facets vary, which in its turn forces all bars to have the same width. Therefore, if a number of categories differs among groups then `facet_grid()` should be preferred. I really liked this approach and demonstrate it below in steps.
-
-
-## Example with faceting
-
-First, let's simulate the data for the chart. Let it be a result of a hypothetical survey with `r sum(TIMES)` questions labeled from Q1 to `r paste0("Q", sum(TIMES))` and combined into `r length(TIMES)` groups. These will substitute x axis labels. The y axis values are drawn from a uniform distribution and represent a proportion of respondents that correctly answered corresponding questions.
-
-```{r}
+```{r data_bars}
 # For `tibble` and pipe `%>%`.
 library(dplyr)
 # For reproducibility.
@@ -104,10 +93,31 @@ data <- tibble(group = c(rep(paste("Group", 1:3), times = TIMES)),
 data
 ```
 
+Here is a simple bar chart:
+
+```{r bars_vanilla}
+library(ggplot2)
+data %>% 
+  ggplot(aes(x = question, y = proportion)) +
+  geom_col()
+```
+
+Why would you want to add a grouping variable? To make the chart more intuitive for the reader by clearly showing that questions belong to different groups.
+
+## Alternative solutions
+
+The most popular solutions for bar charts employ faceting with either `facet_grid()` (for example, 
+[here](https://stackoverflow.com/questions/48552671/ggplot2-show-category-and-sub-category-for-x-axis-labels/48555862#48555862)) 
+or `facet_wrap()` (for example, 
+[here](https://stackoverflow.com/questions/44247239/grouping-on-the-x-axis-in-ggplot2/44249048#44249048)). 
+The latter does not have an argument `space` that lets the width of facets vary, which in its turn forces all bars to have the same width. Therefore, if a number of categories differs among groups then `facet_grid()` should be preferred. I really liked this approach and demonstrate it below in steps.
+
+
+## Example with faceting
+
 The faceting approach starts with a simple bar chart that is turned into [small multiples](https://en.wikipedia.org/wiki/Small_multiple) bar chart with `facet_grid()`:
 
-```{r}
-library(ggplot2)
+```{r bars_facet_1}
 data %>% 
   ggplot(aes(x = question, y = proportion)) +
   geom_col() +
@@ -116,7 +126,7 @@ data %>%
 
 Let's rewrite the code and add three additional arguments for the faceting function:
 
-```{r}
+```{r bars_facet_2}
 p_bars <- data %>% 
   ggplot(aes(x = question, y = proportion)) +
   geom_col() +
@@ -130,7 +140,7 @@ p_bars
 
 The final step is to customize the non-data components of the chart with the `theme()` function:
 
-```{r}
+```{r bars_theme}
 p_bars + 
   theme(strip.placement = "outside",                      # Place facet labels outside x axis labels.
         strip.background = element_rect(fill = "white"),  # Make facet label background white.
@@ -142,29 +152,11 @@ Done. We may remove the white space between facets by providing a `panel.spacing
 
 
 
-# Line chart
+# Line chart with dates
 
-## Alternative solutions
+Again, we start with simulating data for the line chart. Let it be sales volume of some healthy product during 16 months from November 2018 to February 2020. I deliberately chose this period as it partly covers three years.
 
-Faceting approach does not fit when all data points need to be connected as demonstrated in the question 
-[here](https://stackoverflow.com/questions/20571306/multi-row-x-axis-labels-in-ggplot-line-chart).
-
-One solution offered 
-[here](https://stackoverflow.com/questions/20571306/multi-row-x-axis-labels-in-ggplot-line-chart/20574024#20574024)
-is to use annotations. I don't use this approach for two reasons:
-
-1. `coord_cartesian(clip = "off")` can cause unexpected results as it allows drawing of data points anywhere on the plot, including in the plot margins.
-2. Fixed horizontal positions for text annotations in `annotate(geom = "text", x = 2.5 + 4 * (0:4))` do not depend on data and other ggplot2 customizations, such as axis limits. This solution may not work for a different data set.
-
-Another solution with grobs 
-[here](https://stackoverflow.com/questions/44616530/axis-labels-on-two-lines-with-nested-x-variables-year-below-months/44616739#44616739) appears overly complicated to me. Instead, I offer a different solution, which seems to be simple and generalizable, i.e. does not depend on a particular data set.
-
-
-## Example with text wrap
-
-Again, we start with simulating data for the line chart. Let it be sales volume of some healthy product during 16 months from November 2018 to February 2020. I deliberately chose this period as it partialy covers three years.
-
-```{r}
+```{r data_line}
 # Number of months.
 N <- 16
 # Reproducibility.
@@ -178,9 +170,7 @@ data
 
 The first step is to create a simple line chart:
 
-
-
-```{r}
+```{r line_vanilla}
 p_line <- data %>% 
   ggplot(aes(x = date, y = sales)) +
   geom_line()
@@ -188,41 +178,64 @@ p_line <- data %>%
 p_line
 ```
 
-The x axis labels will vary depending of regional settings. My default region is Latvia. Locale can be changed with `Sys.setlocale()`:
+Your x axis labels may vary depending on regional settings. My default region is Latvia. Locale can be changed with `Sys.setlocale()`:
 
-```{r}
+```{r locale}
 # Change locale.
 Sys.setlocale(category = "LC_ALL", locale = "english")
 # Reprint the chart.
 p_line
 ```
 
-The faceting approach is not suitable in this scenario because we need to connect dots between facets:
+Why would you want to use multi-level labels for x axis in this case? Because labelling each month creates a lot of clutter even with a short date format:
 
-```{r}
+```{r line_clutter}
+p_line + 
+  scale_x_date(date_breaks = "1 month",
+               date_labels = "%b %y")
+```
+
+The faceting approach is not suitable in this scenario because we need to connect data points between facets:
+
+```{r line_facets}
 # Faceting approach does not suit this chart.
 data %>% 
   ggplot(aes(x = date, y = sales)) +
   geom_line() +
+  scale_x_date(date_breaks = "1 month",
+               date_labels = "%b") +
   facet_grid(~lubridate::year(date), scales = "free_x", switch = "x", space = "free_x") + 
   theme(strip.placement = "outside", 
         strip.background = element_rect(fill = "white"), 
         axis.title = element_blank())
 ```
 
+## Alternative solutions
 
-The simplest approach in my view is to modify x axis labels with a simple function that does three things:
+One solution offered 
+[here](https://stackoverflow.com/questions/20571306/multi-row-x-axis-labels-in-ggplot-line-chart/20574024#20574024)
+is to use *annotations*. I don't use this approach for two reasons:
+
+1. `coord_cartesian(clip = "off")` can cause unexpected results as it allows drawing of data points anywhere on the plot, including in the plot margins.
+2. Fixed horizontal positions for text annotations in `annotate(geom = "text", x = 2.5 + 4 * (0:4))` do not depend on data and other ggplot2 customizations, such as axis limits. This solution may not work for a different data set.
+
+Another solution with *grobs* 
+[here](https://stackoverflow.com/questions/44616530/axis-labels-on-two-lines-with-nested-x-variables-year-below-months/44616739#44616739) appears overly complicated to me. Instead, I offer a different solution, which seems to me simple and generalizable, i.e. does not depend on a particular data set.
+
+
+## Example with text wrap
+
+A simple approach is to modify x axis labels with a text formatting function that does three things:
 
 1. Gets the first letter of the month's name. Depending on your locale you may or may not need to capitalize this letter. I would need it if I kept "latvian" locale, so I will keep it inside my function below.
 2. Gets the year part from the date.
-3. Paste the year behind the first letter of the month using a new line `\n` as a separator, if 
-    * it is the first element in a date vector, or
-    * the previous date has a different year component.
+3. Pastes the year behind the first letter of the month using a new line `\n` as a separator, if 
+    * it is the first element in vector, or
+    * the previous element in a vector has a different year component.
 
-```{r}
+```{r formatting_fun_define}
 library(stringr)
 format_dates <- function(x) {
-  
   # First letter of the most, capitalized.
   months <- str_sub(str_to_upper(strftime(x, format = "%B")), start = 1, end = 1)
   # Year as a 4-digit number.
@@ -230,23 +243,24 @@ format_dates <- function(x) {
   if_else(is.na(lag(years)) | lag(years) != years, 
           true = paste(months, years, sep = "\n"), 
           false = months)
-  
 }
 ```
 
 
 For example:
 
-```{r}
-# Test the function of quarterly data.
+```{r formatting_fun_test}
+# Test the function on quarterly data.
 format_dates(as.Date(c("2018-09-30", "2018-12-31", "2019-03-31", "2019-06-30")))
 format_dates(as.Date(c("2018-12-31", "2019-03-31", "2019-06-30", "2019-09-30")))
 ```
 
-Now simply modify the `p_line` chart by adding `scale_x_date()` with few arguments. Supply the above defined date formatting function to the `labels` argument. As the final touch, left-justify the labels with the `theme()`.
+Let's start from the beginning with a simple line chart. Then supply the above defined date formatting function to `scale_x_date(labels = ...)` among few other arguments. As the final touch, left-justify the labels with the `theme()`.
 
-```{r}
-p_line + 
+```{r line_with_wrap}
+data %>% 
+  ggplot(aes(x = date, y = sales)) +
+  geom_line() + 
   # Customize x axis.
   scale_x_date(date_breaks = "1 month",          # Date labels for each month.
                minor_breaks = NULL,              # No additional labels in-between `date_breaks`.
@@ -258,7 +272,9 @@ p_line +
         axis.title = element_blank())            # Remove x and y axis titles.
 ```
 
-<br>
+Done.
+
+<hr>
 
 Any comments or suggestions? I'd be glad to know! Please leave them below, no login required if you check "I'd rather post as a guest".
 

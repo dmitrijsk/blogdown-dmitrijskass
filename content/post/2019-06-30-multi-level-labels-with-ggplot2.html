@@ -18,29 +18,19 @@ output:
 <li><a href="#alternative-solutions">Alternative solutions</a></li>
 <li><a href="#example-with-faceting">Example with faceting</a></li>
 </ul></li>
-<li><a href="#line-chart">Line chart</a><ul>
+<li><a href="#line-chart-with-dates">Line chart with dates</a><ul>
 <li><a href="#alternative-solutions-1">Alternative solutions</a></li>
 <li><a href="#example-with-text-wrap">Example with text wrap</a></li>
 </ul></li>
 </ul>
 </div>
 
-<p>Recently I faced a necessity to create <strong>multi-level labels with ggplot2</strong> and had no idea how to do it. Multi-level labels imply some sort of hierarchical strusture in data. For example, survey questions may be assigned into groups; and dates on the timeline may be assigned into years. A 15-minute Google-fu provided me with various solutions described on Stack Overflow that worked with varying success for different types of charts. An important aspect is whether data points between groups should be connected. The bar chart (plot A below) is an example where data points from different groups are not connected and a line chart (plot B below) is an example where data points are connected both within and between groups:</p>
-<p><img src="/post/2019-06-30-multi-level-labels-with-ggplot2_files/figure-html/unnamed-chunk-1-1.png" width="576" style="display: block; margin: auto;" /></p>
-<p>Below I discuss alternative solution to multi-level labels for these two charts. I deliberately keep them simple, like no customization of y axis labels and colours.</p>
+<p>Recently I faced a necessity to create <strong>multi-level labels with ggplot2</strong> and had no idea how to do it. Multi-level labels imply some sort of hierarchical structure in data. For example, survey questions may be assigned into groups; and dates on the timeline may be assigned into years. A 15-minute Google-fu provided me with various solutions described on Stack Overflow that worked with varying success for different types of charts. An important aspect is whether data points between groups should be connected. The bar chart (plot A below) is an example where data points from different groups should not connected and a line chart (plot B below) is an example where data points should be connected both within and between groups:</p>
+<p><img src="/post/2019-06-30-multi-level-labels-with-ggplot2_files/figure-html/demo-1.png" width="576" style="display: block; margin: auto;" /></p>
+<p>Below I discuss alternative solution to multi-level labels for these two charts. I deliberately keep them simple with no customization of colours, etc.</p>
 <div id="bar-chart" class="section level1">
 <h1>Bar chart</h1>
-<div id="alternative-solutions" class="section level2">
-<h2>Alternative solutions</h2>
-<p>Bar chart is a good example of a chart where data points between groups don’t need to be connected. The most popular solutions employ faceting with either <code>facet_grid()</code> (for example,
-<a href="https://stackoverflow.com/questions/48552671/ggplot2-show-category-and-sub-category-for-x-axis-labels/48555862#48555862">here</a>)
-or <code>facet_wrap()</code> (for example,
-<a href="https://stackoverflow.com/questions/44247239/grouping-on-the-x-axis-in-ggplot2/44249048#44249048">here</a>).
-The latter does not have an argument <code>space</code> that lets the width of facets vary, which in its turn forces all bars to have the same width. Therefore, if a number of categories differs among groups then <code>facet_grid()</code> should be preferred. I really liked this approach and demonstrate it below in steps.</p>
-</div>
-<div id="example-with-faceting" class="section level2">
-<h2>Example with faceting</h2>
-<p>First, let’s simulate the data for the chart. Let it be a result of a hypothetical survey with 9 questions labeled from Q1 to Q9 and combined into 3 groups. These will substitute x axis labels. The y axis values are drawn from a uniform distribution and represent a proportion of respondents that correctly answered corresponding questions.</p>
+<p>First, let’s simulate the data for the bar chart. Let it be a result of a hypothetical survey with 9 questions labelled from Q1 to Q9 (<code>question</code> column) and combined into 3 groups (<code>group</code> column). These will substitute x axis labels. The y axis values are drawn from a uniform distribution and represent a proportion of respondents that correctly answered corresponding questions (<code>proportion</code> column).</p>
 <pre class="r"><code># For `tibble` and pipe `%&gt;%`.
 library(dplyr)
 # For reproducibility.
@@ -65,13 +55,29 @@ data</code></pre>
 ## 7 Group 3 Q7          0.724  
 ## 8 Group 3 Q8          0.906  
 ## 9 Group 3 Q9          0.949</code></pre>
-<p>The faceting approach starts with a simple bar chart that is turned into <a href="https://en.wikipedia.org/wiki/Small_multiple">small multiples</a> bar chart with <code>facet_grid()</code>:</p>
+<p>Here is a simple bar chart:</p>
 <pre class="r"><code>library(ggplot2)
 data %&gt;% 
   ggplot(aes(x = question, y = proportion)) +
+  geom_col()</code></pre>
+<p><img src="/post/2019-06-30-multi-level-labels-with-ggplot2_files/figure-html/bars_vanilla-1.png" width="576" style="display: block; margin: auto;" /></p>
+<p>Why would you want to add a grouping variable? To make the chart more intuitive for the reader by clearly showing that questions belong to different groups.</p>
+<div id="alternative-solutions" class="section level2">
+<h2>Alternative solutions</h2>
+<p>The most popular solutions for bar charts employ faceting with either <code>facet_grid()</code> (for example,
+<a href="https://stackoverflow.com/questions/48552671/ggplot2-show-category-and-sub-category-for-x-axis-labels/48555862#48555862">here</a>)
+or <code>facet_wrap()</code> (for example,
+<a href="https://stackoverflow.com/questions/44247239/grouping-on-the-x-axis-in-ggplot2/44249048#44249048">here</a>).
+The latter does not have an argument <code>space</code> that lets the width of facets vary, which in its turn forces all bars to have the same width. Therefore, if a number of categories differs among groups then <code>facet_grid()</code> should be preferred. I really liked this approach and demonstrate it below in steps.</p>
+</div>
+<div id="example-with-faceting" class="section level2">
+<h2>Example with faceting</h2>
+<p>The faceting approach starts with a simple bar chart that is turned into <a href="https://en.wikipedia.org/wiki/Small_multiple">small multiples</a> bar chart with <code>facet_grid()</code>:</p>
+<pre class="r"><code>data %&gt;% 
+  ggplot(aes(x = question, y = proportion)) +
   geom_col() +
   facet_grid(~group)</code></pre>
-<p><img src="/post/2019-06-30-multi-level-labels-with-ggplot2_files/figure-html/unnamed-chunk-3-1.png" width="576" style="display: block; margin: auto;" /></p>
+<p><img src="/post/2019-06-30-multi-level-labels-with-ggplot2_files/figure-html/bars_facet_1-1.png" width="576" style="display: block; margin: auto;" /></p>
 <p>Let’s rewrite the code and add three additional arguments for the faceting function:</p>
 <pre class="r"><code>p_bars &lt;- data %&gt;% 
   ggplot(aes(x = question, y = proportion)) +
@@ -82,35 +88,19 @@ data %&gt;%
              switch = &quot;x&quot;)      # Move the facet labels to the bottom.
 
 p_bars</code></pre>
-<p><img src="/post/2019-06-30-multi-level-labels-with-ggplot2_files/figure-html/unnamed-chunk-4-1.png" width="576" style="display: block; margin: auto;" /></p>
+<p><img src="/post/2019-06-30-multi-level-labels-with-ggplot2_files/figure-html/bars_facet_2-1.png" width="576" style="display: block; margin: auto;" /></p>
 <p>The final step is to customize the non-data components of the chart with the <code>theme()</code> function:</p>
 <pre class="r"><code>p_bars + 
   theme(strip.placement = &quot;outside&quot;,                      # Place facet labels outside x axis labels.
         strip.background = element_rect(fill = &quot;white&quot;),  # Make facet label background white.
         axis.title = element_blank())                     # Remove x and y axis titles.</code></pre>
-<p><img src="/post/2019-06-30-multi-level-labels-with-ggplot2_files/figure-html/unnamed-chunk-5-1.png" width="576" style="display: block; margin: auto;" /></p>
+<p><img src="/post/2019-06-30-multi-level-labels-with-ggplot2_files/figure-html/bars_theme-1.png" width="576" style="display: block; margin: auto;" /></p>
 <p>Done. We may remove the white space between facets by providing a <code>panel.spacing = unit(0.03, units = "cm")</code> argument to the <code>theme()</code> function. But I don’t recommend it because the borders between groups get blurred and readability of the chart suffers.</p>
 </div>
 </div>
-<div id="line-chart" class="section level1">
-<h1>Line chart</h1>
-<div id="alternative-solutions-1" class="section level2">
-<h2>Alternative solutions</h2>
-<p>Faceting approach does not fit when all data points need to be connected as demonstrated in the question
-<a href="https://stackoverflow.com/questions/20571306/multi-row-x-axis-labels-in-ggplot-line-chart">here</a>.</p>
-<p>One solution offered
-<a href="https://stackoverflow.com/questions/20571306/multi-row-x-axis-labels-in-ggplot-line-chart/20574024#20574024">here</a>
-is to use annotations. I don’t use this approach for two reasons:</p>
-<ol style="list-style-type: decimal">
-<li><code>coord_cartesian(clip = "off")</code> can cause unexpected results as it allows drawing of data points anywhere on the plot, including in the plot margins.</li>
-<li>Fixed horizontal positions for text annotations in <code>annotate(geom = "text", x = 2.5 + 4 * (0:4))</code> do not depend on data and other ggplot2 customizations, such as axis limits. This solution may not work for a different data set.</li>
-</ol>
-<p>Another solution with grobs
-<a href="https://stackoverflow.com/questions/44616530/axis-labels-on-two-lines-with-nested-x-variables-year-below-months/44616739#44616739">here</a> appears overly complicated to me. Instead, I offer a different solution, which seems to be simple and generalizable, i.e. does not depend on a particular data set.</p>
-</div>
-<div id="example-with-text-wrap" class="section level2">
-<h2>Example with text wrap</h2>
-<p>Again, we start with simulating data for the line chart. Let it be sales volume of some healthy product during 16 months from November 2018 to February 2020. I deliberately chose this period as it partialy covers three years.</p>
+<div id="line-chart-with-dates" class="section level1">
+<h1>Line chart with dates</h1>
+<p>Again, we start with simulating data for the line chart. Let it be sales volume of some healthy product during 16 months from November 2018 to February 2020. I deliberately chose this period as it partly covers three years.</p>
 <pre class="r"><code># Number of months.
 N &lt;- 16
 # Reproducibility.
@@ -145,37 +135,57 @@ data</code></pre>
   geom_line()
 
 p_line</code></pre>
-<p><img src="/post/2019-06-30-multi-level-labels-with-ggplot2_files/figure-html/unnamed-chunk-7-1.png" width="576" style="display: block; margin: auto;" /></p>
-<p>The x axis labels will vary depending of regional settings. My default region is Latvia. Locale can be changed with <code>Sys.setlocale()</code>:</p>
+<p><img src="/post/2019-06-30-multi-level-labels-with-ggplot2_files/figure-html/line_vanilla-1.png" width="576" style="display: block; margin: auto;" /></p>
+<p>Your x axis labels may vary depending on regional settings. My default region is Latvia. Locale can be changed with <code>Sys.setlocale()</code>:</p>
 <pre class="r"><code># Change locale.
 Sys.setlocale(category = &quot;LC_ALL&quot;, locale = &quot;english&quot;)</code></pre>
 <pre><code>## [1] &quot;LC_COLLATE=English_United States.1252;LC_CTYPE=English_United States.1252;LC_MONETARY=English_United States.1252;LC_NUMERIC=C;LC_TIME=English_United States.1252&quot;</code></pre>
 <pre class="r"><code># Reprint the chart.
 p_line</code></pre>
-<p><img src="/post/2019-06-30-multi-level-labels-with-ggplot2_files/figure-html/unnamed-chunk-8-1.png" width="576" style="display: block; margin: auto;" /></p>
-<p>The faceting approach is not suitable in this scenario because we need to connect dots between facets:</p>
+<p><img src="/post/2019-06-30-multi-level-labels-with-ggplot2_files/figure-html/locale-1.png" width="576" style="display: block; margin: auto;" /></p>
+<p>Why would you want to use multi-level labels for x axis in this case? Because labelling each month creates a lot of clutter even with a short date format:</p>
+<pre class="r"><code>p_line + 
+  scale_x_date(date_breaks = &quot;1 month&quot;,
+               date_labels = &quot;%b %y&quot;)</code></pre>
+<p><img src="/post/2019-06-30-multi-level-labels-with-ggplot2_files/figure-html/line_clutter-1.png" width="576" style="display: block; margin: auto;" /></p>
+<p>The faceting approach is not suitable in this scenario because we need to connect data points between facets:</p>
 <pre class="r"><code># Faceting approach does not suit this chart.
 data %&gt;% 
   ggplot(aes(x = date, y = sales)) +
   geom_line() +
+  scale_x_date(date_breaks = &quot;1 month&quot;,
+               date_labels = &quot;%b&quot;) +
   facet_grid(~lubridate::year(date), scales = &quot;free_x&quot;, switch = &quot;x&quot;, space = &quot;free_x&quot;) + 
   theme(strip.placement = &quot;outside&quot;, 
         strip.background = element_rect(fill = &quot;white&quot;), 
         axis.title = element_blank())</code></pre>
-<p><img src="/post/2019-06-30-multi-level-labels-with-ggplot2_files/figure-html/unnamed-chunk-9-1.png" width="576" style="display: block; margin: auto;" /></p>
-<p>The simplest approach in my view is to modify x axis labels with a simple function that does three things:</p>
+<p><img src="/post/2019-06-30-multi-level-labels-with-ggplot2_files/figure-html/line_facets-1.png" width="576" style="display: block; margin: auto;" /></p>
+<div id="alternative-solutions-1" class="section level2">
+<h2>Alternative solutions</h2>
+<p>One solution offered
+<a href="https://stackoverflow.com/questions/20571306/multi-row-x-axis-labels-in-ggplot-line-chart/20574024#20574024">here</a>
+is to use <em>annotations</em>. I don’t use this approach for two reasons:</p>
+<ol style="list-style-type: decimal">
+<li><code>coord_cartesian(clip = "off")</code> can cause unexpected results as it allows drawing of data points anywhere on the plot, including in the plot margins.</li>
+<li>Fixed horizontal positions for text annotations in <code>annotate(geom = "text", x = 2.5 + 4 * (0:4))</code> do not depend on data and other ggplot2 customizations, such as axis limits. This solution may not work for a different data set.</li>
+</ol>
+<p>Another solution with <em>grobs</em>
+<a href="https://stackoverflow.com/questions/44616530/axis-labels-on-two-lines-with-nested-x-variables-year-below-months/44616739#44616739">here</a> appears overly complicated to me. Instead, I offer a different solution, which seems to me simple and generalizable, i.e. does not depend on a particular data set.</p>
+</div>
+<div id="example-with-text-wrap" class="section level2">
+<h2>Example with text wrap</h2>
+<p>A simple approach is to modify x axis labels with a text formatting function that does three things:</p>
 <ol style="list-style-type: decimal">
 <li>Gets the first letter of the month’s name. Depending on your locale you may or may not need to capitalize this letter. I would need it if I kept “latvian” locale, so I will keep it inside my function below.</li>
 <li>Gets the year part from the date.</li>
-<li>Paste the year behind the first letter of the month using a new line <code>\n</code> as a separator, if
+<li>Pastes the year behind the first letter of the month using a new line <code>\n</code> as a separator, if
 <ul>
-<li>it is the first element in a date vector, or</li>
-<li>the previous date has a different year component.</li>
+<li>it is the first element in vector, or</li>
+<li>the previous element in a vector has a different year component.</li>
 </ul></li>
 </ol>
 <pre class="r"><code>library(stringr)
 format_dates &lt;- function(x) {
-  
   # First letter of the most, capitalized.
   months &lt;- str_sub(str_to_upper(strftime(x, format = &quot;%B&quot;)), start = 1, end = 1)
   # Year as a 4-digit number.
@@ -183,16 +193,17 @@ format_dates &lt;- function(x) {
   if_else(is.na(lag(years)) | lag(years) != years, 
           true = paste(months, years, sep = &quot;\n&quot;), 
           false = months)
-  
 }</code></pre>
 <p>For example:</p>
-<pre class="r"><code># Test the function of quarterly data.
+<pre class="r"><code># Test the function on quarterly data.
 format_dates(as.Date(c(&quot;2018-09-30&quot;, &quot;2018-12-31&quot;, &quot;2019-03-31&quot;, &quot;2019-06-30&quot;)))</code></pre>
 <pre><code>## [1] &quot;S\n2018&quot; &quot;D&quot;       &quot;M\n2019&quot; &quot;J&quot;</code></pre>
 <pre class="r"><code>format_dates(as.Date(c(&quot;2018-12-31&quot;, &quot;2019-03-31&quot;, &quot;2019-06-30&quot;, &quot;2019-09-30&quot;)))</code></pre>
 <pre><code>## [1] &quot;D\n2018&quot; &quot;M\n2019&quot; &quot;J&quot;       &quot;S&quot;</code></pre>
-<p>Now simply modify the <code>p_line</code> chart by adding <code>scale_x_date()</code> with few arguments. Supply the above defined date formatting function to the <code>labels</code> argument. As the final touch, left-justify the labels with the <code>theme()</code>.</p>
-<pre class="r"><code>p_line + 
+<p>Let’s start from the beginning with a simple line chart. Then supply the above defined date formatting function to <code>scale_x_date(labels = ...)</code> among few other arguments. As the final touch, left-justify the labels with the <code>theme()</code>.</p>
+<pre class="r"><code>data %&gt;% 
+  ggplot(aes(x = date, y = sales)) +
+  geom_line() + 
   # Customize x axis.
   scale_x_date(date_breaks = &quot;1 month&quot;,          # Date labels for each month.
                minor_breaks = NULL,              # No additional labels in-between `date_breaks`.
@@ -202,8 +213,9 @@ format_dates(as.Date(c(&quot;2018-09-30&quot;, &quot;2018-12-31&quot;, &quot;201
   # Customize the non-data components.
   theme(axis.text.x = element_text(hjust = 0),   # Left-justify x-axis labels.
         axis.title = element_blank())            # Remove x and y axis titles.</code></pre>
-<p><img src="/post/2019-06-30-multi-level-labels-with-ggplot2_files/figure-html/unnamed-chunk-12-1.png" width="576" style="display: block; margin: auto;" /></p>
-<p><br></p>
+<p><img src="/post/2019-06-30-multi-level-labels-with-ggplot2_files/figure-html/line_with_wrap-1.png" width="576" style="display: block; margin: auto;" /></p>
+<p>Done.</p>
+<hr>
 <p>Any comments or suggestions? I’d be glad to know! Please leave them below, no login required if you check “I’d rather post as a guest”.</p>
 <!-- ```{r echo = FALSE} -->
 <!-- # Super-categories for x-axis (in the end came up with a simple solution with labels). -->

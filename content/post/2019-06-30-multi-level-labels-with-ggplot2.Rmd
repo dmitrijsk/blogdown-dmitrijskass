@@ -15,7 +15,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.align = 'center', fig.height = 3, fig.width = 6)
 ```
 
-Recently I faced a necessity to create **multi-level labels with ggplot2** and had no idea how to do it. Multi-level labels imply some sort of hierarchical structure in data. For example, survey questions may be assigned into groups; and dates on the timeline may be assigned into years. A 15-minute Google-fu provided me with various solutions described on Stack Overflow that worked with varying success for different types of charts. An important aspect is whether data points between groups should be connected. The bar chart (plot A below) is an example where data points from different groups should not connected and a line chart (plot B below) is an example where data points should be connected both within and between groups:
+Recently I faced a necessity to create **multi-level labels with ggplot2** and had no idea how to do it. Multi-level labels imply some sort of hierarchical structure in data. For example, survey questions may be assigned into groups; and dates on the timeline may be assigned into years. A 15-minute Google-fu provided me with various solutions described on Stack Overflow that worked with varying success for different types of charts. An important aspect is whether data points between groups should be connected. The bar chart (plot A below) is an example where data points from different groups should not be connected and a line chart (plot B below) is an example where data points should be connected both within and between groups:
 
 ```{r demo, echo = FALSE, fig.height = 5, fig.width = 6, fig.align='center'}
 library(dplyr)
@@ -191,8 +191,8 @@ Why would you want to use multi-level labels for x axis in this case? Because la
 
 ```{r line_clutter}
 p_line + 
-  scale_x_date(date_breaks = "1 month",
-               date_labels = "%b %y")
+  scale_x_date(date_breaks = "1 month",  # Date labels for each month.
+               date_labels = "%b %y")    # Date format: short month and a 2-digit year.
 ```
 
 The faceting approach is not suitable in this scenario because we need to connect data points between facets:
@@ -225,13 +225,15 @@ Another solution with *grobs*
 
 ## Example with text wrap
 
-A simple approach is to modify x axis labels with a text formatting function that does three things:
+A simple approach is to modify x axis labels with a date formatting function. Suppose we have a date vector. The function does three things:
 
-1. Gets the first letter of the month's name. Depending on your locale you may or may not need to capitalize this letter. I would need it if I kept "latvian" locale, so I will keep it inside my function below.
-2. Gets the year part from the date.
-3. Pastes the year behind the first letter of the month using a new line `\n` as a separator, if 
+1. Gets the first letter of each month's name. Depending on your locale you may or may not need to capitalize this letter. I would need it if I kept "latvian" locale, so I keep it inside my function below.
+2. Gets the year part from each date.
+3. Pastes the years behind months if 
     * it is the first element in vector, or
-    * the previous element in a vector has a different year component.
+    * the previous date in a vector has a different year component (does not have to be January).
+    
+    The separator is a new line symbol `\n`.
 
 ```{r formatting_fun_define}
 library(stringr)
@@ -240,12 +242,12 @@ format_dates <- function(x) {
   months <- str_sub(str_to_upper(strftime(x, format = "%B")), start = 1, end = 1)
   # Year as a 4-digit number.
   years <- lubridate::year(x)
+  # Paste on condition.
   if_else(is.na(lag(years)) | lag(years) != years, 
           true = paste(months, years, sep = "\n"), 
           false = months)
 }
 ```
-
 
 For example:
 

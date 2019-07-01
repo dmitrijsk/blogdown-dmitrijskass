@@ -25,7 +25,7 @@ output:
 </ul>
 </div>
 
-<p>Recently I faced a necessity to create <strong>multi-level labels with ggplot2</strong> and had no idea how to do it. Multi-level labels imply some sort of hierarchical structure in data. For example, survey questions may be assigned into groups; and dates on the timeline may be assigned into years. A 15-minute Google-fu provided me with various solutions described on Stack Overflow that worked with varying success for different types of charts. An important aspect is whether data points between groups should be connected. The bar chart (plot A below) is an example where data points from different groups should not connected and a line chart (plot B below) is an example where data points should be connected both within and between groups:</p>
+<p>Recently I faced a necessity to create <strong>multi-level labels with ggplot2</strong> and had no idea how to do it. Multi-level labels imply some sort of hierarchical structure in data. For example, survey questions may be assigned into groups; and dates on the timeline may be assigned into years. A 15-minute Google-fu provided me with various solutions described on Stack Overflow that worked with varying success for different types of charts. An important aspect is whether data points between groups should be connected. The bar chart (plot A below) is an example where data points from different groups should not be connected and a line chart (plot B below) is an example where data points should be connected both within and between groups:</p>
 <p><img src="/post/2019-06-30-multi-level-labels-with-ggplot2_files/figure-html/demo-1.png" width="576" style="display: block; margin: auto;" /></p>
 <p>Below I discuss alternative solution to multi-level labels for these two charts. I deliberately keep them simple with no customization of colours, etc.</p>
 <div id="bar-chart" class="section level1">
@@ -145,8 +145,8 @@ p_line</code></pre>
 <p><img src="/post/2019-06-30-multi-level-labels-with-ggplot2_files/figure-html/locale-1.png" width="576" style="display: block; margin: auto;" /></p>
 <p>Why would you want to use multi-level labels for x axis in this case? Because labelling each month creates a lot of clutter even with a short date format:</p>
 <pre class="r"><code>p_line + 
-  scale_x_date(date_breaks = &quot;1 month&quot;,
-               date_labels = &quot;%b %y&quot;)</code></pre>
+  scale_x_date(date_breaks = &quot;1 month&quot;,  # Date labels for each month.
+               date_labels = &quot;%b %y&quot;)    # Date format: short month and a 2-digit year.</code></pre>
 <p><img src="/post/2019-06-30-multi-level-labels-with-ggplot2_files/figure-html/line_clutter-1.png" width="576" style="display: block; margin: auto;" /></p>
 <p>The faceting approach is not suitable in this scenario because we need to connect data points between facets:</p>
 <pre class="r"><code># Faceting approach does not suit this chart.
@@ -174,15 +174,16 @@ is to use <em>annotations</em>. I don’t use this approach for two reasons:</p>
 </div>
 <div id="example-with-text-wrap" class="section level2">
 <h2>Example with text wrap</h2>
-<p>A simple approach is to modify x axis labels with a text formatting function that does three things:</p>
+<p>A simple approach is to modify x axis labels with a date formatting function. Suppose we have a date vector. The function does three things:</p>
 <ol style="list-style-type: decimal">
-<li>Gets the first letter of the month’s name. Depending on your locale you may or may not need to capitalize this letter. I would need it if I kept “latvian” locale, so I will keep it inside my function below.</li>
-<li>Gets the year part from the date.</li>
-<li>Pastes the year behind the first letter of the month using a new line <code>\n</code> as a separator, if
+<li>Gets the first letter of each month’s name. Depending on your locale you may or may not need to capitalize this letter. I would need it if I kept “latvian” locale, so I keep it inside my function below.</li>
+<li>Gets the year part from each date.</li>
+<li>Pastes the years behind months if
 <ul>
 <li>it is the first element in vector, or</li>
-<li>the previous element in a vector has a different year component.</li>
-</ul></li>
+<li>the previous date in a vector has a different year component (does not have to be January).</li>
+</ul>
+The separator is a new line symbol <code>\n</code>.</li>
 </ol>
 <pre class="r"><code>library(stringr)
 format_dates &lt;- function(x) {
@@ -190,6 +191,7 @@ format_dates &lt;- function(x) {
   months &lt;- str_sub(str_to_upper(strftime(x, format = &quot;%B&quot;)), start = 1, end = 1)
   # Year as a 4-digit number.
   years &lt;- lubridate::year(x)
+  # Paste on condition.
   if_else(is.na(lag(years)) | lag(years) != years, 
           true = paste(months, years, sep = &quot;\n&quot;), 
           false = months)

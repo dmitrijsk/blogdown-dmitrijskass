@@ -13,14 +13,14 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.align = 'center', fig.height = 3, fig.width = 6)
+Sys.setlocale(category = "LC_ALL", locale = "english")
 ```
 
 Recently I faced a necessity to create **multi-level labels with ggplot2** and had no idea how to do it. Multi-level labels imply some sort of hierarchical structure in data. For example, survey questions may be assigned into groups; and dates on the timeline may be assigned into years. A 15-minute Google-fu provided me with various solutions described on Stack Overflow that worked with varying success for different types of charts. An important aspect is whether data points between groups should be connected. The bar chart (plot A below) is an example where data points from different groups should not be connected and a line chart (plot B below) is an example where data points should be connected both within and between groups:
 
-```{r demo, echo = FALSE, fig.height = 5, fig.width = 6, fig.align='center'}
+```{r demo, echo = FALSE, fig.height = 5}
 library(dplyr)
 library(ggplot2)
-library(stringr)
 
 # Bar chart ----
 
@@ -49,7 +49,7 @@ data <- tibble(date = seq(as.Date("2018-11-01"), by = "1 month", length.out = N)
 format_dates <- function(x) {
   
   years <- lubridate::year(x)
-  months <- str_sub(str_to_upper(strftime(x, format = "%B")), start = 1, end = 1)
+  months <- strftime(x, format = "%b")
   
   if_else(is.na(lag(years)) | lag(years) != years, 
           true = paste(months, years, sep = "\n"), 
@@ -72,16 +72,23 @@ p_line <- data %>%
 gridExtra::grid.arrange(p_bars, p_line, nrow = 2)
 ```
 
-Below I discuss alternative solution to multi-level labels for these two charts. I deliberately keep them simple with no customization of colours, etc.
+```{r locale_to_lv, echo=FALSE, include=FALSE}
+Sys.setlocale(category = "LC_ALL", locale = "latvian")
+```
+
+
+
+
+Below I discuss possible solution to multi-level labels for these two charts. I deliberately keep them simple with no customization of colours, etc.
 
 # Bar chart
 
 First, let's simulate the data for the bar chart. Let it be a result of a hypothetical survey with `r sum(TIMES)` questions labelled from Q1 to `r paste0("Q", sum(TIMES))` (`question` column) and combined into `r length(TIMES)` groups (`group` column). These will substitute x axis labels. The y axis values are drawn from a uniform distribution and represent a proportion of respondents that correctly answered corresponding questions (`proportion` column).
 
 ```{r data_bars}
-# For `tibble` and pipe `%>%`.
+# For `tibble()`, `if_else()` and pipe `%>%`.
 library(dplyr)
-# For reproducibility.
+# Reproducibility.
 set.seed(4) 
 # Counts of elements in each of three group.
 TIMES <- c(2, 4, 3)
@@ -104,7 +111,7 @@ data %>%
 
 Why would you want to add a grouping variable? To make the chart more intuitive for the reader by clearly showing that questions belong to different groups.
 
-## Alternative solutions
+## Possible solutions
 
 The most popular solutions for bar charts employ faceting with either `facet_grid()` (for example, 
 [here](https://stackoverflow.com/questions/48552671/ggplot2-show-category-and-sub-category-for-x-axis-labels/48555862#48555862)) 
@@ -147,7 +154,7 @@ p_bars +
         axis.title = element_blank())                     # Remove x and y axis titles.
 ```
 
-Done. We may remove the white space between facets by providing a `panel.spacing = unit(0.03, units = "cm")` argument to the `theme()` function. But I don't recommend it because the borders between groups get blurred and readability of the chart suffers.
+Done. We may remove the white space between facets by providing a `panel.spacing = unit(0, units = "cm")` argument to the `theme()` function. But I don't recommend it because the borders between groups get blurred and readability of the chart suffers.
 
 
 
@@ -192,14 +199,14 @@ Why would you want to use multi-level labels for x axis in this case? Because la
 ```{r line_clutter}
 p_line + 
   scale_x_date(date_breaks = "1 month",  # Date labels for each month.
-               date_labels = "%b %y")    # Date format: short month and a 2-digit year.
+               date_labels = "%b %y")    # Date format: abbreviated month and a 2-digit year.
 ```
 
 The faceting approach is not suitable in this scenario because we need to connect data points between facets:
 
 ```{r line_facets}
 # Faceting approach does not suit this chart.
-data %>% 
+p_facets <- data %>% 
   ggplot(aes(x = date, y = sales)) +
   geom_line() +
   scale_x_date(date_breaks = "1 month",
@@ -208,9 +215,38 @@ data %>%
   theme(strip.placement = "outside", 
         strip.background = element_rect(fill = "white"), 
         axis.title = element_blank())
+
+p_facets
 ```
 
-## Alternative solutions
+Even if we 
+
+* remove the white space between the facets with `theme(panel.spacing = unit(0, units = "cm")`,
+* and remove the expansion of x axis with `scale_x_date(expand = expand_scale(0, 0))`,
+
+the end data points of facets will still be disconnected. Although this discontinuity may not be apparent if vertical changes between the end data points of facets are small enough.
+
+<!-- ```{r line_facets_no_spacing} -->
+<!-- tibble(x = as.Date("2018-11-01") + 1:460, -->
+<!--        y = cumsum(rnorm(460, 0, 1))) %>%  -->
+<!--   ggplot(aes(x = x, y = y)) + -->
+<!--   geom_line() + -->
+<!--   scale_x_date(date_breaks = "1 month", -->
+<!--                minor_breaks = NULL, -->
+
+<!--                date_labels = "%b", -->
+<!--                expand = expand_scale(0, 0)) + -->
+<!--   facet_grid(~lubridate::year(x), scales = "free_x", switch = "x", space = "free_x") +  -->
+<!--   theme(strip.placement = "outside",  -->
+<!--         strip.background = element_rect(fill = "white"),  -->
+<!--         axis.title = element_blank(), -->
+<!--         panel.spacing = unit(0, units = "cm")) -->
+<!-- ``` -->
+
+
+
+
+## Possible solutions
 
 One solution offered 
 [here](https://stackoverflow.com/questions/20571306/multi-row-x-axis-labels-in-ggplot-line-chart/20574024#20574024)
@@ -227,25 +263,20 @@ Another solution with *grobs*
 
 A simple approach is to modify x axis labels with a date formatting function. Suppose we have a date vector. The function does three things:
 
-1. Gets the first letter of each month's name. Depending on your locale you may or may not need to capitalize this letter. I would need it if I kept "latvian" locale, so I keep it inside my function below.
-2. Gets the year part from each date.
+1. Gets abbreviated names of months.
+2. Gets the four-digit years.
 3. Pastes the years behind months if 
     * it is the first element in vector, or
     * the previous date in a vector has a different year component (does not have to be January).
     
-    The separator is a new line symbol `\n`, which wraps the text and makes it <i>look</i> like a multi-line label. However, it is still a single vector of x axis labels, whose appearance may be manipulated with `theme(axis.text.x = element_text(...))`. 
-
+    The separator is a new line symbol `\n`, which does the trick - it wraps the text and makes it <i>look</i> like a multi-line label. However, it is still a single vector of x axis labels, whose appearance may be manipulated with `theme(axis.text.x = element_text(...))`. 
 
 
 ```{r formatting_fun_define}
-library(stringr)
 format_dates <- function(x) {
-  # First letter of the most, capitalized.
-  months <- str_sub(str_to_upper(strftime(x, format = "%B")), start = 1, end = 1)
-  # Year as a 4-digit number.
-  years <- lubridate::year(x)
-  # Paste on condition.
-  if_else(is.na(lag(years)) | lag(years) != years, 
+  months <- strftime(x, format = "%b")              # Abbreviated name of the month.
+  years <- lubridate::year(x)                       # Year as a 4-digit number.
+  if_else(is.na(lag(years)) | lag(years) != years,  # Conditions for pasting.
           true = paste(months, years, sep = "\n"), 
           false = months)
 }
@@ -276,7 +307,50 @@ data %>%
         axis.title = element_blank())            # Remove x and y axis titles.
 ```
 
-Done.
+Done. 
+
+If abbreviated month names still look cluttered, we may use just the first letter of each month's name by altering the `format_dates()` function and replacing
+
+```{r calc_abb_months, eval=FALSE}
+months <- strftime(x, format = "%b")      # Abbreviated name of the month.
+```
+
+with 
+
+```{r calc_1_letter_months, eval=FALSE}
+months <- strftime(x, format = "%b") %>%  # Abbreviated name of the month.
+  stringr::str_to_upper() %>%             # May or may not be needed depending on your locale.
+  stringr::str_sub(start = 1, end = 1)    # Extract just the first letter.
+```
+
+Then the chart would look like this:
+
+```{r line_with_one_letter_months, echo = FALSE}
+format_dates <- function(x) {
+  months <- strftime(x, format = "%b") %>%          # Abbreviated name of the month.
+  stringr::str_to_upper() %>%                       # May or may not be needed depending on your locale.
+  stringr::str_sub(start = 1, end = 1)              # Extract just the first letter.
+  years <- lubridate::year(x)                       # Year as a 4-digit number.
+  if_else(is.na(lag(years)) | lag(years) != years,  # Conditions for pasting.
+          true = paste(months, years, sep = "\n"), 
+          false = months)
+}
+
+data %>% 
+  ggplot(aes(x = date, y = sales)) +
+  geom_line() + 
+  # Customize x axis.
+  scale_x_date(date_breaks = "1 month",          # Date labels for each month.
+               minor_breaks = NULL,              # No additional labels in-between `date_breaks`.
+               expand = expand_scale(add = 15),  # Add 15 days to the x-axis on the left and on the right.
+               labels = format_dates) +          # Supply a user-defined date formatting function.
+  
+  # Customize the non-data components.
+  theme(axis.text.x = element_text(hjust = 0),   # Left-justify x-axis labels.
+        axis.title = element_blank())            # Remove x and y axis titles.
+```
+
+  
 
 <hr>
 

@@ -95,7 +95,7 @@ p_bars</code></pre>
         strip.background = element_rect(fill = &quot;white&quot;),  # Make facet label background white.
         axis.title = element_blank())                     # Remove x and y axis titles.</code></pre>
 <p><img src="/post/2019-06-30-multi-level-labels-with-ggplot2_files/figure-html/bars_theme-1.png" width="576" style="display: block; margin: auto;" /></p>
-<p>Done. We may remove the white space between facets by providing a <code>panel.spacing = unit(0, units = "cm")</code> argument to the <code>theme()</code> function. But I don’t recommend it because the borders between groups get blurred and readability of the chart suffers.</p>
+<p>Done.</p>
 </div>
 </div>
 <div id="line-chart-with-dates" class="section level1">
@@ -136,7 +136,7 @@ data</code></pre>
 
 p_line</code></pre>
 <p><img src="/post/2019-06-30-multi-level-labels-with-ggplot2_files/figure-html/line_vanilla-1.png" width="576" style="display: block; margin: auto;" /></p>
-<p>Your x axis labels may vary depending on regional settings. My default region is Latvia. Locale can be changed with <code>Sys.setlocale()</code>:</p>
+<p>Your x axis labels may look differently depending on regional settings. My default region is Latvia. Locale can be changed with <code>Sys.setlocale()</code>:</p>
 <pre class="r"><code># Change locale.
 Sys.setlocale(category = &quot;LC_ALL&quot;, locale = &quot;english&quot;)</code></pre>
 <pre><code>## [1] &quot;LC_COLLATE=English_United States.1252;LC_CTYPE=English_United States.1252;LC_MONETARY=English_United States.1252;LC_NUMERIC=C;LC_TIME=English_United States.1252&quot;</code></pre>
@@ -167,7 +167,7 @@ p_facets</code></pre>
 <li>remove the white space between the facets with <code>theme(panel.spacing = unit(0, units = "cm")</code>,</li>
 <li>and remove the expansion of x axis with <code>scale_x_date(expand = expand_scale(0, 0))</code>,</li>
 </ul>
-<p>the end data points of facets will still be disconnected. Although this discontinuity may not be apparent if vertical changes between the end data points of facets are small enough.</p>
+<p>the end data points of facets will still be disconnected. Look at Dec 2018 and Jan 2019. Although this discontinuity may not be apparent if vertical changes between the end data points of facets are small enough.</p>
 <!-- ```{r line_facets_no_spacing} -->
 <!-- tibble(x = as.Date("2018-11-01") + 1:460, -->
 <!--        y = cumsum(rnorm(460, 0, 1))) %>%  -->

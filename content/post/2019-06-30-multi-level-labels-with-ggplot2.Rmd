@@ -154,8 +154,7 @@ p_bars +
         axis.title = element_blank())                     # Remove x and y axis titles.
 ```
 
-Done. We may remove the white space between facets by providing a `panel.spacing = unit(0, units = "cm")` argument to the `theme()` function. But I don't recommend it because the borders between groups get blurred and readability of the chart suffers.
-
+Done. 
 
 
 
@@ -185,7 +184,7 @@ p_line <- data %>%
 p_line
 ```
 
-Your x axis labels may vary depending on regional settings. My default region is Latvia. Locale can be changed with `Sys.setlocale()`:
+Your x axis labels may look differently depending on regional settings. My default region is Latvia. Locale can be changed with `Sys.setlocale()`:
 
 ```{r locale}
 # Change locale.
@@ -224,7 +223,7 @@ Even if we
 * remove the white space between the facets with `theme(panel.spacing = unit(0, units = "cm")`,
 * and remove the expansion of x axis with `scale_x_date(expand = expand_scale(0, 0))`,
 
-the end data points of facets will still be disconnected. Although this discontinuity may not be apparent if vertical changes between the end data points of facets are small enough.
+the end data points of facets will still be disconnected. Look at Dec 2018 and Jan 2019. Although this discontinuity may not be apparent if vertical changes between the end data points of facets are small enough.
 
 <!-- ```{r line_facets_no_spacing} -->
 <!-- tibble(x = as.Date("2018-11-01") + 1:460, -->

@@ -183,7 +183,7 @@ is to use <em>annotations</em>. I don’t use this approach for two reasons:</p>
 <li>it is the first element in vector, or</li>
 <li>the previous date in a vector has a different year component (does not have to be January).</li>
 </ul>
-The separator is a new line symbol <code>\n</code>.</li>
+The separator is a new line symbol <code>\n</code>, which wraps the text and makes it <i>look</i> like a multi-line label. However, it is still a single vector of x axis labels, whose appearance may be manipulated with <code>theme(axis.text.x = element_text(...))</code>.</li>
 </ol>
 <pre class="r"><code>library(stringr)
 format_dates &lt;- function(x) {

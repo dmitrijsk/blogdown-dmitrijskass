@@ -233,7 +233,9 @@ A simple approach is to modify x axis labels with a date formatting function. Su
     * it is the first element in vector, or
     * the previous date in a vector has a different year component (does not have to be January).
     
-    The separator is a new line symbol `\n`.
+    The separator is a new line symbol `\n`, which wraps the text and makes it <i>look</i> like a multi-line label. However, it is still a single vector of x axis labels, whose appearance may be manipulated with `theme(axis.text.x = element_text(...))`. 
+
+
 
 ```{r formatting_fun_define}
 library(stringr)

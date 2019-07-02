@@ -85,7 +85,7 @@ Below I discuss possible solutions to multi-level labels for these two charts. T
 
 # Bar chart
 
-First, let's simulate the data for the bar chart. Let it be a result of a hypothetical survey with `r sum(TIMES)` questions labelled from Q1 to `r paste0("Q", sum(TIMES))` and combined into `r length(TIMES)` group. These will substitute x axis labels. The y axis values are drawn from a uniform distribution and represent a proportion of respondents that correctly answered corresponding questions.
+First, let's simulate the data for the bar chart. Let it be a result of a hypothetical survey with `r sum(TIMES)` questions labelled from Q1 to `r paste0("Q", sum(TIMES))` and combined into `r length(TIMES)` groups. These will substitute x axis labels. The y axis values are drawn from a uniform distribution and represent a proportion of respondents that correctly answered corresponding questions.
 
 ```{r data_bars}
 # For `tibble()`, `if_else()` and pipe `%>%`.

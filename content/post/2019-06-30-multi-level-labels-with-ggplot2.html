@@ -27,7 +27,7 @@ output:
 
 <p>Recently I faced a necessity to create <strong>multi-level labels with ggplot2</strong> and had no idea how to do it. Multi-level labels imply some sort of hierarchical structure in data. For example, survey questions may be assigned into groups; and dates on the timeline may be assigned into years. A 15-minute Google-fu provided me with various solutions described on Stack Overflow that worked with varying success for different types of charts. An important aspect is whether data points between groups should be connected. The bar chart (plot A below) is an example where data points from different groups should not be connected and a line chart (plot B below) is an example where data points should be connected both within and between groups:</p>
 <p><img src="/post/2019-06-30-multi-level-labels-with-ggplot2_files/figure-html/demo-1.png" width="576" style="display: block; margin: auto;" /></p>
-<p>Below I discuss possible solution to multi-level labels for these two charts. I deliberately keep them simple with no customization of colours, etc.</p>
+<p>Below I discuss possible solutions to multi-level labels for these two charts. The line chart will have dates on the x axis as this is probably the most popular case. I deliberately keep charts simple with no customization of colours, etc.</p>
 <div id="bar-chart" class="section level1">
 <h1>Bar chart</h1>
 <p>First, let’s simulate the data for the bar chart. Let it be a result of a hypothetical survey with 9 questions labelled from Q1 to Q9 (<code>question</code> column) and combined into 3 groups (<code>group</code> column). These will substitute x axis labels. The y axis values are drawn from a uniform distribution and represent a proportion of respondents that correctly answered corresponding questions (<code>proportion</code> column).</p>
@@ -107,28 +107,28 @@ N &lt;- 16
 set.seed(4)
 # Simulate data.
 data &lt;- tibble(date = seq(as.Date(&quot;2018-11-01&quot;), by = &quot;1 month&quot;, length.out = N),
-               sales = 100 + rnorm(n = N, mean = 10, sd = 10))
+               sales = rnorm(n = N, mean = 100, sd = 5))
 # Print data.
 data</code></pre>
 <pre><code>## # A tibble: 16 x 2
 ##    date       sales
 ##    &lt;date&gt;     &lt;dbl&gt;
-##  1 2018-11-01 112. 
-##  2 2018-12-01 105. 
-##  3 2019-01-01 119. 
-##  4 2019-02-01 116. 
-##  5 2019-03-01 126. 
-##  6 2019-04-01 117. 
-##  7 2019-05-01  97.2
-##  8 2019-06-01 108. 
-##  9 2019-07-01 129. 
-## 10 2019-08-01 128. 
-## 11 2019-09-01 116. 
-## 12 2019-10-01 110. 
-## 13 2019-11-01 114. 
-## 14 2019-12-01 110. 
-## 15 2020-01-01 110. 
-## 16 2020-02-01 112.</code></pre>
+##  1 2018-11-01 101. 
+##  2 2018-12-01  97.3
+##  3 2019-01-01 104. 
+##  4 2019-02-01 103. 
+##  5 2019-03-01 108. 
+##  6 2019-04-01 103. 
+##  7 2019-05-01  93.6
+##  8 2019-06-01  98.9
+##  9 2019-07-01 109. 
+## 10 2019-08-01 109. 
+## 11 2019-09-01 103. 
+## 12 2019-10-01 100. 
+## 13 2019-11-01 102. 
+## 14 2019-12-01  99.8
+## 15 2020-01-01 100. 
+## 16 2020-02-01 101.</code></pre>
 <p>The first step is to create a simple line chart:</p>
 <pre class="r"><code>p_line &lt;- data %&gt;% 
   ggplot(aes(x = date, y = sales)) +
@@ -146,28 +146,40 @@ p_line</code></pre>
 <p>Why would you want to use multi-level labels for x axis in this case? Because labelling each month creates a lot of clutter even with a short date format:</p>
 <pre class="r"><code>p_line + 
   scale_x_date(date_breaks = &quot;1 month&quot;,  # Date labels for each month.
-               date_labels = &quot;%b %y&quot;)    # Date format: abbreviated month and a 2-digit year.</code></pre>
+               date_labels = &quot;%b%y&quot;)     # Date format: abbreviated month and a 2-digit year.</code></pre>
 <p><img src="/post/2019-06-30-multi-level-labels-with-ggplot2_files/figure-html/line_clutter-1.png" width="576" style="display: block; margin: auto;" /></p>
 <p>The faceting approach is not suitable in this scenario because we need to connect data points between facets:</p>
 <pre class="r"><code># Faceting approach does not suit this chart.
-p_facets &lt;- data %&gt;% 
+data %&gt;% 
   ggplot(aes(x = date, y = sales)) +
   geom_line() +
   scale_x_date(date_breaks = &quot;1 month&quot;,
                date_labels = &quot;%b&quot;) +
-  facet_grid(~lubridate::year(date), scales = &quot;free_x&quot;, switch = &quot;x&quot;, space = &quot;free_x&quot;) + 
+  facet_grid(~lubridate::year(date), 
+             scales = &quot;free_x&quot;, 
+             switch = &quot;x&quot;, 
+             space = &quot;free_x&quot;) + 
   theme(strip.placement = &quot;outside&quot;, 
         strip.background = element_rect(fill = &quot;white&quot;), 
-        axis.title = element_blank())
-
-p_facets</code></pre>
+        axis.title = element_blank())</code></pre>
 <p><img src="/post/2019-06-30-multi-level-labels-with-ggplot2_files/figure-html/line_facets-1.png" width="576" style="display: block; margin: auto;" /></p>
-<p>Even if we</p>
-<ul>
-<li>remove the white space between the facets with <code>theme(panel.spacing = unit(0, units = "cm")</code>,</li>
-<li>and remove the expansion of x axis with <code>scale_x_date(expand = expand_scale(0, 0))</code>,</li>
-</ul>
-<p>the end data points of facets will still be disconnected. Look at Dec 2018 and Jan 2019. Although this discontinuity may not be apparent if vertical changes between the end data points of facets are small enough.</p>
+<p>Even if we remove the white space between the facets with <code>theme(panel.spacing = unit(0, units = "cm")</code>, the end data points of facets will still be disconnected. Notice the discontinuities between Decembers and Januaries in the chart below:</p>
+<pre class="r"><code># Still does not suit.
+data %&gt;% 
+  ggplot(aes(x = date, y = sales)) +
+  geom_line() +
+  scale_x_date(date_breaks = &quot;1 month&quot;,
+               date_labels = &quot;%b&quot;) +           
+  facet_grid(~lubridate::year(date), 
+             scales = &quot;free_x&quot;, 
+             switch = &quot;x&quot;, 
+             space = &quot;free_x&quot;) + 
+  theme(strip.placement = &quot;outside&quot;, 
+        strip.background = element_rect(fill = &quot;white&quot;), 
+        axis.title = element_blank(),
+        panel.spacing = unit(0, units = &quot;cm&quot;))           # Remove the white space between the facets.</code></pre>
+<p><img src="/post/2019-06-30-multi-level-labels-with-ggplot2_files/figure-html/line_facets_no_whitespace-1.png" width="576" style="display: block; margin: auto;" /></p>
+<!-- Discontinuities may not be apparent if vertical changes between the end data points of facets are small enough. -->
 <!-- ```{r line_facets_no_spacing} -->
 <!-- tibble(x = as.Date("2018-11-01") + 1:460, -->
 <!--        y = cumsum(rnorm(460, 0, 1))) %>%  -->
@@ -197,7 +209,7 @@ is to use <em>annotations</em>. I don’t use this approach for two reasons:</p>
 </div>
 <div id="example-with-text-wrap" class="section level2">
 <h2>Example with text wrap</h2>
-<p>A simple approach is to modify x axis labels with a date formatting function. Suppose we have a date vector. The function does three things:</p>
+<p>A simple approach is to modify x axis labels with a text (in this case - dates) formatting function. Suppose we have a date vector. The function does three things:</p>
 <ol style="list-style-type: decimal">
 <li>Gets abbreviated names of months.</li>
 <li>Gets the four-digit years.</li>

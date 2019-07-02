@@ -25,12 +25,12 @@ output:
 </ul>
 </div>
 
-<p>Recently I faced a necessity to create <strong>multi-level labels with ggplot2</strong> and had no idea how to do it. Multi-level labels imply some sort of hierarchical structure in data. For example, survey questions may be assigned into groups; and dates on the timeline may be assigned into years. A 15-minute Google-fu provided me with various solutions described on Stack Overflow that worked with varying success for different types of charts. An important aspect is whether data points between groups should be connected. The bar chart (plot A below) is an example where data points from different groups should not be connected and a line chart (plot B below) is an example where data points should be connected both within and between groups:</p>
+<p>Recently I faced a necessity to create <strong>multi-level labels with ggplot2</strong> and had no idea how to do it. Multi-level labels imply some sort of hierarchical structure in data. For example, survey questions may be grouped by topics; and dates on the timeline may be grouped by years. A 15-minute Google-fu provided me with various solutions described on Stack Overflow that worked with varying success for different types of charts. An important aspect is whether data points between groups should be connected. The bar chart (plot A below) is an example where data points from different groups should not be connected and a line chart (plot B below) is an example where data points should be connected both within and between groups:</p>
 <p><img src="/post/2019-06-30-multi-level-labels-with-ggplot2_files/figure-html/demo-1.png" width="576" style="display: block; margin: auto;" /></p>
 <p>Below I discuss possible solutions to multi-level labels for these two charts. The line chart will have dates on the x axis as this is probably the most popular case. I deliberately keep charts simple with no customization of colours, etc.</p>
 <div id="bar-chart" class="section level1">
 <h1>Bar chart</h1>
-<p>First, let’s simulate the data for the bar chart. Let it be a result of a hypothetical survey with 9 questions labelled from Q1 to Q9 (<code>question</code> column) and combined into 3 groups (<code>group</code> column). These will substitute x axis labels. The y axis values are drawn from a uniform distribution and represent a proportion of respondents that correctly answered corresponding questions (<code>proportion</code> column).</p>
+<p>First, let’s simulate the data for the bar chart. Let it be a result of a hypothetical survey with 9 questions labelled from Q1 to Q9 and combined into 3 group. These will substitute x axis labels. The y axis values are drawn from a uniform distribution and represent a proportion of respondents that correctly answered corresponding questions.</p>
 <pre class="r"><code># For `tibble()`, `if_else()` and pipe `%&gt;%`.
 library(dplyr)
 # Reproducibility.
@@ -61,7 +61,7 @@ data %&gt;%
   ggplot(aes(x = question, y = proportion)) +
   geom_col()</code></pre>
 <p><img src="/post/2019-06-30-multi-level-labels-with-ggplot2_files/figure-html/bars_vanilla-1.png" width="576" style="display: block; margin: auto;" /></p>
-<p>Why would you want to add a grouping variable? To make the chart more intuitive for the reader by clearly showing that questions belong to different groups.</p>
+<p>Why would you want to add a grouping variable? To make the chart more intuitive for the reader by clearly showing that questions belong to different topics.</p>
 <div id="possible-solutions" class="section level2">
 <h2>Possible solutions</h2>
 <p>The most popular solutions for bar charts employ faceting with either <code>facet_grid()</code> (for example,
@@ -163,21 +163,7 @@ data %&gt;%
         strip.background = element_rect(fill = &quot;white&quot;), 
         axis.title = element_blank())</code></pre>
 <p><img src="/post/2019-06-30-multi-level-labels-with-ggplot2_files/figure-html/line_facets-1.png" width="576" style="display: block; margin: auto;" /></p>
-<p>Even if we remove the white space between the facets with <code>theme(panel.spacing = unit(0, units = "cm")</code>, the end data points of facets will still be disconnected. Notice the discontinuities between Decembers and Januaries in the chart below:</p>
-<pre class="r"><code># Still does not suit.
-data %&gt;% 
-  ggplot(aes(x = date, y = sales)) +
-  geom_line() +
-  scale_x_date(date_breaks = &quot;1 month&quot;,
-               date_labels = &quot;%b&quot;) +           
-  facet_grid(~lubridate::year(date), 
-             scales = &quot;free_x&quot;, 
-             switch = &quot;x&quot;, 
-             space = &quot;free_x&quot;) + 
-  theme(strip.placement = &quot;outside&quot;, 
-        strip.background = element_rect(fill = &quot;white&quot;), 
-        axis.title = element_blank(),
-        panel.spacing = unit(0, units = &quot;cm&quot;))           # Remove the white space between the facets.</code></pre>
+<p>Even if we remove the white space between the facets with <code>theme(panel.spacing = unit(0, units = "cm")</code>, the end data points of facets will still be disconnected. Notice the discontinuities between Decembers and Januaries:</p>
 <p><img src="/post/2019-06-30-multi-level-labels-with-ggplot2_files/figure-html/line_facets_no_whitespace-1.png" width="576" style="display: block; margin: auto;" /></p>
 <!-- Discontinuities may not be apparent if vertical changes between the end data points of facets are small enough. -->
 <!-- ```{r line_facets_no_spacing} -->
@@ -209,7 +195,7 @@ is to use <em>annotations</em>. I don’t use this approach for two reasons:</p>
 </div>
 <div id="example-with-text-wrap" class="section level2">
 <h2>Example with text wrap</h2>
-<p>A simple approach is to modify x axis labels with a text (in this case - dates) formatting function. Suppose we have a date vector. The function does three things:</p>
+<p>My alternative solution is to modify x axis labels with a text formatting function (in this case - date formatting). Suppose we have a date vector. The function does three things:</p>
 <ol style="list-style-type: decimal">
 <li>Gets abbreviated names of months.</li>
 <li>Gets the four-digit years.</li>
@@ -220,6 +206,7 @@ is to use <em>annotations</em>. I don’t use this approach for two reasons:</p>
 </ul>
 The separator is a new line symbol <code>\n</code>, which does the trick - it wraps the text and makes it <i>look</i> like a multi-line label. However, it is still a single vector of x axis labels, whose appearance may be manipulated with <code>theme(axis.text.x = element_text(...))</code>.</li>
 </ol>
+<p>Here is the function:</p>
 <pre class="r"><code>format_dates &lt;- function(x) {
   months &lt;- strftime(x, format = &quot;%b&quot;)              # Abbreviated name of the month.
   years &lt;- lubridate::year(x)                       # Year as a 4-digit number.
@@ -227,13 +214,13 @@ The separator is a new line symbol <code>\n</code>, which does the trick - it wr
           true = paste(months, years, sep = &quot;\n&quot;), 
           false = months)
 }</code></pre>
-<p>For example:</p>
-<pre class="r"><code># Test the function on quarterly data.
+<p>Try it on two date vectors:</p>
+<pre class="r"><code># Test the function.
 format_dates(as.Date(c(&quot;2018-09-30&quot;, &quot;2018-12-31&quot;, &quot;2019-03-31&quot;, &quot;2019-06-30&quot;)))</code></pre>
 <pre><code>## [1] &quot;Sep\n2018&quot; &quot;Dec&quot;       &quot;Mar\n2019&quot; &quot;Jun&quot;</code></pre>
 <pre class="r"><code>format_dates(as.Date(c(&quot;2018-12-31&quot;, &quot;2019-03-31&quot;, &quot;2019-06-30&quot;, &quot;2019-09-30&quot;)))</code></pre>
 <pre><code>## [1] &quot;Dec\n2018&quot; &quot;Mar\n2019&quot; &quot;Jun&quot;       &quot;Sep&quot;</code></pre>
-<p>Let’s start from the beginning with a simple line chart. Then supply the above defined date formatting function to <code>scale_x_date(labels = ...)</code> among few other arguments. As the final touch, left-justify the labels with the <code>theme()</code>.</p>
+<p>We are now ready. Let’s start from the beginning with a simple line chart. Then supply the above defined date formatting function to <code>scale_x_date(labels = ...)</code> among few other arguments. As the final touch, left-justify the labels with the <code>theme()</code>.</p>
 <pre class="r"><code>data %&gt;% 
   ggplot(aes(x = date, y = sales)) +
   geom_line() + 

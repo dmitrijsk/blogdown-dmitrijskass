@@ -16,7 +16,7 @@ knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.align =
 Sys.setlocale(category = "LC_ALL", locale = "english")
 ```
 
-Recently I faced a necessity to create **multi-level labels with ggplot2** and had no idea how to do it. Multi-level labels imply some sort of hierarchical structure in data. For example, survey questions may be assigned into groups; and dates on the timeline may be assigned into years. A 15-minute Google-fu provided me with various solutions described on Stack Overflow that worked with varying success for different types of charts. An important aspect is whether data points between groups should be connected. The bar chart (plot A below) is an example where data points from different groups should not be connected and a line chart (plot B below) is an example where data points should be connected both within and between groups:
+Recently I faced a necessity to create **multi-level labels with ggplot2** and had no idea how to do it. Multi-level labels imply some sort of hierarchical structure in data. For example, survey questions may be grouped by topics; and dates on the timeline may be grouped by years. A 15-minute Google-fu provided me with various solutions described on Stack Overflow that worked with varying success for different types of charts. An important aspect is whether data points between groups should be connected. The bar chart (plot A below) is an example where data points from different groups should not be connected and a line chart (plot B below) is an example where data points should be connected both within and between groups:
 
 ```{r demo, echo = FALSE, fig.height = 5}
 library(dplyr)
@@ -85,7 +85,7 @@ Below I discuss possible solutions to multi-level labels for these two charts. T
 
 # Bar chart
 
-First, let's simulate the data for the bar chart. Let it be a result of a hypothetical survey with `r sum(TIMES)` questions labelled from Q1 to `r paste0("Q", sum(TIMES))` (`question` column) and combined into `r length(TIMES)` groups (`group` column). These will substitute x axis labels. The y axis values are drawn from a uniform distribution and represent a proportion of respondents that correctly answered corresponding questions (`proportion` column).
+First, let's simulate the data for the bar chart. Let it be a result of a hypothetical survey with `r sum(TIMES)` questions labelled from Q1 to `r paste0("Q", sum(TIMES))` and combined into `r length(TIMES)` group. These will substitute x axis labels. The y axis values are drawn from a uniform distribution and represent a proportion of respondents that correctly answered corresponding questions.
 
 ```{r data_bars}
 # For `tibble()`, `if_else()` and pipe `%>%`.
@@ -111,7 +111,7 @@ data %>%
   geom_col()
 ```
 
-Why would you want to add a grouping variable? To make the chart more intuitive for the reader by clearly showing that questions belong to different groups.
+Why would you want to add a grouping variable? To make the chart more intuitive for the reader by clearly showing that questions belong to different topics.
 
 ## Possible solutions
 
@@ -221,9 +221,9 @@ data %>%
         axis.title = element_blank())
 ```
 
-Even if we remove the white space between the facets with `theme(panel.spacing = unit(0, units = "cm")`, the end data points of facets will still be disconnected. Notice the discontinuities between Decembers and Januaries in the chart below:
+Even if we remove the white space between the facets with `theme(panel.spacing = unit(0, units = "cm")`, the end data points of facets will still be disconnected. Notice the discontinuities between Decembers and Januaries:
 
-```{r line_facets_no_whitespace}
+```{r line_facets_no_whitespace, echo = FALSE}
 # Still does not suit.
 data %>% 
   ggplot(aes(x = date, y = sales)) +
@@ -277,7 +277,7 @@ Another solution with *grobs*
 
 ## Example with text wrap
 
-A simple approach is to modify x axis labels with a text (in this case - dates) formatting function. Suppose we have a date vector. The function does three things:
+My alternative solution is to modify x axis labels with a text formatting function (in this case - date formatting). Suppose we have a date vector. The function does three things:
 
 1. Gets abbreviated names of months.
 2. Gets the four-digit years.
@@ -287,6 +287,7 @@ A simple approach is to modify x axis labels with a text (in this case - dates) 
     
     The separator is a new line symbol `\n`, which does the trick - it wraps the text and makes it <i>look</i> like a multi-line label. However, it is still a single vector of x axis labels, whose appearance may be manipulated with `theme(axis.text.x = element_text(...))`. 
 
+Here is the function:
 
 ```{r formatting_fun_define}
 format_dates <- function(x) {
@@ -298,15 +299,15 @@ format_dates <- function(x) {
 }
 ```
 
-For example:
+Try it on two date vectors:
 
 ```{r formatting_fun_test}
-# Test the function on quarterly data.
+# Test the function.
 format_dates(as.Date(c("2018-09-30", "2018-12-31", "2019-03-31", "2019-06-30")))
 format_dates(as.Date(c("2018-12-31", "2019-03-31", "2019-06-30", "2019-09-30")))
 ```
 
-Let's start from the beginning with a simple line chart. Then supply the above defined date formatting function to `scale_x_date(labels = ...)` among few other arguments. As the final touch, left-justify the labels with the `theme()`.
+We are now ready. Let's start from the beginning with a simple line chart. Then supply the above defined date formatting function to `scale_x_date(labels = ...)` among few other arguments. As the final touch, left-justify the labels with the `theme()`.
 
 ```{r line_with_wrap}
 data %>% 

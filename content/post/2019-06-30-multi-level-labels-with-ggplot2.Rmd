@@ -16,7 +16,7 @@ knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.align =
 Sys.setlocale(category = "LC_ALL", locale = "english")
 ```
 
-Recently I faced a necessity to create **multi-level labels with ggplot2** and had no idea how to do it. Multi-level labels imply some sort of hierarchical structure in data. For example, survey questions may be grouped by topics; and dates on the timeline may be grouped by years. A 15-minute Google-fu provided me with various solutions described on Stack Overflow that worked with varying success for different types of charts. An important aspect is whether data points between groups should be connected. The bar chart (plot A below) is an example where data points from different groups should not be connected and a line chart (plot B below) is an example where data points should be connected both within and between groups:
+Recently I needed to create **multi-level labels with ggplot2** and had no idea how to do it. Multi-level labels imply some sort of hierarchical structure in data. For example, survey questions may be grouped by topics and dates on the timeline may be grouped by years. A 15-minute Google-fu provided me with various solutions described on Stack Overflow that worked with varying success for different types of charts. An important aspect is whether data points between groups should be connected. The bar chart (plot A below) is an example where data points from different groups should not be connected and a line chart (plot B below) is an example where data points should be connected both within and between groups:
 
 ```{r demo, echo = FALSE, fig.height = 5}
 library(dplyr)
@@ -78,21 +78,21 @@ Sys.setlocale(category = "LC_ALL", locale = "latvian")
 
 
 
-Below I discuss possible solutions to multi-level labels for these two charts. The line chart will have dates on the x axis as this is probably the most popular case. I deliberately keep charts simple with no customization of colours, etc.
+Below, I discuss possible solutions to multi-level labels for these two charts. The line chart will have dates on the x axis as this is probably the most popular case. I deliberately keep charts simple with no customization of colours, etc.
 
 
 
 
 # Bar chart
 
-First, let's simulate the data for the bar chart. Let it be a result of a hypothetical survey with `r sum(TIMES)` questions labelled from Q1 to `r paste0("Q", sum(TIMES))` and combined into `r length(TIMES)` groups. These will substitute x axis labels. The y axis values are drawn from a uniform distribution and represent a proportion of respondents that correctly answered corresponding questions.
+First, let's simulate the data for the bar chart. Let it be a result of a hypothetical survey with `r sum(TIMES)` questions labelled from Q1 to `r paste0("Q", sum(TIMES))` and combined into `r length(TIMES)` groups. These will substitute the x axis labels. The y axis values are drawn from a uniform distribution and represent a proportion of respondents that correctly answered corresponding questions.
 
 ```{r data_bars}
 # For `tibble()`, `if_else()` and pipe `%>%`.
 library(dplyr)
 # Reproducibility.
 set.seed(4) 
-# Counts of elements in each of three group.
+# Counts of elements in each of the three groups.
 TIMES <- c(2, 4, 3)
 # Simulate data.
 data <- tibble(group = c(rep(paste("Group", 1:3), times = TIMES)),
@@ -119,12 +119,12 @@ The most popular solutions for bar charts employ faceting with either `facet_gri
 [here](https://stackoverflow.com/questions/48552671/ggplot2-show-category-and-sub-category-for-x-axis-labels/48555862#48555862)) 
 or `facet_wrap()` (for example, 
 [here](https://stackoverflow.com/questions/44247239/grouping-on-the-x-axis-in-ggplot2/44249048#44249048)). 
-The latter does not have an argument `space` that lets the width of facets vary, which in its turn forces all bars to have the same width. Therefore, if a number of categories differs among groups then `facet_grid()` should be preferred. I really liked this approach and demonstrate it below in steps.
+The latter does not have an argument `space` that lets the width of facets vary, which in turn forces all bars to have the same width. Therefore, if a number of categories differ among groups then `facet_grid()` should be preferred. I really liked this approach and demonstrate it below in steps.
 
 
 ## Example with faceting
 
-The faceting approach starts with a simple bar chart that is turned into [small multiples](https://en.wikipedia.org/wiki/Small_multiple) bar chart with `facet_grid()`:
+The faceting approach starts with a simple bar chart that is turned into [small multiples](https://en.wikipedia.org/wiki/Small_multiple) bar chart with a `facet_grid()`:
 
 ```{r bars_facet_1}
 data %>% 
@@ -162,7 +162,7 @@ Done.
 
 # Line chart with dates
 
-Again, we start with simulating data for the line chart. Let it be sales volume of some healthy product during 16 months from November 2018 to February 2020. I deliberately chose this period as it partly covers three years.
+Again, we start with simulating data for the line chart. Let it be the sales volume of some healthy product over 16 months from November 2018 to February 2020. I deliberately chose this period as it partly covers three years.
 
 ```{r data_line}
 # Number of months.
@@ -195,7 +195,7 @@ Sys.setlocale(category = "LC_ALL", locale = "english")
 p_line
 ```
 
-Why would you want to use multi-level labels for x axis in this case? Because labelling each month creates a lot of clutter even with a short date format:
+Why would you want to use multi-level labels for the x axis in this case? Because labelling each month creates a lot of clutter even with a short date format:
 
 ```{r line_clutter}
 p_line + 
@@ -272,7 +272,7 @@ is to use *annotations*. I don't use this approach for two reasons:
 2. Fixed horizontal positions for text annotations in `annotate(geom = "text", x = 2.5 + 4 * (0:4))` do not depend on data and other ggplot2 customizations, such as axis limits. This solution may not work for a different data set.
 
 Another solution with *grobs* 
-[here](https://stackoverflow.com/questions/44616530/axis-labels-on-two-lines-with-nested-x-variables-year-below-months/44616739#44616739) appears overly complicated to me. Instead, I offer a different solution, which seems to me simple and generalizable, i.e. does not depend on a particular data set.
+[here](https://stackoverflow.com/questions/44616530/axis-labels-on-two-lines-with-nested-x-variables-year-below-months/44616739#44616739) appears overly complicated to me. Instead, I offer a different solution, which seems to me simple and generalizable, i.e. it does not depend on a particular data set.
 
 
 ## Example with text wrap
@@ -283,7 +283,7 @@ My alternative solution is to modify x axis labels with a text formatting functi
 2. Gets the four-digit years.
 3. Pastes the years behind months if 
     * it is the first element in vector, or
-    * the previous date in a vector has a different year component (does not have to be January).
+    * the previous date in a vector has a different year component (it does not have to be January).
     
     The separator is a new line symbol `\n`, which does the trick - it wraps the text and makes it <i>look</i> like a multi-line label. However, it is still a single vector of x axis labels, whose appearance may be manipulated with `theme(axis.text.x = element_text(...))`. 
 
@@ -371,7 +371,7 @@ data %>%
 
 <hr>
 
-Any comments or suggestions? I'd be glad to know! Please leave them below, no login required if you check "I'd rather post as a guest".
+I would appreciate any comments or suggestions. Please leave them below, no login required if you check "I'd rather post as a guest".
 
 
 <!-- ```{r echo = FALSE} -->

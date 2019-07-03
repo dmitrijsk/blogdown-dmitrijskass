@@ -1,5 +1,5 @@
 ---
-title: '#SWDchallenge: artisanal data'
+title: 'Tf-idf: the effect of idf on tf visualised'
 author: Dmitrijs Kass
 date: '2019-05-10'
 categories:
@@ -161,7 +161,7 @@ knitr::kable(t_summary, format = "html", col.names = cols, digits = 3)
 
 <br>
 
-Any comments or suggestions? I'd be glad to know! Please leave them below, no login required if you check "I'd rather post as a guest".
+I would appreciate any comments or suggestions. Please leave them below, no login required if you check "I'd rather post as a guest".
 
 
 

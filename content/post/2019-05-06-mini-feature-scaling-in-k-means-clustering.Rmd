@@ -13,17 +13,55 @@ output:
 draft: true
 ---
 
-This is a short blog post about the effect of feature scaling in k-means clustering.
+The process of clustering usually involves variable scaling / standardization. This post illustrates the effect and importance of this date pre-processing step on a small data set of iPhones.
 
-Import and print data.
+----
+
+# Clustering and distances
+
+Clustering refers to a very broad set of techniques for finding subgroups, or clusters, in a data set. When we cluster the observations of a data set, we seek to partition them into distinct groups so that 
+
+* the observations within each group are quite "similar" to each other, 
+* while observations in different groups are quite "different" from each other (... page 385).
+
+There are many possible ways to define the concept of "(dis)similarity", but by far the most common choice involves [Euclidean distance](https://en.wikipedia.org/wiki/Euclidean_distance). For example, if three points have (x, y) coordinates (1, 1), (1, 2) and (3, 1) then their Euclidean distances are as shown in the picture below:
+
+```{r echo = FALSE, message=FALSE, warning=FALSE, fig.height=3, fig.width=3, fig.align='center'}
+library(tidyverse)
+example <- tibble(object = LETTERS[1:3],
+                  x = c(1,1,3),
+                  xend = c(1,3,1),
+                  y = c(1,2,1),
+                  yend = c(2,1,1))
+
+distances <- dist(example[c("x", "y")])
+
+example %>% 
+  ggplot(aes(x, y)) +
+  geom_point(size = 2) +
+  coord_equal() +
+  geom_segment(aes(xend = xend, yend = yend), 
+               arrow = arrow(length = unit(0.3, "cm"))) +
+  scale_x_continuous(breaks = 1:3, expand = expand_scale(add = 0.25)) +
+  scale_y_continuous(breaks = 1:3, expand = expand_scale(add = 0.25)) +
+  annotate(geom = "text", x = 0.8, y = 1.5, label = 1) +
+  annotate(geom = "text", x = 2.2, y = 1.7, label = 2.24) +
+  annotate(geom = "text", x = 2, y = 0.8, label = 2) +
+  labs(subtitle = "Euclidean distances")
+```
+
+<!-- Standardization is not important if the distance measure is already standardized, e.g. correlation and cosine distance.  -->
+
+Let's take k-means clustering. Simply speaking, k-means algorithm aims to assign *n* observations into *k* clusters such that within-cluster distances are minimized. It is usually advised to standardize variables before calculating the distances. Now, imagine you have observed their prices in euros and weights in gramms. Here is the data (also available [here](iphone_dataset.csv)): 
 
 ```{r message=FALSE, warning=FALSE}
 # Attach packages.
 library(tidyverse)
-
 # Import phone data.
 phones_df <- read_delim(file = "iphone_dataset.csv", delim = ";", skip = 2)
+```
 
+```{r echo = FALSE}
 # Print phone data.
 phones_df %>% 
   knitr::kable(col.names = c("Brand", "Model", "Approx. price (EUR)", "Weight (g)"), format = "html") %>% 
@@ -32,12 +70,6 @@ phones_df %>%
 
 # About k-means
 
-Clustering refers to a broad set of techniques for finding homogeneous subgroups, or clusters, in a data set. It seeks to partition observations into distinct clusters in such a way that 
-
-* observations within each cluster are quite similar to each other,
-* while observations in different clusters are quite different from each other.
-
-Similarities and dissimilarities within and between clusters are based on the data set that is provided to the clustering technique
 
 # Surprise
 
@@ -47,7 +79,7 @@ The plot below depicts four iPhone models in two dimensions: approximate price i
 phones_df %>% 
   ggplot(aes(x = weight_g, y = approx_price_eur)) + 
   geom_point(size = 4, shape = "x") +
-  geom_text(aes(label = model), size = 3.5, vjust = "top", nudge_y = -20) +
+  geom_text(aes(label = model), size = 3.5, vjust = "top", nudge_y = -40) +
   scale_x_continuous(expand = expand_scale(mult = 0.3)) +
   scale_y_continuous(expand = expand_scale(mult = 0.3)) +
   labs(title = "How would you assign these 4 iPhones into 2 clusters?",
@@ -81,7 +113,7 @@ p <- phones_df %>%
   mutate(cluster = kmeans_fit$cluster) %>% 
   ggplot(aes(x = weight_g, y = approx_price_eur, color = as.factor(cluster))) + 
   geom_point(size = 4, shape = "x") +
-  geom_text(aes(label = model), size = 3.5, vjust = "top", nudge_y = -20) +
+  geom_text(aes(label = model), size = 3.5, vjust = "top", nudge_y = -40) +
   geom_point(data = centers_df, size = 4) +
   scale_x_continuous(expand = expand_scale(mult = 0.3)) +
   scale_y_continuous(expand = expand_scale(mult = 0.3)) +
@@ -134,7 +166,7 @@ centers_df <- tibble(approx_price_eur_scaled = kmeans_fit$centers[, 1],
 ```
 
 ```{r}
-phones_df %>% 
+p <- phones_df %>% 
   mutate(approx_price_eur_scaled = (approx_price_eur - mean(approx_price_eur)) / sd(approx_price_eur), 
          weight_g_scaled = (weight_g - mean(weight_g)) / sd(weight_g),
          cluster = kmeans_fit$cluster) %>% 
@@ -150,6 +182,11 @@ phones_df %>%
   theme_classic() +
   theme(legend.position = "top") +
   coord_equal(xlim = c(-2, 2), ylim = c(-2, 2))
+
+
+p +
+  stat_ellipse(type = "norm")
+
 ```
 
 After getting k-means result based on scaled features, we may scaled them back.

@@ -4,7 +4,6 @@ author: Dmitrijs Kass
 date: '2019-05-06'
 slug: mini-feature-scaling-in-k-means-clustering
 categories:
-  - mini
   - clusterings
 tags: []
 output:
@@ -13,7 +12,7 @@ output:
 draft: true
 ---
 
-The process of clustering usually involves variable scaling / standardization. This post illustrates the effect and importance of this date pre-processing step on a small data set of iPhones.
+The process of clustering usually involves variable scaling / standardization. This post illustrates the effect of this data pre-processing step on the result of k-means slustering using a small data set of iPhones.
 
 ----
 
@@ -26,7 +25,7 @@ Clustering refers to a very broad set of techniques for finding subgroups, or cl
 
 There are many possible ways to define the concept of "(dis)similarity", but by far the most common choice involves [Euclidean distance](https://en.wikipedia.org/wiki/Euclidean_distance). For example, if three points have (x, y) coordinates (1, 1), (1, 2) and (3, 1) then their Euclidean distances are as shown in the picture below:
 
-```{r echo = FALSE, message=FALSE, warning=FALSE, fig.height=3, fig.width=3, fig.align='center'}
+```{r distance_example, echo = FALSE, message=FALSE, warning=FALSE, fig.height=3, fig.width=3, fig.align='center'}
 library(tidyverse)
 example <- tibble(object = LETTERS[1:3],
                   x = c(1,1,3),
@@ -38,10 +37,10 @@ distances <- dist(example[c("x", "y")])
 
 example %>% 
   ggplot(aes(x, y)) +
-  geom_point(size = 2) +
+  geom_point(size = 3) +
   coord_equal() +
   geom_segment(aes(xend = xend, yend = yend), 
-               arrow = arrow(length = unit(0.3, "cm"))) +
+               arrow = arrow(length = unit(0.4, "cm"))) +
   scale_x_continuous(breaks = 1:3, expand = expand_scale(add = 0.25)) +
   scale_y_continuous(breaks = 1:3, expand = expand_scale(add = 0.25)) +
   annotate(geom = "text", x = 0.8, y = 1.5, label = 1) +
@@ -52,69 +51,70 @@ example %>%
 
 <!-- Standardization is not important if the distance measure is already standardized, e.g. correlation and cosine distance.  -->
 
-Let's take k-means clustering. Simply speaking, k-means algorithm aims to assign *n* observations into *k* clusters such that within-cluster distances are minimized. It is usually advised to standardize variables before calculating the distances. Now, imagine you have observed their prices in euros and weights in gramms. Here is the data (also available [here](iphone_dataset.csv)): 
+Let's take k-means clustering. The algorithm aims to partition observations into *k* groups such that the sum of squared *distances* from observations to the assigned cluster centres is minimized. 
 
-```{r message=FALSE, warning=FALSE}
+<!-- It is usually advised to standardize the variables before calculating the distances.  -->
+
+# Surprise
+
+Imagine you have observed prices and weights of four iPhone models. Here is the data (also available [here](iphone_dataset.csv)): 
+
+```{r data, message=FALSE}
 # Attach packages.
 library(tidyverse)
 # Import phone data.
 phones_df <- read_delim(file = "iphone_dataset.csv", delim = ";", skip = 2)
 ```
 
-```{r echo = FALSE}
+```{r print_data, echo = FALSE}
 # Print phone data.
 phones_df %>% 
   knitr::kable(col.names = c("Brand", "Model", "Approx. price (EUR)", "Weight (g)"), format = "html") %>% 
   kableExtra::kable_styling(full_width = FALSE, bootstrap_options = c("striped", "condensed"))
 ```
 
-# About k-means
+The plot below depicts four iPhone models in two dimensions: approximate price in euro and weight in grams. Please do a mental exercise and assign these four iPhone models into two clusters. Which phones did you assign into cluster 1 and which into cluster 2?
 
-
-# Surprise
-
-The plot below depicts four iPhone models in two dimensions: approximate price in euro and weight in grams. How would you assign these four iPhones into two clusters?
-
-```{r fig.height=3, fig.width=6}
+```{r surprise_1_question, echo = FALSE, fig.height=3, fig.width=6, fig.align='center'}
 phones_df %>% 
   ggplot(aes(x = weight_g, y = approx_price_eur)) + 
-  geom_point(size = 4, shape = "x") +
+  geom_point(size = 4) +
   geom_text(aes(label = model), size = 3.5, vjust = "top", nudge_y = -40) +
   scale_x_continuous(expand = expand_scale(mult = 0.3)) +
   scale_y_continuous(expand = expand_scale(mult = 0.3)) +
-  labs(title = "How would you assign these 4 iPhones into 2 clusters?",
+  labs(title = "How would you assign these four iPhones models into two clusters?",
        x = "weight (g)", 
        y = "price (EUR)") +
   theme_classic()
 ```
 
-# K-means clustering with original features
+Did you assign iPhone 6 and 4 into one cluster and iPhone 8 Plus and 6s Plus into another? That's not what k-mean would do it without variable scaling.
 
-```{r}
-# Save columns for clustering in a separate matrix.
-phones_mat <- as.matrix(phones_df %>% select(approx_price_eur, weight_g))
+# K-means with original variables
 
-# Add rownames to see phone models in a distance matrix.
-rownames(phones_mat) <- phones_df$model
+Below is the result from k-means. iPhone 8 Plus is alone in one cluster and three other phones are in another cluster:
+
+```{r kmeans_with_orig}
+# Data for clusering.
+phones_cl <- phones_df[c("approx_price_eur", "weight_g")]
+# Reproducibility.
+set.seed(1)
+# K-means with original variables.
+kmeans_fit <- kmeans(phones_cl, centers = 2)
 ```
 
-```{r}
-# k-means.
-set.seed(1)
-kmeans_fit <- kmeans(phones_mat, centers = 2, nstart = 100)
-
+```{r plot_kmeans_orig, echo = FALSE, fig.height=3.5, fig.width=6, fig.align='center'}
 # Small data frame with cluster centers.
 centers_df <- as_tibble(kmeans_fit$centers) %>%
   mutate(cluster = 1:2)
-```
 
-```{r fig.height=3.5, fig.width=6}
+# K-means with original variables, unequal axes.
 p <- phones_df %>% 
   mutate(cluster = kmeans_fit$cluster) %>% 
   ggplot(aes(x = weight_g, y = approx_price_eur, color = as.factor(cluster))) + 
-  geom_point(size = 4, shape = "x") +
-  geom_text(aes(label = model), size = 3.5, vjust = "top", nudge_y = -40) +
-  geom_point(data = centers_df, size = 4) +
+  geom_point(size = 3, show.legend = FALSE) +
+  geom_text(aes(label = model), size = 3.5, vjust = "top", nudge_y = -40, show.legend = FALSE) +
+  geom_point(data = centers_df, size = 6, shape = "x") +
   scale_x_continuous(expand = expand_scale(mult = 0.3)) +
   scale_y_continuous(expand = expand_scale(mult = 0.3)) +
   labs(title = "Hopefully, you are surprised to see iPhone 8 Plus alone in cluster 2",
@@ -128,80 +128,106 @@ p <- phones_df %>%
 p
 ```
 
-```{r fig.height=4, fig.width=6, message=FALSE}
+
+```{r echo = FALSE}
+price_range_vec <- range(phones_df$approx_price_eur)
+min_price <- price_range_vec[1]
+max_price <- price_range_vec[2]
+price_range <- diff(price_range_vec)
+
+weight_range_vec <- range(phones_df$weight_g)
+min_weight <- weight_range_vec[1]
+max_weight <- weight_range_vec[2]
+weight_range <- diff(weight_range_vec)
+
+range_ratio <- round(price_range / weight_range, 1)
+```
+
+The trick is in the variability of prices and weights. The range of prices is `r min_price` - `r max_price` = `r price_range`, while the range of weights is `r min_weight` - `r max_weight` = `r weight_range`. The price range is `r range_ratio` times greater than the weight range.
+
+It's no more surprise after ensuring that one unit on the x-axis (euros) is the same length as one unit on the y-axis (gramms):
+
+```{r plot_kmeans_orig_coord_equal, echo = FALSE, fig.height=3.5, fig.width=6, fig.align='center', message=FALSE}
 # Adjust axes to the same scale.
 p +
   labs(title = "No more surprise after equally scaling axes") +
   coord_equal(xlim = c(0, 800), ylim = c(0, 800), expand = FALSE)
 ```
 
+
+
 # Feature scaling and k-means revisited
 
-Below are Eucledean distances between phones using original features. Values of distances are not interpretable per se because those are euros and grams combined. Magnitudes is what we are interested in. Notice that the distance between "Galaxy S8+" and "Galaxy A7" (190.44) is the second largest distance.
-
 ```{r}
-round(dist(phones_mat), 2)
+
 ```
 
-Now compare it with the same distance calculated from scaled features. It is now 
 
-Distance matrix after feature scaling.
+Compare distances between 
+
+Below are Eucledean distances between phones using original features. Values of distances are not interpretable per se because those are euros and grams combined. Magnitudes is what we are interested in. Notice that distances between iPhone 8 Plus and other phones is greater than any distance among other phones.
 
 ```{r}
-phones_mat_scaled <- scale(phones_mat)
-round(dist(phones_mat_scaled), 2)
+# Add rownames to see phone models in a distance matrix.
+phones_cl <- as.data.frame(phones_cl)
+rownames(phones_cl) <- phones_df$model
+# Euclidean distances.
+round(dist(phones_cl, method = "euclidean"), 1)
 ```
 
-```{r}
-set.seed(2)
-kmeans_fit <- kmeans(phones_mat_scaled, centers = 2, nstart = 100)
+Now consider standardizing each variable by centering and dividing by its standard deviation:
 
-feature_centers_vec <- attributes(phones_mat_scaled)[["scaled:center"]]
-feature_sd_vec      <- attributes(phones_mat_scaled)[["scaled:scale"]]
+```{r}
+phones_cl_scaled <- scale(phones_cl)
+round(dist(phones_cl_scaled), 1)
+```
+
+The ranks of distances change and so does k-means results:
+
+```{r kmeans_with_scaled}
+set.seed(1)
+kmeans_fit <- kmeans(phones_cl_scaled, centers = 2)
+```
+
+```{r echo = FALSE}
+feature_centers_vec <- attributes(phones_cl_scaled)[["scaled:center"]]
+feature_sd_vec      <- attributes(phones_cl_scaled)[["scaled:scale"]]
 
 centers_df <- tibble(approx_price_eur_scaled = kmeans_fit$centers[, 1],
-       weight_g_scaled = kmeans_fit$centers[, 2]) %>% 
-  bind_cols(as_tibble(t(apply(X = kmeans_fit$centers, MARGIN = 1, FUN = function(x) x * feature_sd_vec + feature_centers_vec)))) %>% 
+       weight_g_scaled = kmeans_fit$centers[, 2]) %>%
+  bind_cols(as_tibble(t(apply(X = kmeans_fit$centers, MARGIN = 1, FUN = function(x) x * feature_sd_vec + feature_centers_vec)))) %>%
   mutate(cluster = 1:2)
-```
 
-```{r}
-p <- phones_df %>% 
-  mutate(approx_price_eur_scaled = (approx_price_eur - mean(approx_price_eur)) / sd(approx_price_eur), 
+phones_df %>%
+  mutate(approx_price_eur_scaled = (approx_price_eur - mean(approx_price_eur)) / sd(approx_price_eur),
          weight_g_scaled = (weight_g - mean(weight_g)) / sd(weight_g),
-         cluster = kmeans_fit$cluster) %>% 
-  ggplot(aes(x = weight_g_scaled, y = approx_price_eur_scaled, color = as.factor(cluster))) + 
-  geom_point(size = 4, shape = "x") +
-  geom_text(aes(label = model), size = 3.5, vjust = "top", nudge_y = -0.1) +
-  
-  geom_point(data = centers_df, aes(x = weight_g_scaled, y = approx_price_eur_scaled), size = 4) +
+         cluster = kmeans_fit$cluster) %>%
+  ggplot(aes(x = weight_g_scaled, y = approx_price_eur_scaled, color = as.factor(cluster))) +
+  geom_point(size = 3) +
+  geom_text(aes(label = model), size = 3.5, vjust = "top", nudge_y = -0.1, show.legend = FALSE) +
+  geom_point(data = centers_df, aes(x = weight_g_scaled, y = approx_price_eur_scaled), size = 6, shape = "x") +
   labs(title = "Now differences in price and weight are standardized",
        subtitle = "k-means clustering with scaled features",
-       x = "standardized weight", 
+       x = "standardized weight",
        y = "standardized price", color = "Cluster centers") +
   theme_classic() +
   theme(legend.position = "top") +
   coord_equal(xlim = c(-2, 2), ylim = c(-2, 2))
-
-
-p +
-  stat_ellipse(type = "norm")
-
 ```
 
 After getting k-means result based on scaled features, we may scaled them back.
 
 ```{r}
-phones_df %>% 
-  mutate(cluster = kmeans_fit$cluster) %>% 
-  ggplot(aes(x = weight_g, y = approx_price_eur, color = as.factor(cluster))) + 
+phones_df %>%
+  mutate(cluster = kmeans_fit$cluster) %>%
+  ggplot(aes(x = weight_g, y = approx_price_eur, color = as.factor(cluster))) +
   geom_point(size = 4, shape = "x") +
   geom_text(aes(label = model), size = 3.5, vjust = "top", nudge_y = -20) +
   geom_point(data = centers_df, aes(x = weight_g, y = approx_price_eur), size = 8, shape = "x") +
   labs(title = "",
        subtitle = "k-means clustering with scaled features",
        x = "weight (g)",
-       y = "price (EUR)", 
+       y = "price (EUR)",
        color = "Cluster centers") +
   theme_classic() +
   theme(legend.position = "top") +

@@ -23,7 +23,32 @@ Clustering refers to a very broad set of techniques for finding subgroups, or cl
 * the observations within each group are quite "similar" to each other, 
 * while observations in different groups are quite "different" from each other (... page 385).
 
-There are many possible ways to define the concept of "(dis)similarity", but by far the most common choice involves [Euclidean distance](https://en.wikipedia.org/wiki/Euclidean_distance). For example, if three points have (x, y) coordinates (1, 1), (1, 2) and (3, 1) then their Euclidean distances are as shown in the picture below:
+There are many possible ways to define the concept of "(dis)similarity", but by far the most common choice involves [Euclidean distance](https://en.wikipedia.org/wiki/Euclidean_distance). If the points $(x1, y1)$ and $(x2,y2)$ are in 2-dimensional space, then the Euclidean distance between them is 
+
+$$\sqrt{(x_2−x_1)^2+(y_2−y_1)^2}\text{.}$$
+
+```{r distance_example, echo = FALSE, message=FALSE, warning=FALSE, fig.height=3, fig.width=3, fig.align='center'}
+library(tidyverse)
+set.seed(1)
+example <- data.frame(x = c(1,2,8,9),
+                      y = c(2,2,7,8))
+rownames(example) <- LETTERS[1:4]
+
+example %>% 
+  rownames_to_column(var = "label") %>% 
+  ggplot(aes(x = x, y = y, label = label)) +
+  geom_point() +
+  coord_equal() +
+  scale_x_continuous(limits = c(0,10), breaks = 1:10, minor_breaks = NULL) +
+  scale_y_continuous(limits = c(0,10), breaks = 1:10, minor_breaks = NULL) +
+  ggrepel::geom_text_repel()
+
+dist(example)
+```
+
+
+
+For example, if the distance between point A (1,1) and point B (3,4) is $\sqrt{(3-1)^2+(4-2)^2}=\sqrt{8}:
 
 ```{r distance_example, echo = FALSE, message=FALSE, warning=FALSE, fig.height=3, fig.width=4, fig.align='center'}
 library(tidyverse)
@@ -37,8 +62,8 @@ example %>%
   ggplot(aes(x, y)) +
   geom_point(size = 3) +
   coord_equal() +
-  scale_x_continuous(breaks = 1:5, expand = expand_scale(add = 2)) +
-  scale_y_continuous(breaks = 1:3, expand = expand_scale(add = 1.5)) +
+  scale_x_continuous(breaks = 1:5, expand = expand_scale(add = 2), minor_breaks = NULL) +
+  scale_y_continuous(breaks = 1:3, expand = expand_scale(add = 1.5), minor_breaks = NULL) +
   # Arrows
   annotate(geom = "segment", x = 1, y = 1, xend = 2, yend = 3, arrow = arrow(length = unit(0.3, "cm"))) +
   annotate(geom = "segment", x = 1, y = 1, xend = 5, yend = 1, arrow = arrow(length = unit(0.3, "cm"))) +
@@ -49,7 +74,8 @@ example %>%
   # Lengths.
   annotate(geom = "text", size = 3.5, x = 4.0, y = 2.0, label = expression(sqrt((3-1)^2 + (2-1)^2) == sqrt(5) %~~% 2.24)) +
   annotate(geom = "text", size = 3.5, x = 3.1, y = 0.4, label = expression(sqrt((5-1)^2 + (1-1)^2) == 2)) +
-  labs(subtitle = "Euclidean distances")
+  labs(subtitle = "Euclidean distances") +
+  theme_classic()
 ```
 
 <!-- Standardization is not important if the distance measure is already standardized, e.g. correlation and cosine distance.  -->

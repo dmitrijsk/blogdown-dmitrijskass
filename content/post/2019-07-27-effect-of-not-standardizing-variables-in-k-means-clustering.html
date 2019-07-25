@@ -1,0 +1,194 @@
+---
+title: Effect of (not) standardizing variables in k-means clustering
+author: Dmitrijs Kass
+date: '2019-07-27'
+slug: effect-of-not-standardizing-variables-in-k-means-clustering
+categories:
+  - clustering
+tags: []
+output:
+  blogdown::html_page:
+    toc: true
+bibliography: bibliography.bib
+---
+
+<script src="/rmarkdown-libs/kePrint/kePrint.js"></script>
+
+<div id="TOC">
+<ul>
+<li><a href="#clustering-distances-k-means">Clustering, distances, k-means</a></li>
+<li><a href="#surprise">Surprise</a></li>
+<li><a href="#original-variables">Original variables</a></li>
+<li><a href="#standardized-variables">Standardized variables</a></li>
+<li><a href="#references">References</a></li>
+</ul>
+</div>
+
+<p>The process of clustering usually involves variable scaling / standardization. This post illustrates the effect of this data pre-processing step on the result of k-means clustering using a small data set of iPhones.</p>
+<hr />
+<div id="clustering-distances-k-means" class="section level1">
+<h1>Clustering, distances, k-means</h1>
+<p>Clustering refers to a very broad set of techniques for finding subgroups, or clusters, in a data set. When we cluster the observations of a data set, we seek to partition them into distinct groups so that</p>
+<ul>
+<li>the observations within each group are quite “similar” to each other,</li>
+<li>while observations in different groups are quite “different” from each other.</li>
+</ul>
+<p>There are many possible ways to define the concept of “(dis)similarity”, but by far the most common choice involves squared Euclidean distance <span class="citation">(James et al. 2017, 385)</span>.</p>
+<p>The Euclidean distance of two points <span class="math inline">\((x_1, y_1)\)</span> and <span class="math inline">\((x_2,y_2)\)</span> in a 2-dimensional space is calculated as</p>
+<p><span class="math display">\[\sqrt{(x_2−x_1)^2+(y_2−y_1)^2}\text{.}\]</span>
+For example, if we are given two points with coordinates (1, 2) and (3, 4) then the Euclidean distance <span class="math inline">\(d\)</span> between these points is approximately 2.8:</p>
+<p><img src="/post/2019-07-27-effect-of-not-standardizing-variables-in-k-means-clustering_files/figure-html/plot_distance-1.png" width="480" style="display: block; margin: auto;" /></p>
+<p>Let’s take k-means clustering. The algorithm aims to partition observations into <em>k</em> groups such that the sum of squared <em>distances</em> from observations to the assigned cluster centres is minimized. In the example plotted below, there are two distinct clusters (<span class="math inline">\(k=2\)</span>) with 10 observations in each. Cluster centers are highlighted with coloured crosses.</p>
+<p><img src="/post/2019-07-27-effect-of-not-standardizing-variables-in-k-means-clustering_files/figure-html/plot_clusters-1.png" width="384" style="display: block; margin: auto;" /></p>
+</div>
+<div id="surprise" class="section level1">
+<h1>Surprise</h1>
+<p>Imagine you have observed prices and weights of four iPhone models. Here is the data (also available <a href="iphone_dataset.csv">here</a>):</p>
+<pre class="r"><code># Attach packages.
+library(tidyverse)
+# Import phone data.
+phones_df &lt;- read_delim(file = &quot;iphone_dataset.csv&quot;, delim = &quot;;&quot;, skip = 2)</code></pre>
+<table class="table table-striped table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Brand
+</th>
+<th style="text-align:left;">
+Model
+</th>
+<th style="text-align:right;">
+Approx. price (EUR)
+</th>
+<th style="text-align:right;">
+Weight (g)
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Apple
+</td>
+<td style="text-align:left;">
+iPhone 4
+</td>
+<td style="text-align:right;">
+200
+</td>
+<td style="text-align:right;">
+137
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Apple
+</td>
+<td style="text-align:left;">
+iPhone 6
+</td>
+<td style="text-align:right;">
+360
+</td>
+<td style="text-align:right;">
+129
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Apple
+</td>
+<td style="text-align:left;">
+iPhone 6s Plus
+</td>
+<td style="text-align:right;">
+470
+</td>
+<td style="text-align:right;">
+192
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Apple
+</td>
+<td style="text-align:left;">
+iPhone 8 Plus
+</td>
+<td style="text-align:right;">
+770
+</td>
+<td style="text-align:right;">
+202
+</td>
+</tr>
+</tbody>
+</table>
+<p>The plot below depicts four iPhone models in two dimensions: approximate price in euro and weight in grams. Please do a mental exercise and assign these four iPhone models into two clusters. Which phones did you assign into cluster 1 and which into cluster 2?</p>
+<p><img src="/post/2019-07-27-effect-of-not-standardizing-variables-in-k-means-clustering_files/figure-html/plot_surprise_1_question-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Did you assign iPhone 6 and 4 into one cluster and iPhone 8 Plus and 6s Plus into another? That’s not what k-means would do without standardizing variables.</p>
+</div>
+<div id="original-variables" class="section level1">
+<h1>Original variables</h1>
+<p>Below is the result from k-means with <span class="math inline">\(k=2\)</span>. iPhone 8 Plus is alone in cluster 1 and three other phones are in cluster 2:</p>
+<pre class="r"><code># Data for clustering.
+phones_cl &lt;- phones_df[c(&quot;approx_price_eur&quot;, &quot;weight_g&quot;)]
+# Reproducibility.
+set.seed(4)
+# K-means with original variables.
+kmeans_orig &lt;- kmeans(phones_cl, centers = 2)</code></pre>
+<p>Hopefully, you are surprised.</p>
+<p><img src="/post/2019-07-27-effect-of-not-standardizing-variables-in-k-means-clustering_files/figure-html/plot_kmeans_orig-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>The trick is in the variability of prices and weights. The range of prices is 200 - 770 = 570, while the range of weights is 129 - 202 = 73. The price range is 7.8 times greater than the weight range. It means that in a calculation of Euclidean distances, 1 euro difference in price is equivalent to 7.8 gram difference in weight. Thus, a small difference in price may outweigh a big difference in weight. In other words, price affects k-means results more than weight.</p>
+<p>If we re-plot the same data set while ensuring that one unit on the x-axis (euros) has the same length as one unit on the y-axis (grams), the k-means result is no more a surprise:</p>
+<p><img src="/post/2019-07-27-effect-of-not-standardizing-variables-in-k-means-clustering_files/figure-html/plot_kmeans_orig_coord_equal-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Here are pairwise Euclidean distances calculated with <code>dist()</code>:</p>
+<pre class="r"><code># Add rownames to see phone models in a distance matrix.
+phones_cl &lt;- as.data.frame(phones_cl)
+rownames(phones_cl) &lt;- phones_df$model
+# Euclidean distances.
+round(dist(phones_cl), 1)</code></pre>
+<pre><code>##                iPhone 4 iPhone 6 iPhone 6s Plus
+## iPhone 6          160.2                        
+## iPhone 6s Plus    275.5    126.8               
+## iPhone 8 Plus     573.7    416.4          300.2</code></pre>
+<p>Notice how far iPhone 8 Plus is from all other phones.</p>
+</div>
+<div id="standardized-variables" class="section level1">
+<h1>Standardized variables</h1>
+<p>Consider standardizing each variable by subtracting the mean <span class="math inline">\(\bar{x}\)</span> (i.e. centering) and dividing by its standard deviation <span class="math inline">\(s\)</span>:</p>
+<p><span class="math display">\[Z=\frac{X-\bar{x}}{s}.\]</span></p>
+<p>This equalizes the variability in data (<span class="math inline">\(s=1\)</span> for each variable) and makes price and weight equally important for k-means clustering. Here are variables standardized with <code>scale()</code>:</p>
+<pre class="r"><code>phones_cl_scaled &lt;- scale(phones_cl)
+as_tibble(phones_cl_scaled)</code></pre>
+<pre><code>## # A tibble: 4 x 2
+##   approx_price_eur weight_g
+##              &lt;dbl&gt;    &lt;dbl&gt;
+## 1          -1.04     -0.750
+## 2          -0.374    -0.965
+## 3           0.0832    0.724
+## 4           1.33      0.991</code></pre>
+<p>And corresponding distances:</p>
+<pre class="r"><code>round(dist(phones_cl_scaled), 1)</code></pre>
+<pre><code>##                iPhone 4 iPhone 6 iPhone 6s Plus
+## iPhone 6            0.7                        
+## iPhone 6s Plus      1.9      1.7               
+## iPhone 8 Plus       2.9      2.6            1.3</code></pre>
+<p>Notice that iPhone 6s Plus is now closest to iPhone 8 Plus. K-means clustering changes accordingly.</p>
+<pre class="r"><code>kmeans_scaled &lt;- kmeans(phones_cl_scaled, centers = 2)</code></pre>
+<p>The plot below shows k-means clustering using standardized variables:</p>
+<p><img src="/post/2019-07-27-effect-of-not-standardizing-variables-in-k-means-clustering_files/figure-html/plot_kmeans_scaled_standardized_measurements-1.png" width="672" style="display: block; margin: auto;" /></p>
+<hr />
+<p>To summarize, here are side-by-side k-means clustering results for <span class="math inline">\(k=2\)</span> with original variables (left) and standardized variables (right):</p>
+<p><img src="/post/2019-07-27-effect-of-not-standardizing-variables-in-k-means-clustering_files/figure-html/plot_kmeans_combined-1.png" width="672" style="display: block; margin: auto;" /></p>
+<hr>
+<p>I would appreciate any comments or suggestions. Please leave them below, no login required if you check “I’d rather post as a guest”.</p>
+</div>
+<div id="references" class="section level1 unnumbered">
+<h1>References</h1>
+<div id="refs" class="references">
+<div id="ref-james_witten_hastie_tibshirani_2017">
+<p>James, Gareth, Daniela Witten, Trevor Hastie, and Robert Tibshirani. 2017. <em>An Introduction to Statistical Learning: With Applications in R</em>. Springer. <a href="http://faculty.marshall.usc.edu/gareth-james/ISL/">http://faculty.marshall.usc.edu/gareth-james/ISL/</a>.</p>
+</div>
+</div>
+</div>

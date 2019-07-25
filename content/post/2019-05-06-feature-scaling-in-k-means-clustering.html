@@ -1,10 +1,10 @@
 ---
-title: 'Scaling of variables in k-means clustering'
+title: 'Effect of (not) standardizing variables in k-means clustering'
 author: Dmitrijs Kass
 date: '2019-07-27'
 slug: feature-scaling-in-k-means-clustering
 categories:
-  - clusterings
+  - clustering
 tags: []
 output:
   blogdown::html_page:
@@ -16,27 +16,30 @@ bibliography: bibliography.bib
 
 <div id="TOC">
 <ul>
-<li><a href="#clustering-and-distances">Clustering and distances</a></li>
+<li><a href="#clustering-distances-k-means">Clustering, distances, k-means</a></li>
 <li><a href="#surprise">Surprise</a></li>
-<li><a href="#k-means-with-original-variables">K-means with original variables</a></li>
-<li><a href="#k-means-with-standardized-variables">K-means with standardized variables</a></li>
+<li><a href="#original-variables">Original variables</a></li>
+<li><a href="#standardized-variables">Standardized variables</a></li>
 <li><a href="#references">References</a></li>
 </ul>
 </div>
 
 <p>The process of clustering usually involves variable scaling / standardization. This post illustrates the effect of this data pre-processing step on the result of k-means clustering using a small data set of iPhones.</p>
 <hr />
-<div id="clustering-and-distances" class="section level1">
-<h1>Clustering and distances</h1>
+<div id="clustering-distances-k-means" class="section level1">
+<h1>Clustering, distances, k-means</h1>
 <p>Clustering refers to a very broad set of techniques for finding subgroups, or clusters, in a data set. When we cluster the observations of a data set, we seek to partition them into distinct groups so that</p>
 <ul>
 <li>the observations within each group are quite “similar” to each other,</li>
-<li>while observations in different groups are quite “different” from each other <span class="citation">(James et al. 2017, 385)</span>.</li>
+<li>while observations in different groups are quite “different” from each other.</li>
 </ul>
-<p>There are many possible ways to define the concept of “(dis)similarity”, but by far the most common choice involves <a href="https://en.wikipedia.org/wiki/Euclidean_distance">Euclidean distance</a>. If the points <span class="math inline">\((x_1, y_1)\)</span> and <span class="math inline">\((x_2,y_2)\)</span> are in 2-dimensional space, then the Euclidean distance between them is</p>
-<p><span class="math display">\[\sqrt{(x_2−x_1)^2+(y_2−y_1)^2}\text{.}\]</span></p>
-<p>Let’s take k-means clustering. The algorithm aims to partition observations into <em>k</em> groups such that the sum of squared <em>distances</em> from observations to the assigned cluster centres is minimized. In the example plotted below, if we are looking for two clusters then points A and B would be in one cluster and points C and D in another.</p>
-<p><img src="/post/2019-05-06-feature-scaling-in-k-means-clustering_files/figure-html/plot_distance_example-1.png" width="384" style="display: block; margin: auto;" /></p>
+<p>There are many possible ways to define the concept of “(dis)similarity”, but by far the most common choice involves squared Euclidean distance <span class="citation">(James et al. 2017, 385)</span>.</p>
+<p>The Euclidean distance of two points <span class="math inline">\((x_1, y_1)\)</span> and <span class="math inline">\((x_2,y_2)\)</span> in a 2-dimensional space is calculated as</p>
+<p><span class="math display">\[\sqrt{(x_2−x_1)^2+(y_2−y_1)^2}\text{.}\]</span>
+For example, if we are given two points with coordinates (1, 2) and (3, 4) then the Euclidean distance <span class="math inline">\(d\)</span> between these points is approximately 2.8:</p>
+<p><img src="/post/2019-05-06-feature-scaling-in-k-means-clustering_files/figure-html/plot_distance-1.png" width="480" style="display: block; margin: auto;" /></p>
+<p>Let’s take k-means clustering. The algorithm aims to partition observations into <em>k</em> groups such that the sum of squared <em>distances</em> from observations to the assigned cluster centres is minimized. In the example plotted below, there are two distinct clusters (<span class="math inline">\(k=2\)</span>) with 10 observations in each. Cluster centers are highlighted with coloured crosses.</p>
+<p><img src="/post/2019-05-06-feature-scaling-in-k-means-clustering_files/figure-html/plot_clusters-1.png" width="384" style="display: block; margin: auto;" /></p>
 </div>
 <div id="surprise" class="section level1">
 <h1>Surprise</h1>
@@ -123,20 +126,21 @@ iPhone 8 Plus
 </table>
 <p>The plot below depicts four iPhone models in two dimensions: approximate price in euro and weight in grams. Please do a mental exercise and assign these four iPhone models into two clusters. Which phones did you assign into cluster 1 and which into cluster 2?</p>
 <p><img src="/post/2019-05-06-feature-scaling-in-k-means-clustering_files/figure-html/plot_surprise_1_question-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>Did you assign iPhone 6 and 4 into one cluster and iPhone 8 Plus and 6s Plus into another? That’s not what k-mean would do it without variable scaling.</p>
+<p>Did you assign iPhone 6 and 4 into one cluster and iPhone 8 Plus and 6s Plus into another? That’s not what k-means would do without standardizing variables.</p>
 </div>
-<div id="k-means-with-original-variables" class="section level1">
-<h1>K-means with original variables</h1>
-<p>Below is the result from k-means. iPhone 8 Plus is alone in one cluster and three other phones are in another cluster:</p>
-<pre class="r"><code># Data for clusering.
+<div id="original-variables" class="section level1">
+<h1>Original variables</h1>
+<p>Below is the result from k-means with <span class="math inline">\(k=2\)</span>. iPhone 8 Plus is alone in cluster 1 and three other phones are in cluster 2:</p>
+<pre class="r"><code># Data for clustering.
 phones_cl &lt;- phones_df[c(&quot;approx_price_eur&quot;, &quot;weight_g&quot;)]
 # Reproducibility.
-set.seed(1)
+set.seed(4)
 # K-means with original variables.
-kmeans_fit &lt;- kmeans(phones_cl, centers = 2)</code></pre>
+kmeans_orig &lt;- kmeans(phones_cl, centers = 2)</code></pre>
+<p>Hopefully, you are surprised.</p>
 <p><img src="/post/2019-05-06-feature-scaling-in-k-means-clustering_files/figure-html/plot_kmeans_orig-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>The trick is in the variability of prices and weights. The range of prices is 200 - 770 = 570, while the range of weights is 129 - 202 = 73. The price range is 7.8 times greater than the weight range. It means that in a calculation of Euclidean distances, 1 euro difference in price is equivalent to 7.8 difference in weight. Thus, the price affects the clustering result more than the weight.</p>
-<p>If we re-plot the same data set while ensuring that one unit on the x-axis (euros) is the same length as one unit on the y-axis (grams), the k-means result is no more a surprise:</p>
+<p>The trick is in the variability of prices and weights. The range of prices is 200 - 770 = 570, while the range of weights is 129 - 202 = 73. The price range is 7.8 times greater than the weight range. It means that in a calculation of Euclidean distances, 1 euro difference in price is equivalent to 7.8 gram difference in weight. Thus, a small difference in price may outweigh a big difference in weight. In other words, price affects k-means results more than weight.</p>
+<p>If we re-plot the same data set while ensuring that one unit on the x-axis (euros) has the same length as one unit on the y-axis (grams), the k-means result is no more a surprise:</p>
 <p><img src="/post/2019-05-06-feature-scaling-in-k-means-clustering_files/figure-html/plot_kmeans_orig_coord_equal-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>Here are pairwise Euclidean distances calculated with <code>dist()</code>:</p>
 <pre class="r"><code># Add rownames to see phone models in a distance matrix.
@@ -150,22 +154,33 @@ round(dist(phones_cl), 1)</code></pre>
 ## iPhone 8 Plus     573.7    416.4          300.2</code></pre>
 <p>Notice how far iPhone 8 Plus is from all other phones.</p>
 </div>
-<div id="k-means-with-standardized-variables" class="section level1">
-<h1>K-means with standardized variables</h1>
-<p>Now consider standardizing each variable by subtracting the mean <span class="math inline">\(\bar{x}\)</span> (i.e. centering) and dividing by its standard deviation <span class="math inline">\(s\)</span>:</p>
+<div id="standardized-variables" class="section level1">
+<h1>Standardized variables</h1>
+<p>Consider standardizing each variable by subtracting the mean <span class="math inline">\(\bar{x}\)</span> (i.e. centering) and dividing by its standard deviation <span class="math inline">\(s\)</span>:</p>
 <p><span class="math display">\[Z=\frac{X-\bar{x}}{s}.\]</span></p>
+<p>This equalizes the variability in data (<span class="math inline">\(s=1\)</span> for each variable) and makes price and weight equally important for k-means clustering. Here are variables standardized with <code>scale()</code>:</p>
 <pre class="r"><code>phones_cl_scaled &lt;- scale(phones_cl)
-round(dist(phones_cl_scaled), 1)</code></pre>
+as_tibble(phones_cl_scaled)</code></pre>
+<pre><code>## # A tibble: 4 x 2
+##   approx_price_eur weight_g
+##              &lt;dbl&gt;    &lt;dbl&gt;
+## 1          -1.04     -0.750
+## 2          -0.374    -0.965
+## 3           0.0832    0.724
+## 4           1.33      0.991</code></pre>
+<p>And corresponding distances:</p>
+<pre class="r"><code>round(dist(phones_cl_scaled), 1)</code></pre>
 <pre><code>##                iPhone 4 iPhone 6 iPhone 6s Plus
 ## iPhone 6            0.7                        
 ## iPhone 6s Plus      1.9      1.7               
 ## iPhone 8 Plus       2.9      2.6            1.3</code></pre>
-<p>The ranks of distances have changed and so do k-means results:</p>
-<pre class="r"><code>kmeans_fit &lt;- kmeans(phones_cl_scaled, centers = 2)</code></pre>
+<p>Notice that iPhone 6s Plus is now closest to iPhone 8 Plus. K-means clustering changes accordingly.</p>
+<pre class="r"><code>kmeans_scaled &lt;- kmeans(phones_cl_scaled, centers = 2)</code></pre>
+<p>The plot below shows k-means clustering using standardized variables:</p>
 <p><img src="/post/2019-05-06-feature-scaling-in-k-means-clustering_files/figure-html/plot_kmeans_scaled_standardized_measurements-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>And the same with variables scaled back to original measurements:</p>
-<p><img src="/post/2019-05-06-feature-scaling-in-k-means-clustering_files/figure-html/plot_kmeans_scaled_orig_measurements-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p><img src="/post/2019-05-06-feature-scaling-in-k-means-clustering_files/figure-html/plot_combined-1.png" width="672" style="display: block; margin: auto;" /></p>
+<hr />
+<p>To summarize, here are side-by-side k-means clustering results for <span class="math inline">\(k=2\)</span> with original variables (left) and standardized variables (right):</p>
+<p><img src="/post/2019-05-06-feature-scaling-in-k-means-clustering_files/figure-html/plot_kmeans_combined-1.png" width="672" style="display: block; margin: auto;" /></p>
 <hr>
 <p>I would appreciate any comments or suggestions. Please leave them below, no login required if you check “I’d rather post as a guest”.</p>
 </div>

@@ -2,7 +2,7 @@
 title: 'Effect of (not) standardizing variables in k-means clustering'
 author: Dmitrijs Kass
 date: '2019-07-27'
-slug: feature-scaling-in-k-means-clustering
+slug: effect-of-not-standardizing-variables-in-k-means-clustering
 categories:
   - clustering
 tags: []

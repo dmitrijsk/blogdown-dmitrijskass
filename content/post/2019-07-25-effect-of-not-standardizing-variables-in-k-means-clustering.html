@@ -2,7 +2,7 @@
 title: 'Effect of (not) standardizing variables in k-means clustering'
 author: Dmitrijs Kass
 date: '2019-07-27'
-slug: feature-scaling-in-k-means-clustering
+slug: effect-of-not-standardizing-variables-in-k-means-clustering
 categories:
   - clustering
 tags: []
@@ -37,9 +37,9 @@ bibliography: bibliography.bib
 <p>The Euclidean distance of two points <span class="math inline">\((x_1, y_1)\)</span> and <span class="math inline">\((x_2,y_2)\)</span> in a 2-dimensional space is calculated as</p>
 <p><span class="math display">\[\sqrt{(x_2−x_1)^2+(y_2−y_1)^2}\text{.}\]</span>
 For example, if we are given two points with coordinates (1, 2) and (3, 4) then the Euclidean distance <span class="math inline">\(d\)</span> between these points is approximately 2.8:</p>
-<p><img src="/post/2019-05-06-feature-scaling-in-k-means-clustering_files/figure-html/plot_distance-1.png" width="480" style="display: block; margin: auto;" /></p>
+<p><img src="/post/2019-07-25-effect-of-not-standardizing-variables-in-k-means-clustering_files/figure-html/plot_distance-1.png" width="480" style="display: block; margin: auto;" /></p>
 <p>Let’s take k-means clustering. The algorithm aims to partition observations into <em>k</em> groups such that the sum of squared <em>distances</em> from observations to the assigned cluster centres is minimized. In the example plotted below, there are two distinct clusters (<span class="math inline">\(k=2\)</span>) with 10 observations in each. Cluster centers are highlighted with coloured crosses.</p>
-<p><img src="/post/2019-05-06-feature-scaling-in-k-means-clustering_files/figure-html/plot_clusters-1.png" width="384" style="display: block; margin: auto;" /></p>
+<p><img src="/post/2019-07-25-effect-of-not-standardizing-variables-in-k-means-clustering_files/figure-html/plot_clusters-1.png" width="384" style="display: block; margin: auto;" /></p>
 </div>
 <div id="surprise" class="section level1">
 <h1>Surprise</h1>
@@ -125,7 +125,7 @@ iPhone 8 Plus
 </tbody>
 </table>
 <p>The plot below depicts four iPhone models in two dimensions: approximate price in euro and weight in grams. Please do a mental exercise and assign these four iPhone models into two clusters. Which phones did you assign into cluster 1 and which into cluster 2?</p>
-<p><img src="/post/2019-05-06-feature-scaling-in-k-means-clustering_files/figure-html/plot_surprise_1_question-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="/post/2019-07-25-effect-of-not-standardizing-variables-in-k-means-clustering_files/figure-html/plot_surprise_1_question-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>Did you assign iPhone 6 and 4 into one cluster and iPhone 8 Plus and 6s Plus into another? That’s not what k-means would do without standardizing variables.</p>
 </div>
 <div id="original-variables" class="section level1">
@@ -138,10 +138,10 @@ set.seed(4)
 # K-means with original variables.
 kmeans_orig &lt;- kmeans(phones_cl, centers = 2)</code></pre>
 <p>Hopefully, you are surprised.</p>
-<p><img src="/post/2019-05-06-feature-scaling-in-k-means-clustering_files/figure-html/plot_kmeans_orig-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="/post/2019-07-25-effect-of-not-standardizing-variables-in-k-means-clustering_files/figure-html/plot_kmeans_orig-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>The trick is in the variability of prices and weights. The range of prices is 200 - 770 = 570, while the range of weights is 129 - 202 = 73. The price range is 7.8 times greater than the weight range. It means that in a calculation of Euclidean distances, 1 euro difference in price is equivalent to 7.8 gram difference in weight. Thus, a small difference in price may outweigh a big difference in weight. In other words, price affects k-means results more than weight.</p>
 <p>If we re-plot the same data set while ensuring that one unit on the x-axis (euros) has the same length as one unit on the y-axis (grams), the k-means result is no more a surprise:</p>
-<p><img src="/post/2019-05-06-feature-scaling-in-k-means-clustering_files/figure-html/plot_kmeans_orig_coord_equal-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="/post/2019-07-25-effect-of-not-standardizing-variables-in-k-means-clustering_files/figure-html/plot_kmeans_orig_coord_equal-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>Here are pairwise Euclidean distances calculated with <code>dist()</code>:</p>
 <pre class="r"><code># Add rownames to see phone models in a distance matrix.
 phones_cl &lt;- as.data.frame(phones_cl)
@@ -177,10 +177,10 @@ as_tibble(phones_cl_scaled)</code></pre>
 <p>Notice that iPhone 6s Plus is now closest to iPhone 8 Plus. K-means clustering changes accordingly.</p>
 <pre class="r"><code>kmeans_scaled &lt;- kmeans(phones_cl_scaled, centers = 2)</code></pre>
 <p>The plot below shows k-means clustering using standardized variables:</p>
-<p><img src="/post/2019-05-06-feature-scaling-in-k-means-clustering_files/figure-html/plot_kmeans_scaled_standardized_measurements-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="/post/2019-07-25-effect-of-not-standardizing-variables-in-k-means-clustering_files/figure-html/plot_kmeans_scaled_standardized_measurements-1.png" width="672" style="display: block; margin: auto;" /></p>
 <hr />
 <p>To summarize, here are side-by-side k-means clustering results for <span class="math inline">\(k=2\)</span> with original variables (left) and standardized variables (right):</p>
-<p><img src="/post/2019-05-06-feature-scaling-in-k-means-clustering_files/figure-html/plot_kmeans_combined-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="/post/2019-07-25-effect-of-not-standardizing-variables-in-k-means-clustering_files/figure-html/plot_kmeans_combined-1.png" width="672" style="display: block; margin: auto;" /></p>
 <hr>
 <p>I would appreciate any comments or suggestions. Please leave them below, no login required if you check “I’d rather post as a guest”.</p>
 </div>

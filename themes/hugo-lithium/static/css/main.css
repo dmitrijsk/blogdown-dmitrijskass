@@ -30,6 +30,31 @@ code {
   /*font-size: 70%;  font size for the code*/
 }
 
+/*Rescale images: https://stackoverflow.com/questions/45827291/resize-a-plot-generated-in-r-in-a-web-page-generated-by-blogdown-to-different-sc*/
+/*https://bookdown.org/yihui/blogdown/templates.html*/
+img, iframe, video { max-width: 100%; }
+
+/*Tables*/
+table {
+	border-collapse:collapse;
+	font-size: 0.9em;
+	margin: auto;
+}
+tr:nth-child(even) {background-color: #f2f2f2;}
+th {
+  border-bottom: 1px solid #ddd;
+  line-height: 23px;
+  vertical-align: bottom;
+}
+td {
+	/*padding-left: 0px;
+	padding-right: 15px;*/
+	width: 5%;
+}
+
+/*Center align twitter tweets*/
+.twitter-tweet { margin: auto; }
+
 /*Font-size of categories and tags under the page title*/
 .terms { font-size: 12px; }
 

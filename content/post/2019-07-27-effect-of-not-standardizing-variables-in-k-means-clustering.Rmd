@@ -12,6 +12,11 @@ output:
 bibliography: bibliography.bib
 ---
 
+```{r echo = FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, fig.align = 'center', fig.height=3.5, fig.width=7)
+```
+
+
 The process of clustering usually involves variable scaling / standardization. This post illustrates the effect of this data pre-processing step on the result of k-means clustering using a small data set of iPhones.
 
 ----
@@ -28,26 +33,26 @@ There are many possible ways to define the concept of "(dis)similarity", but by 
 The Euclidean distance of two points $(x_1, y_1)$ and $(x_2,y_2)$ in a 2-dimensional space is calculated as
 
 $$\sqrt{(x_2−x_1)^2+(y_2−y_1)^2}\text{.}$$
-For example, if we are given two points with coordinates (1, 2) and (3, 4) then the Euclidean distance $d$ between these points is approximately 2.8:
+For example, if we are given two points with coordinates (1, 2) and (4, 6) then the Euclidean distance $d$ between these points is 5:
 
 
-```{r plot_distance, echo = FALSE, message=FALSE, warning=FALSE, fig.height=1.5, fig.width=5, fig.align='center'}
+```{r plot_distance, fig.height=1.5, fig.width=5}
 library(tidyverse)
-tibble(x = c(1,3),
-       y = c(2,4)) %>% 
+tibble(x = c(1,4),
+       y = c(2,6)) %>% 
   ggplot(aes(x, y)) +
   geom_point(size = 2) +
   geom_line() +
-  coord_equal(ratio = 1, clip = "off", ylim = c(1.5, 4.5)) +
-  annotate(geom = "text", x = 0.4, y = 2, label = "(1, 2)") +
-  annotate(geom = "text", x = 3.6, y = 4, label = "(3, 4)") +
-  annotate(geom = "text", x = 4.7, y = 3, label = expression(paste(italic(d) == sqrt((3-1)^2 + (4-2)^2)) == sqrt(8) %~~% 2.8)) +
+  coord_equal(ratio = 1, clip = "off", ylim = c(1.5, 7.5)) +
+  annotate(geom = "text", x = -0.1, y = 2, label = "(1, 2)") +
+  annotate(geom = "text", x = 5.1, y = 6, label = "(4, 6)") +
+  annotate(geom = "text", x = 7, y = 3.9, label = expression(paste(italic(d) == sqrt((4-1)^2 + (6-2)^2)) == 5)) +
   theme_void()
 ```
 
-Let's take k-means clustering. The algorithm aims to partition observations into *k* groups such that the sum of squared *distances* from observations to the assigned cluster centres is minimized. In the example plotted below, there are two distinct clusters ($k=2$) with 10 observations in each. Cluster centers are highlighted with coloured crosses.
+Let's take k-means clustering. The algorithm aims to partition observations into *k* groups such that the sum of squared *distances* from observations to the assigned cluster centers is minimized. In the example plotted below, there are two distinct clusters ($k=2$) with 10 observations in each. Cluster centers are highlighted with coloured crosses.
 
-```{r plot_clusters, echo = FALSE, message=FALSE, warning=FALSE, fig.height=3, fig.width=4, fig.align='center'}
+```{r plot_clusters, fig.height=3, fig.width=4}
 set.seed(1)
 x <- tibble(x = c(rnorm(n = 10, mean = 0.5, sd = 0.4), rnorm(n = 10, mean = 2.5, sd = 0.4)),
        y = c(rnorm(n = 10, mean = 0.5, sd = 0.4), rnorm(n = 10, mean = 2.5, sd = 0.4)))
@@ -68,7 +73,7 @@ x %>%
 
 Imagine you have observed prices and weights of four iPhone models. Here is the data (also available [here](iphone_dataset.csv)): 
 
-```{r message=FALSE}
+```{r echo = TRUE}
 # Attach packages.
 library(tidyverse)
 # Import phone data.
@@ -76,7 +81,7 @@ phones_df <- read_delim(file = "iphone_dataset.csv", delim = ";", skip = 2)
 ```
 
 
-```{r echo = FALSE}
+```{r}
 # Print phone data.
 phones_df %>% 
   knitr::kable(col.names = c("Brand", "Model", "Approx. price (EUR)", "Weight (g)"), format = "html") %>% 
@@ -85,7 +90,7 @@ phones_df %>%
 
 The plot below depicts four iPhone models in two dimensions: approximate price in euro and weight in grams. Please do a mental exercise and assign these four iPhone models into two clusters. Which phones did you assign into cluster 1 and which into cluster 2?
 
-```{r plot_surprise_1_question, echo = FALSE, fig.height=3.5, fig.width=7, fig.align='center'}
+```{r plot_surprise_1_question, fig.height=3, fig.width=6.5}
 phones_df %>% 
   ggplot(aes(x = weight_g, y = approx_price_eur)) + 
   geom_point(size = 4) +
@@ -95,10 +100,11 @@ phones_df %>%
   labs(subtitle = "How would you assign these four iPhones models into two clusters?",
        x = "weight (g)", 
        y = "price (EUR)") +
+  coord_equal(ratio = 1/20) +
   theme_classic()
 ```
 
-Did you assign iPhone 6 and 4 into one cluster and iPhone 8 Plus and 6s Plus into another? That's not what k-means would do without standardizing variables.
+Did you assign iPhone 6 and 4 into one cluster and iPhone 8 Plus and 6s Plus into another? That's not what k-means would do without standardizing the variables.
 
 
 
@@ -106,7 +112,7 @@ Did you assign iPhone 6 and 4 into one cluster and iPhone 8 Plus and 6s Plus int
 
 Below is the result from k-means with $k=2$. iPhone 8 Plus is alone in cluster 1 and three other phones are in cluster 2:
 
-```{r}
+```{r echo = TRUE}
 # Data for clustering.
 phones_cl <- phones_df[c("approx_price_eur", "weight_g")]
 # Reproducibility.
@@ -117,7 +123,7 @@ kmeans_orig <- kmeans(phones_cl, centers = 2)
 
 Hopefully, you are surprised.
 
-```{r plot_kmeans_orig, echo = FALSE, fig.height=3.5, fig.width=7, fig.align='center'}
+```{r plot_kmeans_orig}
 # Cluster centers.
 centers_orig_df <- as_tibble(kmeans_orig$centers) %>%
   mutate(cluster = 1:2)
@@ -135,6 +141,7 @@ p <- phones_df %>%
        x = "weight (g)", 
        y = "price (EUR)", 
        color = "Cluster centers") +
+  coord_equal(ratio = 1/20) +
   theme_classic() +
   theme(legend.position = "top")
 
@@ -143,7 +150,7 @@ p +
 ```
 
 
-```{r echo = FALSE}
+```{r}
 price_range_vec <- range(phones_df$approx_price_eur)
 min_price <- price_range_vec[1]
 max_price <- price_range_vec[2]
@@ -161,7 +168,7 @@ The trick is in the variability of prices and weights. The range of prices is `r
 
 If we re-plot the same data set while ensuring that one unit on the x-axis (euros) has the same length as one unit on the y-axis (grams), the k-means result is no more a surprise:
 
-```{r plot_kmeans_orig_coord_equal, echo = FALSE, fig.height=3.5, fig.width=7, fig.align='center'}
+```{r plot_kmeans_orig_coord_equal}
 # Adjust axes to the same scale.
 p +
   geom_text(aes(label = model), size = 3.5, hjust = "left", nudge_x = 60, show.legend = FALSE) +
@@ -171,7 +178,7 @@ p +
 
 Here are pairwise Euclidean distances calculated with `dist()`:
 
-```{r}
+```{r echo = TRUE}
 # Add rownames to see phone models in a distance matrix.
 phones_cl <- as.data.frame(phones_cl)
 rownames(phones_cl) <- phones_df$model
@@ -190,26 +197,26 @@ $$Z=\frac{X-\bar{x}}{s}.$$
 
 This equalizes the variability in data ($s=1$ for each variable) and makes price and weight equally important for k-means clustering. Here are variables standardized with `scale()`:
 
-```{r}
+```{r echo = TRUE}
 phones_cl_scaled <- scale(phones_cl)
 as_tibble(phones_cl_scaled)
 ```
 
 And corresponding distances:
 
-```{r}
+```{r echo = TRUE}
 round(dist(phones_cl_scaled), 1)
 ```
 
 Notice that iPhone 6s Plus is now closest to iPhone 8 Plus. K-means clustering changes accordingly.
 
-```{r}
+```{r echo = TRUE}
 kmeans_scaled <- kmeans(phones_cl_scaled, centers = 2)
 ```
 
 The plot below shows k-means clustering using standardized variables:
 
-```{r plot_kmeans_scaled_standardized_measurements, echo = FALSE, fig.height=3.5, fig.width=7, fig.align='center'}
+```{r plot_kmeans_scaled_standardized_measurements}
 feature_centers_vec <- attributes(phones_cl_scaled)[["scaled:center"]]
 feature_sd_vec      <- attributes(phones_cl_scaled)[["scaled:scale"]]
 
@@ -239,7 +246,7 @@ phones_df %>%
 
 To summarize, here are side-by-side k-means clustering results for $k=2$ with original variables (left) and standardized variables (right):
 
-```{r plot_kmeans_combined, echo = FALSE, fig.height=4, fig.width=7, fig.align='center'}
+```{r plot_kmeans_combined, fig.height=4, fig.width=7}
 centers_combined <- bind_rows(
   centers_orig_df %>% mutate(facet = "Original variables"),
   centers_scaled_df %>% select(-contains("scaled")) %>% mutate(facet = "Standardized variables")

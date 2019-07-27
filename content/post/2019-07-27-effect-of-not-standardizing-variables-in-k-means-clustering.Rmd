@@ -97,7 +97,7 @@ phones_df %>%
   geom_text(aes(label = model), size = 3.5, vjust = "top", nudge_y = -40) +
   scale_x_continuous(expand = expand_scale(mult = 0.3)) +
   scale_y_continuous(expand = expand_scale(mult = 0.3)) +
-  labs(subtitle = "How would you assign these four iPhones models into two clusters?",
+  labs(title = "How would you assign these four iPhones models into two clusters?",
        x = "weight (g)", 
        y = "price (EUR)") +
   coord_equal(ratio = 1/20) +
@@ -110,7 +110,7 @@ Did you assign iPhone 6 and 4 into one cluster and iPhone 8 Plus and 6s Plus int
 
 # Original variables
 
-Below is the result from k-means with $k=2$. iPhone 8 Plus is alone in cluster 1 and three other phones are in cluster 2:
+We are doing k-means with $k=2$. 
 
 ```{r echo = TRUE}
 # Data for clustering.
@@ -121,7 +121,7 @@ set.seed(4)
 kmeans_orig <- kmeans(phones_cl, centers = 2)
 ```
 
-Hopefully, you are surprised.
+The result is plotted below with iPhone 8 Plus being alone in cluster 1 and all other phones in cluster 2. Hopefully, you are surprised.
 
 ```{r plot_kmeans_orig}
 # Cluster centers.
@@ -148,6 +148,25 @@ p <- phones_df %>%
 p +
   geom_text(aes(label = model), size = 3.5, hjust = "left", nudge_x = 2, show.legend = FALSE)
 ```
+
+The catch is in the visualization - notice that x and y axes have different scales. Actually, one unit on the y axis (i.e. 1 euro) corresponds to exactly 20 units on the x axis (i.e. 20 grams). It means that the Euclidean distance between 125 and 150 grams (difference of 25 grams) on your screen exactly equals the distance between 250 and 750 euros (difference of 500 euros). As a result, diagonal distances are hard to evaluate visually. It seems that iPhone 6s Plus is significantly closer to iPhone 8 Plus than to iPhone 6. But is only seems, as shown on the plot below:
+
+```{r plot_kmeans_orig_with_dist}
+p +
+  geom_text(aes(label = model), size = 3.5, hjust = "left", nudge_x = 2, show.legend = FALSE) +
+  labs(title = "Pay attential to the scales of axes") +
+  # Add two ditances for annotation.
+  annotate(geom = "segment", x = 192, y = 470, xend = 129, yend = 360)
+
+
+
+#                       approx_price_eur  weight_g
+# Apple	iPhone 6s Plus	470	              192	
+# Apple	iPhone 6	      360	              129	
+# Apple	iPhone 8 Plus	  770	              202	
+```
+
+
 
 
 ```{r}

@@ -210,30 +210,26 @@ Notice how far iPhone 8 Plus is from all other phones.
 
 # Standardized variables
 
-Consider standardizing each variable by subtracting the mean $\bar{x}$ (i.e. centering) and dividing by its standard deviation $s$:
+There are different ways for standardizing the variables. One of th most popular ones is standardizing by subtracting the mean $\bar{x}$ (i.e. centering) and dividing by its standard deviation $s$:
 
 $$Z=\frac{X-\bar{x}}{s}.$$
 
-This equalizes the variability in data ($s=1$ for each variable) and makes price and weight equally important for k-means clustering. Here are variables standardized with `scale()`:
+After this transformation the standard deviation if each variable $s$ equals one, which makes price and weight equally important for k-means clustering. This type of standardization is done with `scale()`:
 
 ```{r echo = TRUE}
 phones_cl_scaled <- scale(phones_cl)
 as_tibble(phones_cl_scaled)
 ```
 
-And corresponding distances:
+Notice that althouh the scales changed, the rankings within each variable stayed unchaned.
 
-```{r echo = TRUE}
-round(dist(phones_cl_scaled), 1)
-```
-
-Notice that iPhone 6s Plus is now closest to iPhone 8 Plus. K-means clustering changes accordingly.
+We now repeat k-means clustering with $k=2$ using standardized variables.
 
 ```{r echo = TRUE}
 kmeans_scaled <- kmeans(phones_cl_scaled, centers = 2)
 ```
 
-The plot below shows k-means clustering using standardized variables:
+And here is the result:
 
 ```{r plot_kmeans_scaled_standardized_measurements}
 feature_centers_vec <- attributes(phones_cl_scaled)[["scaled:center"]]
@@ -260,6 +256,13 @@ phones_df %>%
   coord_equal(xlim = c(-2, 2), ylim = c(-2, 2), clip = "off") +
   geom_text(aes(label = model), size = 3.5, hjust = "left", nudge_x = 0.3, show.legend = FALSE)
 ```
+
+iPhone 8Plus and 6s Plus are now in cluster 1 and iPhone 4 and 6 are in cluster 2. Below are distances calculated from standardized units. 
+
+```{r echo = TRUE}
+round(dist(phones_cl_scaled), 1)
+```
+
 
 ----
 
@@ -296,6 +299,10 @@ bind_rows(
         strip.text = element_text(face = "bold", size = 11), legend.title = element_text(size = 10), 
         panel.spacing = unit(1.5, units = "cm"), plot.title = element_text(hjust = 0.5))
 ```
+
+Conclusions. Does it mean that you should always standardize your variables? Not necessarily. You may want some of your variables to have a higher impact on clustering than other variables.
+
+But you should always consider some type of standartization.
 
 <hr>
 

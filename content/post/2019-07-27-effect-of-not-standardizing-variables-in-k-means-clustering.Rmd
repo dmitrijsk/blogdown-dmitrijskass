@@ -71,7 +71,7 @@ x %>%
 
 # Surprise
 
-Imagine you have observed prices and weights of four iPhone models. Here is the data (also available [here](iphone_dataset.csv)): 
+Imagine you have observed prices and weights of four iPhone models. Here is the data (also available [here](/post/2019-07-27-effect-of-not-standardizing-variables-in-k-means-clustering_files/iphone_dataset.csv)): 
 
 <!-- TODO: check link -->
 

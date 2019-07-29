@@ -1,7 +1,7 @@
 ---
 title: Effect of (not) standardizing variables in k-means clustering
 author: Dmitrijs Kass
-date: '2019-07-25'
+date: '2019-07-27'
 slug: effect-of-not-standardizing-variables-in-k-means-clustering
 categories:
   - clustering
@@ -9,7 +9,7 @@ tags: []
 output:
   blogdown::html_page:
     toc: true
-bibliography: bibliography.bib
+bibliography: effect-of-not-standardizing-variables-in-k-means-clustering.bib
 ---
 
 ```{r echo = FALSE}
@@ -28,9 +28,7 @@ Clustering refers to a very broad set of techniques for finding subgroups, or cl
 * the observations within each group are quite "similar" to each other, 
 * while observations in different groups are quite "different" from each other.
 
-There are many possible ways to define the concept of "(dis)similarity", but by far the most common choice involves squared Euclidean distance [@james_witten_hastie_tibshirani_2017, pp. 385]. 
-
-<!-- TODO: Check pages -->
+There are many possible ways to define the concept of "(dis)similarity", but by far the most common choice involves squared Euclidean distance [@james_witten_hastie_tibshirani_2017, pp. 385-387]. 
 
 The Euclidean distance of two points $(x_1, y_1)$ and $(x_2,y_2)$ in a 2-dimensional space is calculated as
 
@@ -162,7 +160,7 @@ The catch is in the visualization - notice that x and y axes have different scal
 
 p +
   geom_text(aes(label = model), size = 3.5, hjust = "left", nudge_x = 3, nudge_y = -40, show.legend = FALSE) +
-  labs(title = "Pay attential to the scales of axes") +
+  labs(title = "Pay attention to the scales of axes") +
   # Add two ditances for annotation.
   # To the left.
   annotate(geom = "segment", x = 192, y = 470, xend = 129, yend = 360, 
@@ -211,7 +209,7 @@ Now this clustering may look correct. However, acknowledge that if phone weights
 
 # Standardized variables
 
-Different standardization methods are available, including z-standardization (also called z-score standardization) and range standardizaton. Z-standardization rescales each variable by subtracting the mean $\bar{x}$ and dividing by its standard deviation $s$:
+Different standardization methods are available, including z-standardization (also called z-score standardization) and range standardization. Z-standardization rescales each variable by subtracting the mean $\bar{x}$ and dividing by its standard deviation $s$:
 
 $$Z=\frac{X-\bar{x}}{s}.$$
 
@@ -320,7 +318,7 @@ bind_rows(
 
 # Conclusions
 
-Beware of differences in variation of variables used for clustering as variables with higher variation have a higher impact on clustering. The choise of variable standardization methods should depend on the type of data and problem at hand and there is no single best method of standardization. As [@james_witten_hastie_tibshirani_2017, pp. 385] recommend, always try different standardization methods as see which offers most valuable insights. [@milligan_cooper] suggest that range standardization typically works better for clustering.
+Beware of differences in variation of variables used for clustering as variables with higher variation have a higher impact on clustering. The choice of variable standardization methods should depend on the type of data and problem at hand and there is no single right method of standardization. [@james_witten_hastie_tibshirani_2017, pp. 385] suggest trying several different choices and looking for the one with the most useful or interpretable solution. [@milligan_cooper] show that the range standardization typically works better for clustering.
 
 <hr>
 

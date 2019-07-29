@@ -1,7 +1,7 @@
 ---
 title: Effect of (not) standardizing variables in k-means clustering
 author: Dmitrijs Kass
-date: '2019-07-25'
+date: '2019-07-27'
 slug: effect-of-not-standardizing-variables-in-k-means-clustering
 categories:
   - clustering
@@ -9,7 +9,7 @@ tags: []
 output:
   blogdown::html_page:
     toc: true
-bibliography: bibliography.bib
+bibliography: effect-of-not-standardizing-variables-in-k-means-clustering.bib
 ---
 
 <script src="/rmarkdown-libs/kePrint/kePrint.js"></script>
@@ -34,8 +34,7 @@ bibliography: bibliography.bib
 <li>the observations within each group are quite “similar” to each other,</li>
 <li>while observations in different groups are quite “different” from each other.</li>
 </ul>
-<p>There are many possible ways to define the concept of “(dis)similarity”, but by far the most common choice involves squared Euclidean distance <span class="citation">(James et al. 2017, 385)</span>.</p>
-<!-- TODO: Check pages -->
+<p>There are many possible ways to define the concept of “(dis)similarity”, but by far the most common choice involves squared Euclidean distance <span class="citation">(James et al. 2017, 385–87)</span>.</p>
 <p>The Euclidean distance of two points <span class="math inline">\((x_1, y_1)\)</span> and <span class="math inline">\((x_2,y_2)\)</span> in a 2-dimensional space is calculated as</p>
 <p><span class="math display">\[\sqrt{(x_2−x_1)^2+(y_2−y_1)^2}\text{.}\]</span>
 For example, if we are given two points with coordinates (1, 2) and (4, 6) then the Euclidean distance <span class="math inline">\(d\)</span> between these points is 5:</p>
@@ -162,7 +161,7 @@ round(dist(phones_cl), 1)</code></pre>
 </div>
 <div id="standardized-variables" class="section level1">
 <h1>Standardized variables</h1>
-<p>Different standardization methods are available, including z-standardization (also called z-score standardization) and range standardizaton. Z-standardization rescales each variable by subtracting the mean <span class="math inline">\(\bar{x}\)</span> and dividing by its standard deviation <span class="math inline">\(s\)</span>:</p>
+<p>Different standardization methods are available, including z-standardization (also called z-score standardization) and range standardization. Z-standardization rescales each variable by subtracting the mean <span class="math inline">\(\bar{x}\)</span> and dividing by its standard deviation <span class="math inline">\(s\)</span>:</p>
 <p><span class="math display">\[Z=\frac{X-\bar{x}}{s}.\]</span></p>
 <p>After z-standardization each variable has a mean <span class="math inline">\(\bar{x}\)</span> of 0 and a standard deviation <span class="math inline">\(s\)</span> of 1. Z-standardization can be done with <code>scale()</code>.</p>
 <p>In cluster analysis, however, range standardization (e.g., to a range of 0 to 1) typically works better <span class="citation">(Milligan and Cooper 1988)</span>. Range standardization requires subtracting the minimum value of every observation and then dividing it by the range (i.e., the difference between the maximum and minimum value):</p>
@@ -195,7 +194,7 @@ kmeans_scaled &lt;- kmeans(phones_cl_scaled, centers = 2)</code></pre>
 </div>
 <div id="conclusions" class="section level1">
 <h1>Conclusions</h1>
-<p>Beware of differences in variation of variables used for clustering as variables with higher variation have a higher impact on clustering. The choise of variable standardization methods should depend on the type of data and problem at hand and there is no single best method of standardization. As <span class="citation">(James et al. 2017, 385)</span> recommend, always try different standardization methods as see which offers most valuable insights. <span class="citation">(Milligan and Cooper 1988)</span> suggest that range standardization typically works better for clustering.</p>
+<p>Beware of differences in variation of variables used for clustering as variables with higher variation have a higher impact on clustering. The choice of variable standardization methods should depend on the type of data and problem at hand and there is no single right method of standardization. <span class="citation">(James et al. 2017, 385)</span> suggest trying several different choices and looking for the one with the most useful or interpretable solution. <span class="citation">(Milligan and Cooper 1988)</span> show that the range standardization typically works better for clustering.</p>
 <hr>
 <p>I would appreciate any comments or suggestions. Please leave them below, no login required if you check “I’d rather post as a guest”.</p>
 </div>

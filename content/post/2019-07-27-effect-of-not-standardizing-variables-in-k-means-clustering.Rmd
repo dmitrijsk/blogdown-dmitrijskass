@@ -17,7 +17,7 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, fig.align 
 ```
 
 
-The process of clustering usually involves variable scaling / standardization. This post illustrates the effect of this data pre-processing step on the result of k-means clustering using a small data set of iPhones.
+The process of clustering usually involves variable standardization. This post illustrates the effect of this data pre-processing step on the result of k-means clustering using a small data set of iPhones.
 
 ----
 
@@ -30,11 +30,12 @@ Clustering refers to a very broad set of techniques for finding subgroups, or cl
 
 There are many possible ways to define the concept of "(dis)similarity", but by far the most common choice involves squared Euclidean distance [@james_witten_hastie_tibshirani_2017, pp. 385]. 
 
+<!-- TODO: Check pages -->
+
 The Euclidean distance of two points $(x_1, y_1)$ and $(x_2,y_2)$ in a 2-dimensional space is calculated as
 
 $$\sqrt{(x_2−x_1)^2+(y_2−y_1)^2}\text{.}$$
 For example, if we are given two points with coordinates (1, 2) and (4, 6) then the Euclidean distance $d$ between these points is 5:
-
 
 ```{r plot_distance, fig.height=1.5, fig.width=5}
 library(tidyverse)
@@ -55,12 +56,13 @@ Let's take k-means clustering. The algorithm aims to partition observations into
 ```{r plot_clusters, fig.height=3, fig.width=4}
 set.seed(1)
 x <- tibble(x = c(rnorm(n = 10, mean = 0.5, sd = 0.4), rnorm(n = 10, mean = 2.5, sd = 0.4)),
-       y = c(rnorm(n = 10, mean = 0.5, sd = 0.4), rnorm(n = 10, mean = 2.5, sd = 0.4)))
+       y = c(rnorm(n = 10, mean = 0.5, sd = 0.4), rnorm(n = 10, mean = 2.5, sd = 0.4)),
+       cluster = rep(1:2, each = 10))
 x_fit <- kmeans(x, centers = 2)
 x_centers <- as_tibble(x_fit$centers) %>% mutate(cluster = 1:2)
 x %>% 
-  ggplot(aes(x, y)) +
-  geom_point(size = 2) +
+  ggplot(aes(x, y, colour = as.factor(cluster))) +
+  geom_point(size = 2, alpha = 0.4, show.legend = FALSE) +
   geom_point(size = 6, shape = "x", data = x_centers, mapping = aes(colour = as.factor(cluster))) +
   coord_equal(xlim = c(0, 3), ylim = c(0, 3)) +
   labs(subtitle = "Two hypothetical clusters",
@@ -72,6 +74,8 @@ x %>%
 # Surprise
 
 Imagine you have observed prices and weights of four iPhone models. Here is the data (also available [here](iphone_dataset.csv)): 
+
+<!-- TODO: check link -->
 
 ```{r echo = TRUE}
 # Attach packages.
@@ -110,7 +114,7 @@ Did you assign iPhone 6 and 4 into one cluster and iPhone 8 Plus and 6s Plus int
 
 # Original variables
 
-We are doing k-means with $k=2$. 
+Let's check by performing k-means with $k=2$. 
 
 ```{r echo = TRUE}
 # Data for clustering.
@@ -200,47 +204,59 @@ p +
   coord_equal(xlim = c(0, 800), ylim = c(0, 800), expand = FALSE)
 ```
 
-Now this clustering may look correct. However, the question is, **do you want the scales of measurements influence the clustering results?** Consider the same data set with prices being converted to Indonesian rupiah (IDR) at 16,000 rupiah for 1 euro. Then this clustering problem would essentially become 1-dimensional as even 1 euro difference in price stated in rupiah would outweight any possible difference in weight. In other words, price would be the only variable essentially affecting the k-means clustering. Even with prices being stated in euros, price affects clustering more than the weight just because if its higher variability.
+Now this clustering may look correct. However, acknowledge that if phone weights in iPhones data set were instead recorded in milligrams (i.e. multiply current weight values with 1,000) then prices would no longer affect the clustering results. The weight would become the only variable affecting the clustering. **In general, variables with higher variation have a higher impact on the Euclidean distance calculations and, as a result, clustering results.** We can resolve this problem by standardizing the data prior to the clustering.
 
-<!-- Consider another example - clustering of persons according to weight and height. If height is measured in meters and weight in grams then this would produce very different clustering results compared with the same pers -->
 
 
 
 # Standardized variables
 
-There are different ways for standardizing the variables. One of th most popular ones is standardizing by subtracting the mean $\bar{x}$ (i.e. centering) and dividing by its standard deviation $s$:
+Different standardization methods are available, including z-standardization (also called z-score standardization) and range standardizaton. Z-standardization rescales each variable by subtracting the mean $\bar{x}$ and dividing by its standard deviation $s$:
 
 $$Z=\frac{X-\bar{x}}{s}.$$
 
-After this transformation the standard deviation if each variable $s$ equals one, which makes price and weight equally important for k-means clustering. This type of standardization is done with `scale()`:
+After z-standardization each variable has a mean $\bar{x}$ of 0 and a standard deviation $s$ of 1. Z-standardization can be done with `scale()`. 
+
+In cluster analysis, however, range standardization (e.g., to a range of 0 to 1) typically works better [@milligan_cooper]. Range standardization requires subtracting the minimum value of every observation and then dividing it by the range (i.e., the difference between the maximum and minimum value):
+
+$$R = \frac{X - X_{min}}{X_{max} - X_{min}}$$
+
+We can write a one-line function to perform range standardization in R:
 
 ```{r echo = TRUE}
-phones_cl_scaled <- scale(phones_cl)
-as_tibble(phones_cl_scaled)
+standardize_range <- function(x) {(x - min(x)) / (max(x) - min(x))}
 ```
 
-Notice that althouh the scales changed, the rankings within each variable stayed unchaned.
-
-We now repeat k-means clustering with $k=2$ using standardized variables.
+Then apply our new function to each column with `apply()`:
 
 ```{r echo = TRUE}
+phones_cl_scaled <- apply(phones_cl, MARGIN = 2, FUN = standardize_range)
+phones_cl_scaled
+```
+
+Notice each column now has a range of one.
+
+Now repeat k-means clustering with $k=2$ using standardized variables.
+
+```{r echo = TRUE}
+set.seed(1)
 kmeans_scaled <- kmeans(phones_cl_scaled, centers = 2)
 ```
 
 And here is the result:
 
 ```{r plot_kmeans_scaled_standardized_measurements}
-feature_centers_vec <- attributes(phones_cl_scaled)[["scaled:center"]]
-feature_sd_vec      <- attributes(phones_cl_scaled)[["scaled:scale"]]
+var_min_vec <- apply(phones_cl, MARGIN = 2, FUN = min)
+var_range_vec <- apply(phones_cl, MARGIN = 2, FUN = function(x) diff(range(x)))
 
 centers_scaled_df <- tibble(approx_price_eur_scaled = kmeans_scaled$centers[, 1],
        weight_g_scaled = kmeans_scaled$centers[, 2]) %>%
-  bind_cols(as_tibble(t(apply(X = kmeans_scaled$centers, MARGIN = 1, FUN = function(x) x * feature_sd_vec + feature_centers_vec)))) %>%
+  bind_cols(as_tibble(t(apply(X = kmeans_scaled$centers, MARGIN = 1, FUN = function(x) x * var_range_vec + var_min_vec)))) %>%
   mutate(cluster = 1:2)
 
 phones_df %>%
-  mutate(approx_price_eur_scaled = (approx_price_eur - mean(approx_price_eur)) / sd(approx_price_eur),
-         weight_g_scaled = (weight_g - mean(weight_g)) / sd(weight_g),
+  mutate(approx_price_eur_scaled = standardize_range(approx_price_eur),
+         weight_g_scaled         = standardize_range(weight_g),
          cluster = kmeans_scaled$cluster) %>%
   ggplot(aes(x = weight_g_scaled, y = approx_price_eur_scaled, color = as.factor(cluster))) +
   geom_point(size = 3, show.legend = FALSE) +
@@ -251,11 +267,11 @@ phones_df %>%
        y = "standardized price", color = "Cluster centers") +
   theme_classic() +
   theme(legend.position = "top") +
-  coord_equal(xlim = c(-2, 2), ylim = c(-2, 2), clip = "off") +
-  geom_text(aes(label = model), size = 3.5, hjust = "left", nudge_x = 0.3, show.legend = FALSE)
+  coord_equal(xlim = c(0, 1), ylim = c(0, 1), clip = "off") +
+  geom_text(aes(label = model), size = 3.5, hjust = "left", nudge_x = 0.07, show.legend = FALSE)
 ```
 
-iPhone 8Plus and 6s Plus are now in cluster 1 and iPhone 4 and 6 are in cluster 2. Below are distances calculated from standardized units. 
+iPhone 4 and 6 are now in cluster 1 and iPhone 8Plus and 6s Plus are in cluster 2. Below are distances calculated from standardized units:
 
 ```{r echo = TRUE}
 round(dist(phones_cl_scaled), 1)
@@ -263,6 +279,7 @@ round(dist(phones_cl_scaled), 1)
 
 
 ----
+
 
 To summarize, here are side-by-side k-means clustering results for $k=2$ with original variables (left) and standardized variables (right):
 
@@ -298,9 +315,12 @@ bind_rows(
         panel.spacing = unit(1.5, units = "cm"), plot.title = element_text(hjust = 0.5))
 ```
 
-Conclusions. Does it mean that you should always standardize your variables? Not necessarily. You may want some of your variables to have a higher impact on clustering than other variables.
 
-But you should always consider some type of standartization.
+
+
+# Conclusions
+
+Beware of differences in variation of variables used for clustering as variables with higher variation have a higher impact on clustering. The choise of variable standardization methods should depend on the type of data and problem at hand and there is no single best method of standardization. As [@james_witten_hastie_tibshirani_2017, pp. 385] recommend, always try different standardization methods as see which offers most valuable insights. [@milligan_cooper] suggest that range standardization typically works better for clustering.
 
 <hr>
 

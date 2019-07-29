@@ -276,10 +276,11 @@ round(dist(phones_cl_scaled), 1)
 ```
 
 
-----
 
 
-To summarize, here are side-by-side k-means clustering results for $k=2$ with original variables (left) and standardized variables (right):
+# Results & conclusions
+
+We used a small data set of iPhones to illustrate the effect of (not) standardizing variables in k-means clustering. Below is the side-by-side k-means clustering results for $k=2$ with original variables (left) and standardized variables (right):
 
 ```{r plot_kmeans_combined, fig.height=4, fig.width=7}
 centers_combined <- bind_rows(
@@ -313,12 +314,7 @@ bind_rows(
         panel.spacing = unit(1.5, units = "cm"), plot.title = element_text(hjust = 0.5))
 ```
 
-
-
-
-# Conclusions
-
-Beware of differences in variation of variables used for clustering as variables with higher variation have a higher impact on clustering. The choice of variable standardization methods should depend on the type of data and problem at hand and there is no single right method of standardization. [@james_witten_hastie_tibshirani_2017, pp. 385] suggest trying several different choices and looking for the one with the most useful or interpretable solution. [@milligan_cooper] show that the range standardization typically works better for clustering.
+Beware of differences in variation of variables used for clustering as variables with higher variation have a higher impact on clustering. The choice of variable standardization methods should depend on the type of data and problem at hand and there is no single right method of standardization. [@james_witten_hastie_tibshirani_2017, pp. 400] suggest trying several different choices and looking for the one with the most useful or interpretable solution. [@milligan_cooper] show that the range standardization typically works better for clustering.
 
 <hr>
 

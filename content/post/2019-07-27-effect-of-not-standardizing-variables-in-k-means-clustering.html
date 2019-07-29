@@ -20,7 +20,7 @@ bibliography: effect-of-not-standardizing-variables-in-k-means-clustering.bib
 <li><a href="#surprise">Surprise</a></li>
 <li><a href="#original-variables">Original variables</a></li>
 <li><a href="#standardized-variables">Standardized variables</a></li>
-<li><a href="#conclusions">Conclusions</a></li>
+<li><a href="#results-conclusions">Results &amp; conclusions</a></li>
 <li><a href="#references">References</a></li>
 </ul>
 </div>
@@ -188,13 +188,12 @@ kmeans_scaled &lt;- kmeans(phones_cl_scaled, centers = 2)</code></pre>
 ## iPhone 6            0.3                        
 ## iPhone 6s Plus      0.9      0.9               
 ## iPhone 8 Plus       1.3      1.2            0.5</code></pre>
-<hr />
-<p>To summarize, here are side-by-side k-means clustering results for <span class="math inline">\(k=2\)</span> with original variables (left) and standardized variables (right):</p>
-<p><img src="/post/2019-07-27-effect-of-not-standardizing-variables-in-k-means-clustering_files/figure-html/plot_kmeans_combined-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
-<div id="conclusions" class="section level1">
-<h1>Conclusions</h1>
-<p>Beware of differences in variation of variables used for clustering as variables with higher variation have a higher impact on clustering. The choice of variable standardization methods should depend on the type of data and problem at hand and there is no single right method of standardization. <span class="citation">(James et al. 2017, 385)</span> suggest trying several different choices and looking for the one with the most useful or interpretable solution. <span class="citation">(Milligan and Cooper 1988)</span> show that the range standardization typically works better for clustering.</p>
+<div id="results-conclusions" class="section level1">
+<h1>Results &amp; conclusions</h1>
+<p>We used a small data set of iPhones to illustrate the effect of (not) standardizing variables in k-means clustering. Below is the side-by-side k-means clustering results for <span class="math inline">\(k=2\)</span> with original variables (left) and standardized variables (right):</p>
+<p><img src="/post/2019-07-27-effect-of-not-standardizing-variables-in-k-means-clustering_files/figure-html/plot_kmeans_combined-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Beware of differences in variation of variables used for clustering as variables with higher variation have a higher impact on clustering. The choice of variable standardization methods should depend on the type of data and problem at hand and there is no single right method of standardization. <span class="citation">(James et al. 2017, 400)</span> suggest trying several different choices and looking for the one with the most useful or interpretable solution. <span class="citation">(Milligan and Cooper 1988)</span> show that the range standardization typically works better for clustering.</p>
 <hr>
 <p>I would appreciate any comments or suggestions. Please leave them below, no login required if you check “I’d rather post as a guest”.</p>
 </div>

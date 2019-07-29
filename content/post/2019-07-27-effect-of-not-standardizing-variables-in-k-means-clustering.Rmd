@@ -149,15 +149,25 @@ p +
   geom_text(aes(label = model), size = 3.5, hjust = "left", nudge_x = 2, show.legend = FALSE)
 ```
 
-The catch is in the visualization - notice that x and y axes have different scales. Actually, one unit on the y axis (i.e. 1 euro) corresponds to exactly 20 units on the x axis (i.e. 20 grams). It means that the Euclidean distance between 125 and 150 grams (difference of 25 grams) on your screen exactly equals the distance between 250 and 750 euros (difference of 500 euros). As a result, diagonal distances are hard to evaluate visually. It seems that iPhone 6s Plus is significantly closer to iPhone 8 Plus than to iPhone 6. But is only seems, as shown on the plot below:
+The catch is in the visualization - notice that x and y axes have different scales. One unit on the x axis (i.e. 1 gram) corresponds to exactly 20 units on the y axis (i.e. 20 euro). It means that the Euclidean distance between 125 and 150 grams (difference of 25 grams) on your screen exactly equals the distance between 250 and 750 euros (difference of 500 euros). As a result, diagonal distances are hard to evaluate visually. It seems that iPhone 6s Plus is significantly closer to iPhone 8 Plus than to iPhone 6. But it's an illusion. Note the distances on the plot below:
 
 ```{r plot_kmeans_orig_with_dist}
+# distances <- as.matrix(dist(phones_cl))
+# round(distances["iPhone 6s Plus", "iPhone 6"], 1)
+# round(distances["iPhone 6s Plus", "iPhone 8 Plus"], 1)     
+
 p +
-  geom_text(aes(label = model), size = 3.5, hjust = "left", nudge_x = 2, show.legend = FALSE) +
+  geom_text(aes(label = model), size = 3.5, hjust = "left", nudge_x = 3, nudge_y = -40, show.legend = FALSE) +
   labs(title = "Pay attential to the scales of axes") +
   # Add two ditances for annotation.
-  annotate(geom = "segment", x = 192, y = 470, xend = 129, yend = 360)
-
+  # To the left.
+  annotate(geom = "segment", x = 192, y = 470, xend = 129, yend = 360, 
+           arrow = arrow(length = unit(x = 0.3, units = "cm"), ends = "last")) +
+  annotate(geom = "text", x = 160.5, y = 415+65, label = expression(italic(d) == 126.8)) +
+  # To the top.
+  annotate(geom = "segment", x = 192, y = 470, xend = 202, yend = 770, 
+           arrow = arrow(length = unit(x = 0.3, units = "cm"), ends = "last")) +
+  annotate(geom = "text", x = 197-10, y = 620, label = expression(italic(d) == 300.2))
 
 
 #                       approx_price_eur  weight_g
@@ -166,36 +176,7 @@ p +
 # Apple	iPhone 8 Plus	  770	              202	
 ```
 
-
-
-
-```{r}
-price_range_vec <- range(phones_df$approx_price_eur)
-min_price <- price_range_vec[1]
-max_price <- price_range_vec[2]
-price_range <- diff(price_range_vec)
-
-weight_range_vec <- range(phones_df$weight_g)
-min_weight <- weight_range_vec[1]
-max_weight <- weight_range_vec[2]
-weight_range <- diff(weight_range_vec)
-
-range_ratio <- round(price_range / weight_range, 1)
-```
-
-The trick is in the variability of prices and weights. The range of prices is `r min_price` - `r max_price` = `r price_range`, while the range of weights is `r min_weight` - `r max_weight` = `r weight_range`. The price range is `r range_ratio` times greater than the weight range. It means that in a calculation of Euclidean distances, 1 euro difference in price is equivalent to `r range_ratio` gram difference in weight. Thus, a small difference in price may outweigh a big difference in weight. In other words, price affects k-means results more than weight.
-
-If we re-plot the same data set while ensuring that one unit on the x-axis (euros) has the same length as one unit on the y-axis (grams), the k-means result is no more a surprise:
-
-```{r plot_kmeans_orig_coord_equal}
-# Adjust axes to the same scale.
-p +
-  geom_text(aes(label = model), size = 3.5, hjust = "left", nudge_x = 60, show.legend = FALSE) +
-  labs(title = "No more surprise after equally scaling axes") +
-  coord_equal(xlim = c(0, 800), ylim = c(0, 800), expand = FALSE)
-```
-
-Here are pairwise Euclidean distances calculated with `dist()`:
+All pairwise Euclidean distances can be calculated with `dist()`:
 
 ```{r echo = TRUE}
 # Add rownames to see phone models in a distance matrix.
@@ -205,7 +186,24 @@ rownames(phones_cl) <- phones_df$model
 round(dist(phones_cl), 1)
 ```
 
-Notice how far iPhone 8 Plus is from all other phones.
+<!-- Notice how far iPhone 8 Plus is from all other phones. -->
+
+<!--  -->
+
+If we re-plot the same data set while ensuring that one unit on the x-axis (i.e. 1 gram) has the same length as one unit on the y-axis (i.e. 1 euro), the k-means result is no more a surprise:
+
+```{r plot_kmeans_orig_coord_equal}
+# Adjust axes to the same scale.
+p +
+  geom_text(aes(label = model), size = 3.5, hjust = "left", nudge_x = 60, show.legend = FALSE) +
+  labs(title = "No more surprise after equally scaling axes") +
+  coord_equal(xlim = c(0, 800), ylim = c(0, 800), expand = FALSE)
+```
+
+Now this clustering may look correct. However, the question is, **do you want the scales of measurements influence the clustering results?** Consider the same data set with prices being converted to Indonesian rupiah (IDR) at 16,000 rupiah for 1 euro. Then this clustering problem would essentially become 1-dimensional as even 1 euro difference in price stated in rupiah would outweight any possible difference in weight. In other words, price would be the only variable essentially affecting the k-means clustering. Even with prices being stated in euros, price affects clustering more than the weight just because if its higher variability.
+
+<!-- Consider another example - clustering of persons according to weight and height. If height is measured in meters and weight in grams then this would produce very different clustering results compared with the same pers -->
+
 
 
 # Standardized variables

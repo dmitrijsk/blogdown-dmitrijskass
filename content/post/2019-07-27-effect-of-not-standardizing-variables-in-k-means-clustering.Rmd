@@ -86,15 +86,15 @@ phones_df <- read_delim(file = "iphone_dataset.csv", delim = ";", skip = 2)
 ```{r}
 # Print phone data.
 phones_df %>% 
-  knitr::kable(col.names = c("Brand", "Model", "Approx. price (EUR)", "Weight (g)"), format = "html") %>% 
+  knitr::kable(col.names = c("Brand", "Model", "Price (EUR)", "Weight (g)"), format = "html") %>% 
   kableExtra::kable_styling(full_width = FALSE, bootstrap_options = c("striped", "condensed"))
 ```
 
-The plot below depicts four iPhone models in two dimensions: approximate price in euro and weight in grams. Please do a mental exercise and assign these four iPhone models into two clusters. Which phones did you assign into cluster 1 and which into cluster 2?
+The plot below depicts four iPhone models in two dimensions: price in euro and weight in grams. Please do a mental exercise and assign these four iPhone models into two clusters.
 
 ```{r plot_surprise_1_question, fig.height=3, fig.width=6.5}
 phones_df %>% 
-  ggplot(aes(x = weight_g, y = approx_price_eur)) + 
+  ggplot(aes(x = weight_g, y = price_eur)) + 
   geom_point(size = 4) +
   geom_text(aes(label = model), size = 3.5, vjust = "top", nudge_y = -40) +
   scale_x_continuous(expand = expand_scale(mult = 0.3)) +
@@ -106,6 +106,8 @@ phones_df %>%
   theme_classic()
 ```
 
+Ready?
+
 Did you assign iPhone 6 and 4 into one cluster and iPhone 8 Plus and 6s Plus into another? That's not what k-means would do without standardizing the variables.
 
 
@@ -116,7 +118,7 @@ Let's check by performing k-means with $k=2$.
 
 ```{r echo = TRUE}
 # Data for clustering.
-phones_cl <- phones_df[c("approx_price_eur", "weight_g")]
+phones_cl <- phones_df[c("price_eur", "weight_g")]
 # Reproducibility.
 set.seed(4)
 # K-means with original variables.
@@ -133,7 +135,7 @@ centers_orig_df <- as_tibble(kmeans_orig$centers) %>%
 # K-means with original variables, unequal axes.
 p <- phones_df %>% 
   mutate(cluster = kmeans_orig$cluster) %>% 
-  ggplot(aes(x = weight_g, y = approx_price_eur, color = as.factor(cluster))) + 
+  ggplot(aes(x = weight_g, y = price_eur, color = as.factor(cluster))) + 
   geom_point(size = 3, show.legend = FALSE) +
   geom_point(data = centers_orig_df, size = 6, shape = "x") +
   scale_x_continuous(expand = expand_scale(mult = 0.3)) +
@@ -172,7 +174,7 @@ p +
   annotate(geom = "text", x = 197-10, y = 620, label = expression(italic(d) == 300.2))
 
 
-#                       approx_price_eur  weight_g
+#                       price_eur  weight_g
 # Apple	iPhone 6s Plus	470	              192	
 # Apple	iPhone 6	      360	              129	
 # Apple	iPhone 8 Plus	  770	              202	
@@ -202,20 +204,20 @@ p +
   coord_equal(xlim = c(0, 800), ylim = c(0, 800), expand = FALSE)
 ```
 
-Now this clustering may look correct. However, acknowledge that if phone weights in iPhones data set were instead recorded in milligrams (i.e. multiply current weight values with 1,000) then prices would no longer affect the clustering results. The weight would become the only variable affecting the clustering. **In general, variables with higher variation have a higher impact on the Euclidean distance calculations and, as a result, clustering results.** We can resolve this problem by standardizing the data prior to the clustering.
+Now this clustering may look correct. However, acknowledge that if iPhone weights were instead recorded in milligrams (i.e. multiply current weight values with 1,000) then prices would no longer affect the clustering results. The weight would become the only variable affecting the clustering. **In general, variables with higher variation have a higher impact on the Euclidean distance calculations and, as a result, clustering results.** We can resolve this problem by standardizing the data prior to the clustering.
 
 
 
 
 # Standardized variables
 
-Different standardization methods are available, including z-standardization (also called z-score standardization) and range standardization. Z-standardization rescales each variable by subtracting the mean $\bar{x}$ and dividing by its standard deviation $s$:
+Different standardization methods are available, including z-standardization (also called z-score standardization) and range standardization. Z-standardization rescales each variable by subtracting the mean $\bar{x}$ and dividing by standard deviation $s$:
 
 $$Z=\frac{X-\bar{x}}{s}.$$
 
 After z-standardization each variable has a mean $\bar{x}$ of 0 and a standard deviation $s$ of 1. Z-standardization can be done with `scale()`. 
 
-In cluster analysis, however, range standardization (e.g., to a range of 0 to 1) typically works better [@milligan_cooper]. Range standardization requires subtracting the minimum value of every observation and then dividing it by the range (i.e., the difference between the maximum and minimum value):
+In cluster analysis, however, range standardization (e.g., to a range of 0 to 1) typically works better [@milligan_cooper]. Range standardization requires subtracting the minimum value and then dividing it by the range (i.e., the difference between the maximum and minimum value):
 
 $$R = \frac{X - X_{min}}{X_{max} - X_{min}}$$
 
@@ -232,9 +234,9 @@ phones_cl_scaled <- apply(phones_cl, MARGIN = 2, FUN = standardize_range)
 phones_cl_scaled
 ```
 
-Notice each column now has a range of one.
+Notice that each column now has a range of one.
 
-Now repeat k-means clustering with $k=2$ using standardized variables.
+Repeat k-means clustering with $k=2$ using standardized variables:
 
 ```{r echo = TRUE}
 set.seed(1)
@@ -247,18 +249,18 @@ And here is the result:
 var_min_vec <- apply(phones_cl, MARGIN = 2, FUN = min)
 var_range_vec <- apply(phones_cl, MARGIN = 2, FUN = function(x) diff(range(x)))
 
-centers_scaled_df <- tibble(approx_price_eur_scaled = kmeans_scaled$centers[, 1],
+centers_scaled_df <- tibble(price_eur_scaled = kmeans_scaled$centers[, 1],
        weight_g_scaled = kmeans_scaled$centers[, 2]) %>%
   bind_cols(as_tibble(t(apply(X = kmeans_scaled$centers, MARGIN = 1, FUN = function(x) x * var_range_vec + var_min_vec)))) %>%
   mutate(cluster = 1:2)
 
 phones_df %>%
-  mutate(approx_price_eur_scaled = standardize_range(approx_price_eur),
+  mutate(price_eur_scaled = standardize_range(price_eur),
          weight_g_scaled         = standardize_range(weight_g),
          cluster = kmeans_scaled$cluster) %>%
-  ggplot(aes(x = weight_g_scaled, y = approx_price_eur_scaled, color = as.factor(cluster))) +
+  ggplot(aes(x = weight_g_scaled, y = price_eur_scaled, color = as.factor(cluster))) +
   geom_point(size = 3, show.legend = FALSE) +
-  geom_point(data = centers_scaled_df, aes(x = weight_g_scaled, y = approx_price_eur_scaled), size = 6, shape = "x") +
+  geom_point(data = centers_scaled_df, aes(x = weight_g_scaled, y = price_eur_scaled), size = 6, shape = "x") +
   labs(title = "Same scale axes, standardized units",
        subtitle = "k-means clustering with scaled variables",
        x = "standardized weight",
@@ -269,18 +271,16 @@ phones_df %>%
   geom_text(aes(label = model), size = 3.5, hjust = "left", nudge_x = 0.07, show.legend = FALSE)
 ```
 
-iPhone 4 and 6 are now in cluster 1 and iPhone 8Plus and 6s Plus are in cluster 2. Below are distances calculated from standardized units:
+iPhone 4 and 6 are now in cluster 1 and iPhone 8 Plus and 6s Plus are in cluster 2. Below are distances calculated from standardized units:
 
 ```{r echo = TRUE}
 round(dist(phones_cl_scaled), 1)
 ```
 
 
+----
 
-
-# Results & conclusions
-
-We used a small data set of iPhones to illustrate the effect of (not) standardizing variables in k-means clustering. Below is the side-by-side k-means clustering results for $k=2$ with original variables (left) and standardized variables (right):
+To summarize, below is the side-by-side illustration of the effect of variable standardization on k-means clustering: with original variables (left) and standardized variables (right).
 
 ```{r plot_kmeans_combined, fig.height=4, fig.width=7}
 centers_combined <- bind_rows(
@@ -297,12 +297,12 @@ bind_rows(
            facet = "Standardized variables")
 ) %>%
 
-  ggplot(aes(x = weight_g, y = approx_price_eur, color = as.factor(cluster))) +
+  ggplot(aes(x = weight_g, y = price_eur, color = as.factor(cluster))) +
   facet_grid(~facet) +
   coord_equal(xlim = c(0, 800), ylim = c(0, 800)) +
   geom_point(size = 3, show.legend = FALSE) +
   geom_text(aes(label = model), size = 3.5, hjust = "left", nudge_x = 60, show.legend = FALSE) +
-  geom_point(data = centers_combined, aes(x = weight_g, y = approx_price_eur), size = 6, shape = "x") +
+  geom_point(data = centers_combined, aes(x = weight_g, y = price_eur), size = 6, shape = "x") +
   labs(title = "Effect of (not) standardizing variables in k-means clustering",
        x = "weight (g)",
        y = "price (EUR)",
@@ -314,7 +314,14 @@ bind_rows(
         panel.spacing = unit(1.5, units = "cm"), plot.title = element_text(hjust = 0.5))
 ```
 
-Beware of differences in variation of variables used for clustering as variables with higher variation have a higher impact on clustering. The choice of variable standardization methods should depend on the type of data and problem at hand and there is no single right method of standardization. [@james_witten_hastie_tibshirani_2017, pp. 400] suggest trying several different choices and looking for the one with the most useful or interpretable solution. [@milligan_cooper] show that the range standardization typically works better for clustering.
+
+
+
+# Conclusions
+
+Beware of the differences in variation of variables used for clustering as variables with higher variation have a higher impact on clustering. The choice of variable standardization methods should depend on the type of data and problem at hand and there is no single right method of standardization. [@james_witten_hastie_tibshirani_2017, pp. 400] suggest trying several different choices and looking for the one with the most useful or interpretable solution. [@milligan_cooper] show that the range standardization typically works better for clustering.
+
+<!-- TODO: Add about outlier - that z-score is not good when they are present. And maybe use median/mad instead. -->
 
 <hr>
 

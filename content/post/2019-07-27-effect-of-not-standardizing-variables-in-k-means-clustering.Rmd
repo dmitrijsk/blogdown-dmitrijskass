@@ -17,9 +17,7 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, fig.align 
 ```
 
 
-The process of clustering usually involves variable standardization. This post illustrates the effect of this important data pre-processing step on the result of k-means clustering using a small data set of iPhones.
-
-<!-- RRR -->
+The process of clustering usually involves variable standardization. This post illustrates the effect of this important data pre-processing step on the result of k-means clustering using a small data set of iPhones, with [R](https://www.r-project.org/).
 
 ----
 
@@ -316,7 +314,7 @@ bind_rows(
 
 # Conclusions
 
-Perform exploratory data analysis prior to clustering and beware of the differences in variation of variables. Variables with higher variation tend to have a higher impact on clustering. There is no single right method of standardization. [@james_witten_hastie_tibshirani_2017, pp. 400] suggest trying several different choices and looking for the one with the most useful or interpretable solution. [@milligan_cooper] show that the range standardization typically works better for hierarchical clustering and that z-standardization may even be significantly worse than no standardization in the presence of outliers. In case of outliers a possible alternative is to use the median absolute deviation instead of the standard deviation [@stat_133].
+Perform exploratory data analysis prior to clustering and beware of the differences in variation of variables. Variables with higher variation tend to have a higher impact on clustering. There is no single right method of standardization. [@james_witten_hastie_tibshirani_2017, pp. 400] suggest trying several different choices and looking for the one with the most useful or interpretable solution. [@milligan_cooper] show that the range standardization typically works better for hierarchical clustering and that z-standardization may even be significantly worse than no standardization in the presence of outliers. In case of outliers a possible alternative is to use the median absolute deviation instead of the standard deviation [@stat_133, pp. 160].
 
 <hr>
 

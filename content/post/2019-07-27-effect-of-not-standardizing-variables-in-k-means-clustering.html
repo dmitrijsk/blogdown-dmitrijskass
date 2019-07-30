@@ -26,8 +26,7 @@ bibliography: effect-of-not-standardizing-variables-in-k-means-clustering.bib
 </ul>
 </div>
 
-<p>The process of clustering usually involves variable standardization. This post illustrates the effect of this important data pre-processing step on the result of k-means clustering using a small data set of iPhones.</p>
-<!-- RRR -->
+<p>The process of clustering usually involves variable standardization. This post illustrates the effect of this important data pre-processing step on the result of k-means clustering using a small data set of iPhones, with <a href="https://www.r-project.org/">R</a>.</p>
 <hr />
 <div id="clustering-distances-k-means" class="section level1">
 <h1>Clustering, distances, k-means</h1>
@@ -195,7 +194,7 @@ kmeans_scaled &lt;- kmeans(phones_cl_scaled, centers = 2)</code></pre>
 </div>
 <div id="conclusions" class="section level1">
 <h1>Conclusions</h1>
-<p>Perform exploratory data analysis prior to clustering and beware of the differences in variation of variables. Variables with higher variation tend to have a higher impact on clustering. There is no single right method of standardization. <span class="citation">(James et al. 2017, 400)</span> suggest trying several different choices and looking for the one with the most useful or interpretable solution. <span class="citation">(Milligan and Cooper 1988)</span> show that the range standardization typically works better for hierarchical clustering and that z-standardization may even be significantly worse than no standardization in the presence of outliers. In case of outliers a possible alternative is to use the median absolute deviation instead of the standard deviation <span class="citation">(Spector 2011)</span>.</p>
+<p>Perform exploratory data analysis prior to clustering and beware of the differences in variation of variables. Variables with higher variation tend to have a higher impact on clustering. There is no single right method of standardization. <span class="citation">(James et al. 2017, 400)</span> suggest trying several different choices and looking for the one with the most useful or interpretable solution. <span class="citation">(Milligan and Cooper 1988)</span> show that the range standardization typically works better for hierarchical clustering and that z-standardization may even be significantly worse than no standardization in the presence of outliers. In case of outliers a possible alternative is to use the median absolute deviation instead of the standard deviation <span class="citation">(Spector 2011, 160)</span>.</p>
 <hr>
 <p>I would appreciate any comments or suggestions. Please leave them below, no login required if you check “I’d rather post as a guest”.</p>
 </div>

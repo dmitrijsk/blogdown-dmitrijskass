@@ -13,11 +13,11 @@ bibliography: effect-of-not-standardizing-variables-in-k-means-clustering.bib
 ---
 
 ```{r echo = FALSE}
-knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, fig.align = 'center', fig.height=3.5, fig.width=7)
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, fig.align = 'center', fig.height=4, fig.width=7)
 ```
 
 
-The process of clustering usually involves variable standardization. This post illustrates the effect of this data pre-processing step on the result of k-means clustering using a small data set of iPhones.
+The process of clustering usually involves variable standardization. This post illustrates the effect of this important data pre-processing step on the result of k-means clustering using a small data set of iPhones.
 
 <!-- RRR -->
 

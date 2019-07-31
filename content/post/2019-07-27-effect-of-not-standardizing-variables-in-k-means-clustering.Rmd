@@ -49,7 +49,7 @@ tibble(x = c(1,4),
   theme_void()
 ```
 
-Let's take k-means clustering. The algorithm aims to partition observations into *k* groups such that the sum of squared *distances* from observations to the assigned cluster centers is minimized. In the example plotted below, there are two distinct clusters ($k=2$) with 10 observations in each. Cluster centers are highlighted with coloured crosses.
+Let's take k-means clustering. The algorithm aims to partition observations into *k* groups such that the sum of squared *distances* from observations to the assigned cluster centers is minimized. In the example plotted below, there are two distinct clusters ($k=2$) with 10 observations in each. Cluster centers are highlighted with colored crosses.
 
 ```{r plot_clusters, fig.height=3, fig.width=4}
 set.seed(1)
@@ -187,13 +187,13 @@ rownames(phones_cl) <- phones_df$model
 round(dist(phones_cl), 1)
 ```
 
-If we re-plot the same data set while ensuring that one unit on the x-axis (i.e. 1 gram) has the same length as one unit on the y-axis (i.e. 1 euro), the k-means result is no more a surprise:
+If we re-plot the same data set while ensuring that one unit on the x-axis (i.e. 1 gram) has the same length as one unit on the y-axis (i.e. 1 euro), the k-means result is no longer a surprise:
 
 ```{r plot_kmeans_orig_coord_equal, fig.height=4}
 # Adjust axes to the same scale.
 p +
   geom_text(aes(label = model), size = 3.5, hjust = "left", nudge_x = 60, show.legend = FALSE) +
-  labs(title = "No more surprise after equally scaling axes") +
+  labs(title = "No longer a surprise after equally scaling axes") +
   coord_equal(xlim = c(0, 800), ylim = c(0, 800), expand = FALSE)
 ```
 

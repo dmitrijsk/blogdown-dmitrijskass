@@ -40,7 +40,7 @@ bibliography: effect-of-not-standardizing-variables-in-k-means-clustering.bib
 <p><span class="math display">\[\sqrt{(x_2−x_1)^2+(y_2−y_1)^2}\text{.}\]</span>
 For example, if we are given two points with coordinates (1, 2) and (4, 6) then the Euclidean distance <span class="math inline">\(d\)</span> between these points is 5:</p>
 <p><img src="/post/2019-07-27-effect-of-not-standardizing-variables-in-k-means-clustering_files/figure-html/plot_distance-1.png" width="480" style="display: block; margin: auto;" /></p>
-<p>Let’s take k-means clustering. The algorithm aims to partition observations into <em>k</em> groups such that the sum of squared <em>distances</em> from observations to the assigned cluster centers is minimized. In the example plotted below, there are two distinct clusters (<span class="math inline">\(k=2\)</span>) with 10 observations in each. Cluster centers are highlighted with coloured crosses.</p>
+<p>Let’s take k-means clustering. The algorithm aims to partition observations into <em>k</em> groups such that the sum of squared <em>distances</em> from observations to the assigned cluster centers is minimized. In the example plotted below, there are two distinct clusters (<span class="math inline">\(k=2\)</span>) with 10 observations in each. Cluster centers are highlighted with colored crosses.</p>
 <p><img src="/post/2019-07-27-effect-of-not-standardizing-variables-in-k-means-clustering_files/figure-html/plot_clusters-1.png" width="384" style="display: block; margin: auto;" /></p>
 </div>
 <div id="surprise" class="section level1">
@@ -154,7 +154,7 @@ round(dist(phones_cl), 1)</code></pre>
 ## iPhone 6          160.2                        
 ## iPhone 6s Plus    275.5    126.8               
 ## iPhone 8 Plus     573.7    416.4          300.2</code></pre>
-<p>If we re-plot the same data set while ensuring that one unit on the x-axis (i.e. 1 gram) has the same length as one unit on the y-axis (i.e. 1 euro), the k-means result is no more a surprise:</p>
+<p>If we re-plot the same data set while ensuring that one unit on the x-axis (i.e. 1 gram) has the same length as one unit on the y-axis (i.e. 1 euro), the k-means result is no longer a surprise:</p>
 <p><img src="/post/2019-07-27-effect-of-not-standardizing-variables-in-k-means-clustering_files/figure-html/plot_kmeans_orig_coord_equal-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>Now this clustering may look correct. However, acknowledge that if iPhone weights were instead recorded in milligrams (i.e. multiply current weight values with 1,000) then prices would no longer affect the clustering results. The weight would become the only variable affecting the clustering. <strong>In general, variables with higher variation have a higher impact on the Euclidean distance calculations and, as a result, clustering results.</strong></p>
 <p>So the results of clustering depend on the scales of measurements in the data set. We can resolve this problem by standardizing the data prior to the clustering.</p>

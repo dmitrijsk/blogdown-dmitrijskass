@@ -1,7 +1,7 @@
 ---
 title: Effect of (not) standardizing variables in k-means clustering
 author: Dmitrijs Kass
-date: '2019-07-27'
+date: '2019-08-25'
 slug: effect-of-not-standardizing-variables-in-k-means-clustering
 categories:
   - clustering
@@ -13,11 +13,11 @@ bibliography: effect-of-not-standardizing-variables-in-k-means-clustering.bib
 ---
 
 ```{r echo = FALSE}
-knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, fig.align = 'center', fig.height=4, fig.width=7)
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, fig.align = 'center')
 ```
 
 
-The process of clustering usually involves variable standardization. This post illustrates the effect of this important data pre-processing step on the result of k-means clustering using a small data set of iPhones, with [R](https://www.r-project.org/).
+The process of clustering usually involves variable standardization. This post illustrates the effect of this important data pre-processing step on the result of k-means clustering with [R](https://www.r-project.org/) using a small data set of groceries shopping.
 
 ----
 
@@ -71,41 +71,41 @@ x %>%
 
 # Surprise
 
-Imagine you have observed prices and weights of four iPhone models (available [here](/post/2019-07-27-effect-of-not-standardizing-variables-in-k-means-clustering_files/iphone_dataset.csv)): 
+Imagine you have a purchasing history of customers in a local shop. You would like to cluster them into groups with similar purchasing habits to target them later with different offers and marketing materials. For simplicity, you pick only four customers and their history of purchasing caviar and bread during the last month. Purchases of both products are measured in kilograms (data available [here](/post/2019-07-27-effect-of-not-standardizing-variables-in-k-means-clustering_files/groceries.csv)): 
 
 ```{r echo = TRUE}
 # Attach packages.
 library(tidyverse)
-# Import phone data.
-phones_df <- read_delim(file = "iphone_dataset.csv", delim = ";", skip = 2)
+# Import groceries data.
+groceries_df <- read_delim(file = "groceries.csv", delim = ";")
 ```
 
 ```{r}
 # Print phone data.
-phones_df %>% 
-  knitr::kable(col.names = c("Brand", "Model", "Price (EUR)", "Weight (g)"), format = "html") %>% 
+groceries_df %>% 
+  knitr::kable(col.names = c("Customer", "Caviar (kg)", "Bread (kg)"), format = "html") %>% 
   kableExtra::kable_styling(full_width = FALSE, bootstrap_options = c("condensed"))
 ```
 
-The plot below depicts four iPhone models in two dimensions: price in euro and weight in grams. Please do a mental exercise and assign these four iPhone models into two clusters.
+The plot below depicts four selected customers in two dimensions: weight of caviar and bread purchased during the last month. Please do a mental exercise and assign these four customers into two clusters.
 
-```{r plot_surprise_1_question, fig.height=3, fig.width=6.5}
-phones_df %>% 
-  ggplot(aes(x = weight_g, y = price_eur)) + 
+```{r plot_surprise_1_question, fig.height=4, fig.width=6}
+groceries_df %>% 
+  ggplot(aes(x = caviar_kg, y = bread_kg)) + 
   geom_point(size = 4) +
-  geom_text(aes(label = model), size = 3.5, vjust = "top", nudge_y = -40) +
-  scale_x_continuous(expand = expand_scale(mult = 0.3)) +
+  geom_text(aes(label = customer), size = 3.5, hjust = "left", nudge_x = 0.035) +
   scale_y_continuous(expand = expand_scale(mult = 0.3)) +
-  labs(title = "How would you assign these four iPhones models into two clusters?",
-       x = "weight (g)", 
-       y = "price (EUR)") +
+  scale_x_continuous(expand = expand_scale(mult = 0.1)) +
+  labs(title = "How would you assign these four customers into two clusters\nusing their purchasing history?",
+       x = "caviar (kg)", 
+       y = "bread (kg)") +
   coord_equal(ratio = 1/20) +
   theme_classic()
 ```
 
 Ready?
 
-Did you assign iPhone 6 and 4 into one cluster and iPhone 8 Plus and 6s Plus into another? That's not what k-means would do without standardizing the variables.
+Did you assign Anthony with Barbara into one cluster and Cynthia with David into another? That's not what k-means would do without standardizing the variables.
 
 
 
@@ -115,91 +115,92 @@ Let's check by performing k-means with $k=2$.
 
 ```{r echo = TRUE}
 # Data for clustering.
-phones_cl <- phones_df[c("price_eur", "weight_g")]
+groceries_num <- groceries_df[-1]
 # Reproducibility.
-set.seed(4)
+set.seed(1)
 # K-means with original variables.
-kmeans_orig <- kmeans(phones_cl, centers = 2)
+kmeans_orig <- kmeans(groceries_num, centers = 2)
 ```
 
-The result is plotted below with iPhone 8 Plus being alone in cluster 1 and all other phones in cluster 2. Hopefully, you are surprised.
+The result is plotted below with David being alone in cluster 2 and all other customers in cluster 1. Hopefully, you are surprised.
 
-```{r plot_kmeans_orig}
+```{r plot_kmeans_orig, fig.height=4, fig.width=6}
 # Cluster centers.
 centers_orig_df <- as_tibble(kmeans_orig$centers) %>%
   mutate(cluster = 1:2)
 
 # K-means with original variables, unequal axes.
-p <- phones_df %>% 
+p <- groceries_df %>% 
   mutate(cluster = kmeans_orig$cluster) %>% 
-  ggplot(aes(x = weight_g, y = price_eur, color = as.factor(cluster))) + 
+  ggplot(aes(x = caviar_kg, y = bread_kg, color = as.factor(cluster))) + 
   geom_point(size = 3, show.legend = FALSE) +
   geom_point(data = centers_orig_df, size = 6, shape = "x") +
-  scale_x_continuous(expand = expand_scale(mult = 0.3)) +
   scale_y_continuous(expand = expand_scale(mult = 0.3)) +
-  labs(title = "Did you expect to see iPhone 8 Plus alone in cluster 1?",
-       subtitle = "k-means clustering with original variables",
-       x = "weight (g)", 
-       y = "price (EUR)", 
-       color = "Cluster centers") +
+  scale_x_continuous(expand = expand_scale(mult = 0.1)) +
+  labs(title = "Did you expect to see David alone in cluster 2?",
+       subtitle = "K-means clustering with original variables",
+       x = "caviar (kg)", 
+       y = "bread (kg)", 
+       color = "Cluster centers:") +
   coord_equal(ratio = 1/20) +
   theme_classic() +
-  theme(legend.position = "top")
+  theme(legend.position = "top", 
+        legend.justification = "left", 
+        legend.margin = margin(0, 0, 0, 0),
+        legend.box.margin = margin(t = 5, 0, b = -5, 0), 
+        legend.title = element_text(size = 10), 
+        legend.text = element_text(size = 10))
 
 p +
-  geom_text(aes(label = model), size = 3.5, hjust = "left", nudge_x = 2, show.legend = FALSE)
+  geom_text(aes(label = customer), size = 3.5, hjust = "left", nudge_x = 0.035, show.legend = FALSE)
 ```
 
-The catch is in the visualization - notice that x and y axes have different scales. One unit on the x axis (i.e. 1 gram) corresponds to exactly 20 units on the y axis (i.e. 20 euro). It means that the Euclidean distance between 125 and 150 grams (difference of 25 grams) on your screen exactly equals the distance between 250 and 750 euros (difference of 500 euros). As a result, diagonal distances are hard to evaluate visually. It seems that iPhone 6s Plus is significantly closer to iPhone 8 Plus than to iPhone 6. But it's an illusion. Note the distances on the plot below:
+The catch is in the visualization - notice that x and y axes have different scales. The length of one unit on the x axis (i.e. 1 kilo of caviar) is exactly 20 times shorter than the length of one unit on the y axis (i.e. 1 kilo of bread). As a result, diagonal distances are hard to evaluate visually. It seems that Cynthia is closer to David than to Barbara. But it's an illusion. Note the distances on the plot below:
 
-```{r plot_kmeans_orig_with_dist}
-# distances <- as.matrix(dist(phones_cl))
-# round(distances["iPhone 6s Plus", "iPhone 6"], 1)
-# round(distances["iPhone 6s Plus", "iPhone 8 Plus"], 1)     
+```{r plot_kmeans_orig_with_dist, warning=FALSE, fig.height=4, fig.width=6}
+# groceries_num <- as.data.frame(groceries_num)
+# rownames(groceries_num) <- groceries_df$customer
+# distances <- as.matrix(dist(groceries_num))
+# round(distances["Cynthia", "Barbara"], 1)
+# round(distances["Cynthia", "David"], 1)
 
 p +
-  geom_text(aes(label = model), size = 3.5, hjust = "left", nudge_x = 3, nudge_y = -40, show.legend = FALSE) +
+  geom_text(aes(label = customer), size = 3.5, hjust = "left", nudge_x = 0.035, show.legend = FALSE) +
   labs(title = "Pay attention to the scales of axes") +
   # Add two ditances for annotation.
   # To the left.
-  annotate(geom = "segment", x = 192, y = 470, xend = 129, yend = 360, 
+  annotate(geom = "segment", x = 1, y = 7.5, xend = 0.1, yend = 9, 
            arrow = arrow(length = unit(x = 0.3, units = "cm"), ends = "last")) +
-  annotate(geom = "text", x = 160.5, y = 415+65, label = expression(italic(d) == 126.8)) +
+  annotate(geom = "text", x = 0.6, y = 9, label = expression(italic(d) == 1.7)) +
   # To the top.
-  annotate(geom = "segment", x = 192, y = 470, xend = 202, yend = 770, 
+  annotate(geom = "segment", x = 1, y = 7.5, xend = 1.1, yend = 4.5, 
            arrow = arrow(length = unit(x = 0.3, units = "cm"), ends = "last")) +
-  annotate(geom = "text", x = 197-10, y = 620, label = expression(italic(d) == 300.2))
-
-
-#                       price_eur  weight_g
-# Apple	iPhone 6s Plus	470	              192	
-# Apple	iPhone 6	      360	              129	
-# Apple	iPhone 8 Plus	  770	              202	
+  annotate(geom = "text", x = 1.12, y = 6.2, label = expression(italic(d) == 3))
 ```
 
 All pairwise Euclidean distances can be calculated with `dist()`:
 
 ```{r echo = TRUE}
-# Add rownames to see phone models in a distance matrix.
-phones_cl <- as.data.frame(phones_cl)
-rownames(phones_cl) <- phones_df$model
+# Add rownames to see customer names in a distance matrix.
+groceries_num <- as.data.frame(groceries_num)
+rownames(groceries_num) <- groceries_df$customer
 # Euclidean distances.
-round(dist(phones_cl), 1)
+round(dist(groceries_num), 1)
 ```
 
-If we re-plot the same data set while ensuring that one unit on the x-axis (i.e. 1 gram) has the same length as one unit on the y-axis (i.e. 1 euro), the k-means result is no longer a surprise:
+If we re-plot the same data set while ensuring that one unit on the x-axis (i.e. 1 kilo of caviar) has the same length as one unit on the y-axis (i.e. 1 kilo of bread), the k-means result is no longer a surprise:
 
 ```{r plot_kmeans_orig_coord_equal, fig.height=4}
 # Adjust axes to the same scale.
 p +
-  geom_text(aes(label = model), size = 3.5, hjust = "left", nudge_x = 60, show.legend = FALSE) +
+  geom_text(aes(label = customer), size = 3.5, hjust = "left", nudge_x = 0.75, show.legend = FALSE) +
   labs(title = "No longer a surprise after equally scaling axes") +
-  coord_equal(xlim = c(0, 800), ylim = c(0, 800), expand = FALSE)
+  coord_equal(xlim = c(0, 11), ylim = c(0, 11), expand = FALSE)
 ```
 
-Now this clustering may look correct. However, acknowledge that if iPhone weights were instead recorded in milligrams (i.e. multiply current weight values with 1,000) then prices would no longer affect the clustering results. The weight would become the only variable affecting the clustering. **In general, variables with higher variation have a higher impact on the Euclidean distance calculations and, as a result, clustering results.** 
+Now this clustering may look correct. However, acknowledge that caviar is a delicacy. In comparison with bread, it is consumed in considerably smaller amounts and it is priced considerably higher. Therefore, for the purpose of customer segmentation, a difference of 1 kilo of caviar is more important than 1 kilo of bread. A calculation of distances using original, or non-standardized, variables does not differentiate between caviar and bread, essentially assuming these two products are identical. **To summarize, a higher variation in a variable with bread weights has a higher impact on the Euclidean distance calculations and, as a result, on clustering results.** 
 
-So the results of clustering depend on the scales of measurements in the data set. We can resolve this problem by standardizing the data prior to the clustering.
+So the results of clustering depend on the variation of variables in the data set. We can resolve this problem by standardizing the data prior to the clustering.
 
 
 
@@ -225,8 +226,10 @@ standardize_range <- function(x) {(x - min(x)) / (max(x) - min(x))}
 Then apply our new function to each column:
 
 ```{r echo = TRUE}
-phones_cl_scaled <- apply(phones_cl, MARGIN = 2, FUN = standardize_range)
-phones_cl_scaled
+groceries_num_scaled <- apply(groceries_num, 
+                              MARGIN = 2, 
+                              FUN = standardize_range)
+groceries_num_scaled
 ```
 
 Notice that each column now has a range of one.
@@ -235,47 +238,49 @@ Repeat k-means clustering using *standardized* variables:
 
 ```{r echo = TRUE}
 set.seed(1)
-kmeans_scaled <- kmeans(phones_cl_scaled, centers = 2)
+kmeans_scaled <- kmeans(groceries_num_scaled, centers = 2)
 ```
 
-The results have changed: iPhone 4 and 6 are now in cluster 1 and iPhone 8 Plus and 6s Plus are in cluster 2.
+The results have changed: Anthony and Barbara are now in cluster 1 and Cynthia and David are in cluster 2.
 
 ```{r plot_kmeans_scaled_standardized_measurements, fig.height=4}
-var_min_vec <- apply(phones_cl, MARGIN = 2, FUN = min)
-var_range_vec <- apply(phones_cl, MARGIN = 2, FUN = function(x) diff(range(x)))
+var_min_vec <- apply(groceries_num, MARGIN = 2, FUN = min)
+var_range_vec <- apply(groceries_num, MARGIN = 2, FUN = function(x) diff(range(x)))
 
-centers_scaled_df <- tibble(price_eur_scaled = kmeans_scaled$centers[, 1],
-       weight_g_scaled = kmeans_scaled$centers[, 2]) %>%
+centers_scaled_df <- tibble(
+  caviar_kg_scaled = kmeans_scaled$centers[, "caviar_kg"],
+  bread_kg_scaled = kmeans_scaled$centers[, "bread_kg"]) %>%
   bind_cols(as_tibble(t(apply(X = kmeans_scaled$centers, MARGIN = 1, FUN = function(x) x * var_range_vec + var_min_vec)))) %>%
   mutate(cluster = 1:2)
 
-phones_df %>%
-  mutate(price_eur_scaled = standardize_range(price_eur),
-         weight_g_scaled         = standardize_range(weight_g),
-         cluster = kmeans_scaled$cluster) %>%
-  ggplot(aes(x = weight_g_scaled, y = price_eur_scaled, color = as.factor(cluster))) +
+groceries_df %>%
+  mutate(caviar_kg_scaled = standardize_range(caviar_kg),
+         bread_kg_scaled  = standardize_range(bread_kg),
+         cluster          = kmeans_scaled$cluster) %>%
+  ggplot(aes(x = caviar_kg_scaled, y = bread_kg_scaled, color = as.factor(cluster))) +
   geom_point(size = 3, show.legend = FALSE) +
-  geom_point(data = centers_scaled_df, aes(x = weight_g_scaled, y = price_eur_scaled), size = 6, shape = "x") +
+  geom_point(data = centers_scaled_df, aes(x = caviar_kg_scaled, y = bread_kg_scaled), size = 6, shape = "x") +
   labs(title = "Same scale axes, standardized units",
-       subtitle = "k-means clustering with scaled variables",
+       subtitle = "K-means clustering with scaled variables",
        x = "standardized weight",
        y = "standardized price", color = "Cluster centers") +
   theme_classic() +
-  theme(legend.position = "top") +
+  theme(legend.position = "top", 
+        legend.justification = "left", 
+        legend.margin = margin(0, 0, 0, 0),
+        legend.box.margin = margin(t = 5, 0, b = -5, 0), 
+        legend.title = element_text(size = 10), 
+        legend.text = element_text(size = 10)) +
   coord_equal(xlim = c(0, 1), ylim = c(0, 1), clip = "off") +
-  geom_text(aes(label = model), size = 3.5, hjust = "left", nudge_x = 0.07, show.legend = FALSE)
+  geom_text(aes(label = customer), show.legend = FALSE, nudge_x = 0.07, hjust = "left")
 ```
 
-<!-- If you are interested, below are distances calculated from *standardized* units: -->
 
-<!-- ```{r echo = TRUE} -->
-<!-- round(dist(phones_cl_scaled), 1) -->
-<!-- ``` -->
 
 
 # Results
 
-Below is the side-by-side illustration of the effect of variable standardization on k-means clustering. Clustering plotted on the left uses original variables; clustering on the right - standardized variables.
+Below is the side-by-side illustration of the effect of variable standardization on k-means clustering. Clustering plotted on the left uses original variables and does not differentiate between a kilo of caviar from a kilo of bread. Clustering plotted on the right uses standardized variables and takes into account the fact that caviar is a delicacy purchased in considerably smaller volumes than bread.
 
 ```{r plot_kmeans_combined, fig.height=4, fig.width=7}
 centers_combined <- bind_rows(
@@ -284,23 +289,23 @@ centers_combined <- bind_rows(
 )
 
 bind_rows(
-  phones_df %>% 
+  groceries_df %>% 
     mutate(cluster = kmeans_orig$cluster,
            facet = "Original variables"),
-  phones_df %>% 
+  groceries_df %>% 
     mutate(cluster = kmeans_scaled$cluster,
            facet = "Standardized variables")
 ) %>%
 
-  ggplot(aes(x = weight_g, y = price_eur, color = as.factor(cluster))) +
+  ggplot(aes(x = caviar_kg, y = bread_kg, color = as.factor(cluster))) +
   facet_grid(~facet) +
-  coord_equal(xlim = c(0, 800), ylim = c(0, 800)) +
+  coord_equal(xlim = c(0, 11), ylim = c(0, 11)) +
   geom_point(size = 3, show.legend = FALSE) +
-  geom_text(aes(label = model), size = 3.5, hjust = "left", nudge_x = 60, show.legend = FALSE) +
-  geom_point(data = centers_combined, aes(x = weight_g, y = price_eur), size = 6, shape = "x") +
+  geom_text(aes(label = customer), size = 3.5, hjust = "left", nudge_x = 0.7, show.legend = FALSE) +
+  geom_point(data = centers_combined, aes(x = caviar_kg, y = bread_kg), size = 6, shape = "x") +
   labs(title = "Effect of (not) standardizing variables in k-means clustering",
-       x = "weight (g)",
-       y = "price (EUR)",
+       x = "caviar (kg)",
+       y = "bread (kg)",
        color = "Cluster centers") +
   theme_classic() +
   theme(legend.position = "top", 

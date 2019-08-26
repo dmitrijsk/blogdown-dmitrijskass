@@ -64,14 +64,14 @@ x %>%
   geom_point(size = 6, shape = "x", data = x_centers, mapping = aes(colour = as.factor(cluster))) +
   coord_equal(xlim = c(0, 3), ylim = c(0, 3)) +
   labs(subtitle = "Two hypothetical clusters",
-       colour = "Cluster centers") +
+       colour = "Cluster centers:") +
   theme_classic()
 ```
 
 
 # Surprise
 
-Imagine you have a purchasing history of customers in a local shop. You would like to cluster them into groups with similar purchasing habits to target them later with different offers and marketing materials. For simplicity, you pick only four customers and their history of purchasing caviar and bread during the last month. Purchases of both products are measured in kilograms (data available [here](/post/2019-07-27-effect-of-not-standardizing-variables-in-k-means-clustering_files/groceries.csv)): 
+Imagine you have a purchasing history of customers in a local shop. You would like to cluster them into groups with similar purchasing habits to target them later with different offers and marketing materials. For simplicity, you pick only four customers and their history of purchasing caviar and bread during the last month, both measured in kilograms. You aggregate data of a customer level and get the table below (available is csv [here](/post/2019-07-27-effect-of-not-standardizing-variables-in-k-means-clustering_files/groceries.csv)): 
 
 ```{r echo = TRUE}
 # Attach packages.
@@ -87,12 +87,12 @@ groceries_df %>%
   kableExtra::kable_styling(full_width = FALSE, bootstrap_options = c("condensed"))
 ```
 
-The plot below depicts four selected customers in two dimensions: weight of caviar and bread purchased during the last month. Please do a mental exercise and assign these four customers into two clusters.
+Below is the same data in the scatterplot. Please do a mental exercise and assign these four customers into two clusters.
 
 ```{r plot_surprise_1_question, fig.height=4, fig.width=6}
 groceries_df %>% 
   ggplot(aes(x = caviar_kg, y = bread_kg)) + 
-  geom_point(size = 4) +
+  geom_point(size = 3.5) +
   geom_text(aes(label = customer), size = 3.5, hjust = "left", nudge_x = 0.035) +
   scale_y_continuous(expand = expand_scale(mult = 0.3)) +
   scale_x_continuous(expand = expand_scale(mult = 0.1)) +
@@ -198,7 +198,7 @@ p +
   coord_equal(xlim = c(0, 11), ylim = c(0, 11), expand = FALSE)
 ```
 
-Now this clustering may look correct. However, acknowledge that caviar is a delicacy. In comparison with bread, it is consumed in considerably smaller amounts and it is priced considerably higher. Therefore, for the purpose of customer segmentation, a difference of 1 kilo of caviar is more important than 1 kilo of bread. A calculation of distances using original, or non-standardized, variables does not differentiate between caviar and bread, essentially assuming these two products are identical. **To summarize, a higher variation in a variable with bread weights has a higher impact on the Euclidean distance calculations and, as a result, on clustering results.** 
+Now this clustering may look correct as David stands away from other customers. However, acknowledge that caviar is a delicacy. In comparison with bread, it is consumed in considerably smaller amounts and it is priced considerably higher. Therefore, a difference of 1 kilo of caviar in customer purchasing habits is more important than a difference of the same weight of bread. A calculation of distances using original, or non-standardized, variables does not differentiate between caviar and bread, essentially assuming these two products are identical. **To summarize, a higher variation in bread weights makes this product be more important for Euclidean distance calculations and, as a result, for clustering results.** 
 
 So the results of clustering depend on the variation of variables in the data set. We can resolve this problem by standardizing the data prior to the clustering.
 
@@ -263,7 +263,8 @@ groceries_df %>%
   labs(title = "Same scale axes, standardized units",
        subtitle = "K-means clustering with scaled variables",
        x = "standardized weight",
-       y = "standardized price", color = "Cluster centers") +
+       y = "standardized price", 
+       color = "Cluster centers:") +
   theme_classic() +
   theme(legend.position = "top", 
         legend.justification = "left", 
@@ -282,7 +283,7 @@ groceries_df %>%
 
 Below is the side-by-side illustration of the effect of variable standardization on k-means clustering. Clustering plotted on the left uses original variables and does not differentiate between a kilo of caviar from a kilo of bread. Clustering plotted on the right uses standardized variables and takes into account the fact that caviar is a delicacy purchased in considerably smaller volumes than bread.
 
-```{r plot_kmeans_combined, fig.height=4, fig.width=7}
+```{r plot_kmeans_combined, fig.height=5, fig.width=8}
 centers_combined <- bind_rows(
   centers_orig_df %>% mutate(facet = "Original variables"),
   centers_scaled_df %>% select(-contains("scaled")) %>% mutate(facet = "Standardized variables")
@@ -303,10 +304,12 @@ bind_rows(
   geom_point(size = 3, show.legend = FALSE) +
   geom_text(aes(label = customer), size = 3.5, hjust = "left", nudge_x = 0.7, show.legend = FALSE) +
   geom_point(data = centers_combined, aes(x = caviar_kg, y = bread_kg), size = 6, shape = "x") +
+  scale_x_continuous(breaks = c(0, 5, 10)) +
+  scale_y_continuous(breaks = c(0, 5, 10)) +
   labs(title = "Effect of (not) standardizing variables in k-means clustering",
        x = "caviar (kg)",
        y = "bread (kg)",
-       color = "Cluster centers") +
+       color = "Cluster centers:") +
   theme_classic() +
   theme(legend.position = "top", 
         strip.background = element_rect(colour = "white"), 
@@ -319,7 +322,7 @@ bind_rows(
 
 # Conclusions
 
-Perform exploratory data analysis prior to clustering and beware of the differences in variation of variables. Variables with higher variation tend to have a higher impact on clustering. There is no single right method of standardization. [@james_witten_hastie_tibshirani_2017, pp. 400] suggest trying several different choices and looking for the one with the most useful or interpretable solution. [@milligan_cooper] show that the range standardization typically works better for hierarchical clustering and that z-standardization may even be significantly worse than no standardization in the presence of outliers. In case of outliers a possible alternative is to use the median absolute deviation instead of the standard deviation [@stat_133, pp. 160].
+Perform exploratory data analysis prior to clustering and be aware of the differences in variation of variables. Variables with higher variation tend to have a higher impact on clustering. There is no single correct method of standardization. [@james_witten_hastie_tibshirani_2017, pp. 400] suggest trying several different choices and looking for the one with the most useful or interpretable solution. [@milligan_cooper] show that the range standardization typically works better for hierarchical clustering, and that z-standardization may even be significantly worse than no standardization in the presence of outliers. If there are outliers, a possible alternative is to use the median absolute deviation instead of the standard deviation [@stat_133, pp. 160].
 
 <hr>
 

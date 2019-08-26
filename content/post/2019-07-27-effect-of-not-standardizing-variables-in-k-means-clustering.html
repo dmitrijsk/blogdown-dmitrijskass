@@ -45,7 +45,7 @@ For example, if we are given two points with coordinates (1, 2) and (4, 6) then 
 </div>
 <div id="surprise" class="section level1">
 <h1>Surprise</h1>
-<p>Imagine you have a purchasing history of customers in a local shop. You would like to cluster them into groups with similar purchasing habits to target them later with different offers and marketing materials. For simplicity, you pick only four customers and their history of purchasing caviar and bread during the last month. Purchases of both products are measured in kilograms (data available <a href="/post/2019-07-27-effect-of-not-standardizing-variables-in-k-means-clustering_files/groceries.csv">here</a>):</p>
+<p>Imagine you have a purchasing history of customers in a local shop. You would like to cluster them into groups with similar purchasing habits to target them later with different offers and marketing materials. For simplicity, you pick only four customers and their history of purchasing caviar and bread during the last month, both measured in kilograms. You aggregate data of a customer level and get the table below (available is csv <a href="/post/2019-07-27-effect-of-not-standardizing-variables-in-k-means-clustering_files/groceries.csv">here</a>):</p>
 <pre class="r"><code># Attach packages.
 library(tidyverse)
 # Import groceries data.
@@ -111,7 +111,7 @@ David
 </tr>
 </tbody>
 </table>
-<p>The plot below depicts four selected customers in two dimensions: weight of caviar and bread purchased during the last month. Please do a mental exercise and assign these four customers into two clusters.</p>
+<p>Below is the same data in the scatterplot. Please do a mental exercise and assign these four customers into two clusters.</p>
 <p><img src="/post/2019-07-27-effect-of-not-standardizing-variables-in-k-means-clustering_files/figure-html/plot_surprise_1_question-1.png" width="576" style="display: block; margin: auto;" /></p>
 <p>Ready?</p>
 <p>Did you assign Anthony with Barbara into one cluster and Cynthia with David into another? That’s not what k-means would do without standardizing the variables.</p>
@@ -141,7 +141,7 @@ round(dist(groceries_num), 1)</code></pre>
 ## David       5.6     4.6     3.0</code></pre>
 <p>If we re-plot the same data set while ensuring that one unit on the x-axis (i.e. 1 kilo of caviar) has the same length as one unit on the y-axis (i.e. 1 kilo of bread), the k-means result is no longer a surprise:</p>
 <p><img src="/post/2019-07-27-effect-of-not-standardizing-variables-in-k-means-clustering_files/figure-html/plot_kmeans_orig_coord_equal-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>Now this clustering may look correct. However, acknowledge that caviar is a delicacy. In comparison with bread, it is consumed in considerably smaller amounts and it is priced considerably higher. Therefore, for the purpose of customer segmentation, a difference of 1 kilo of caviar is more important than 1 kilo of bread. A calculation of distances using original, or non-standardized, variables does not differentiate between caviar and bread, essentially assuming these two products are identical. <strong>To summarize, a higher variation in a variable with bread weights has a higher impact on the Euclidean distance calculations and, as a result, on clustering results.</strong></p>
+<p>Now this clustering may look correct as David stands away from other customers. However, acknowledge that caviar is a delicacy. In comparison with bread, it is consumed in considerably smaller amounts and it is priced considerably higher. Therefore, a difference of 1 kilo of caviar in customer purchasing habits is more important than a difference of the same weight of bread. A calculation of distances using original, or non-standardized, variables does not differentiate between caviar and bread, essentially assuming these two products are identical. <strong>To summarize, a higher variation in bread weights makes this product be more important for Euclidean distance calculations and, as a result, for clustering results.</strong></p>
 <p>So the results of clustering depend on the variation of variables in the data set. We can resolve this problem by standardizing the data prior to the clustering.</p>
 </div>
 <div id="standardized-variables" class="section level1">
@@ -173,11 +173,11 @@ kmeans_scaled &lt;- kmeans(groceries_num_scaled, centers = 2)</code></pre>
 <div id="results" class="section level1">
 <h1>Results</h1>
 <p>Below is the side-by-side illustration of the effect of variable standardization on k-means clustering. Clustering plotted on the left uses original variables and does not differentiate between a kilo of caviar from a kilo of bread. Clustering plotted on the right uses standardized variables and takes into account the fact that caviar is a delicacy purchased in considerably smaller volumes than bread.</p>
-<p><img src="/post/2019-07-27-effect-of-not-standardizing-variables-in-k-means-clustering_files/figure-html/plot_kmeans_combined-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="/post/2019-07-27-effect-of-not-standardizing-variables-in-k-means-clustering_files/figure-html/plot_kmeans_combined-1.png" width="768" style="display: block; margin: auto;" /></p>
 </div>
 <div id="conclusions" class="section level1">
 <h1>Conclusions</h1>
-<p>Perform exploratory data analysis prior to clustering and beware of the differences in variation of variables. Variables with higher variation tend to have a higher impact on clustering. There is no single right method of standardization. <span class="citation">(James et al. 2017, 400)</span> suggest trying several different choices and looking for the one with the most useful or interpretable solution. <span class="citation">(Milligan and Cooper 1988)</span> show that the range standardization typically works better for hierarchical clustering and that z-standardization may even be significantly worse than no standardization in the presence of outliers. In case of outliers a possible alternative is to use the median absolute deviation instead of the standard deviation <span class="citation">(Spector 2011, 160)</span>.</p>
+<p>Perform exploratory data analysis prior to clustering and be aware of the differences in variation of variables. Variables with higher variation tend to have a higher impact on clustering. There is no single correct method of standardization. <span class="citation">(James et al. 2017, 400)</span> suggest trying several different choices and looking for the one with the most useful or interpretable solution. <span class="citation">(Milligan and Cooper 1988)</span> show that the range standardization typically works better for hierarchical clustering, and that z-standardization may even be significantly worse than no standardization in the presence of outliers. If there are outliers, a possible alternative is to use the median absolute deviation instead of the standard deviation <span class="citation">(Spector 2011, 160)</span>.</p>
 <hr>
 <p>I would appreciate any comments or suggestions. Please leave them below, no login required if you check “I’d rather post as a guest”.</p>
 </div>

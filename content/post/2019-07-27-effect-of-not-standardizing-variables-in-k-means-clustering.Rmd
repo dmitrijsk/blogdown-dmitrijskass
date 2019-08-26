@@ -71,7 +71,7 @@ x %>%
 
 # Surprise
 
-Imagine you have a purchasing history of customers in a local shop. You would like to cluster them into groups with similar purchasing habits to target them later with different offers and marketing materials. For simplicity, you pick only four customers and their history of purchasing caviar and bread during the last month, both measured in kilograms. You aggregate data of a customer level and get the table below (available is csv [here](/post/2019-07-27-effect-of-not-standardizing-variables-in-k-means-clustering_files/groceries.csv)): 
+Imagine you have a purchasing history of customers in a local shop. You would like to cluster them into groups with similar purchasing habits to target them later with different offers and marketing materials. For simplicity, you pick only four customers and their history of purchasing caviar and bread during the last month, both measured in kilograms. You aggregate data on a customer level and get the table below (available in csv [here](/post/2019-07-27-effect-of-not-standardizing-variables-in-k-means-clustering_files/groceries.csv)): 
 
 ```{r echo = TRUE}
 # Attach packages.
@@ -105,7 +105,7 @@ groceries_df %>%
 
 Ready?
 
-Did you assign Anthony with Barbara into one cluster and Cynthia with David into another? That's not what k-means would do without standardizing the variables.
+Did you assign Artis with Baiba into one cluster and Cintija with Dainis into another? That's not what k-means would do without standardizing the variables.
 
 
 
@@ -122,7 +122,7 @@ set.seed(1)
 kmeans_orig <- kmeans(groceries_num, centers = 2)
 ```
 
-The result is plotted below with David being alone in cluster 2 and all other customers in cluster 1. Hopefully, you are surprised.
+The result is plotted below with Dainis being alone in cluster 2 and all other customers in cluster 1. Hopefully, you are surprised.
 
 ```{r plot_kmeans_orig, fig.height=4, fig.width=6}
 # Cluster centers.
@@ -137,7 +137,7 @@ p <- groceries_df %>%
   geom_point(data = centers_orig_df, size = 6, shape = "x") +
   scale_y_continuous(expand = expand_scale(mult = 0.3)) +
   scale_x_continuous(expand = expand_scale(mult = 0.1)) +
-  labs(title = "Did you expect to see David alone in cluster 2?",
+  labs(title = "Did you expect to see Dainis alone in cluster 2?",
        subtitle = "K-means clustering with original variables",
        x = "caviar (kg)", 
        y = "bread (kg)", 
@@ -155,14 +155,14 @@ p +
   geom_text(aes(label = customer), size = 3.5, hjust = "left", nudge_x = 0.035, show.legend = FALSE)
 ```
 
-The catch is in the visualization - notice that x and y axes have different scales. The length of one unit on the x axis (i.e. 1 kilo of caviar) is exactly 20 times shorter than the length of one unit on the y axis (i.e. 1 kilo of bread). As a result, diagonal distances are hard to evaluate visually. It seems that Cynthia is closer to David than to Barbara. But it's an illusion. Note the distances on the plot below:
+The catch is in the visualization - notice that x and y axes have different scales. The length of one unit on the x axis (i.e. 1 kilo of caviar) is exactly 20 times shorter than the length of one unit on the y axis (i.e. 1 kilo of bread). As a result, diagonal distances are hard to evaluate visually. It seems that Cintija is closer to Dainis than to Baiba. But it's an illusion. Note the distances on the plot below:
 
 ```{r plot_kmeans_orig_with_dist, warning=FALSE, fig.height=4, fig.width=6}
 # groceries_num <- as.data.frame(groceries_num)
 # rownames(groceries_num) <- groceries_df$customer
 # distances <- as.matrix(dist(groceries_num))
-# round(distances["Cynthia", "Barbara"], 1)
-# round(distances["Cynthia", "David"], 1)
+# round(distances["Cintija", "Baiba"], 1)
+# round(distances["Cintija", "Dainis"], 1)
 
 p +
   geom_text(aes(label = customer), size = 3.5, hjust = "left", nudge_x = 0.035, show.legend = FALSE) +
@@ -198,7 +198,7 @@ p +
   coord_equal(xlim = c(0, 11), ylim = c(0, 11), expand = FALSE)
 ```
 
-Now this clustering may look correct as David stands away from other customers. However, acknowledge that caviar is a delicacy. In comparison with bread, it is consumed in considerably smaller amounts and it is priced considerably higher. Therefore, a difference of 1 kilo of caviar in customer purchasing habits is more important than a difference of the same weight of bread. A calculation of distances using original, or non-standardized, variables does not differentiate between caviar and bread, essentially assuming these two products are identical. **To summarize, a higher variation in bread weights makes this product be more important for Euclidean distance calculations and, as a result, for clustering results.** 
+Now this clustering may look correct as Dainis stands away from other customers. However, acknowledge that caviar is a delicacy. In comparison with bread, it is consumed in considerably smaller amounts and it is priced considerably higher. Therefore, a difference of 1 kilo of caviar in customer purchasing habits is more important than a difference of the same weight of bread. A calculation of distances using original, or non-standardized, variables does not differentiate between caviar and bread, essentially assuming these two products are identical. **To summarize, a higher variation in bread weights makes this product be more important for Euclidean distance calculations and, as a result, for clustering results.** 
 
 So the results of clustering depend on the variation of variables in the data set. We can resolve this problem by standardizing the data prior to the clustering.
 
@@ -241,7 +241,7 @@ set.seed(1)
 kmeans_scaled <- kmeans(groceries_num_scaled, centers = 2)
 ```
 
-The results have changed: Anthony and Barbara are now in cluster 1 and Cynthia and David are in cluster 2.
+The results have changed: Artis and Baiba are now in cluster 1 and Cintija and Dainis are in cluster 2.
 
 ```{r plot_kmeans_scaled_standardized_measurements, fig.height=4}
 var_min_vec <- apply(groceries_num, MARGIN = 2, FUN = min)

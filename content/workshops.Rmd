@@ -1,0 +1,153 @@
+---
+title: Workshops
+output:
+  blogdown::html_page:
+    fig_caption: true
+---
+
+[*Show this page in Latvian*](/workshops_lv/).
+
+* [Data analysis and visualization with R](#r_name)
+    * [Learning outcomes](#r_outcomes)
+    * [Content](#r_content)
+    * [References from previous workshops](#r_references)
+    * [Request a workshop](#r_request)
+    
+R is a free open-source programming language and an environment that, along with Python, became an industry standard for data science and machine learning. R and RStudio together offer great tools for a broad range of business and academic needs: from exploratory data analysis, reproducible research, statistics, machine learning, automated data processing and web scraping to building interactive reports and web applications. 
+
+# Data analysis and visualization with R{#r_name}
+
+This is an in-person 3-day workshop in data analysis and visualization with R. It covers all steps of a typical data science project except for modelling, i.e. about 70-80% of the work:
+
+
+```{r, echo = FALSE, fig.cap = "Typical steps in a data science project as in \"R for Data Science\" by Garrett Grolemund and Hadley Wickham [here](https://r4ds.had.co.nz/introduction.html)"}
+knitr::include_graphics("/img/data_science_project_steps.png")
+```
+
+Modelling is mentioned only briefly to show how it fits into the steps covered. The content is battle-tested on 150+ participants. It is targeted at new R users and those, whose experience in R is fragmented. The language of instruction is English, Latvian or Russian. The length and content may be modified depending on your needs. Prior experience in programming is an advantage, but not required. Often workshop participants are experienced Excel users, willing to benefit from opportunities offered by a programming language, or users of other statistical software, such as SPSS and Stata.
+
+### Learning outcomes{#r_outcomes}
+
+After a 3-day workshop you will feel comfortable using R and RStudio in doing the following:
+
+* data import from files and SQL databases,
+* data export, 
+* tidying data, 
+* exploratory data analysis and visualization, 
+* manipulating and joining large data sets,
+* automating data analysis,
+* generating reports with code, results and narrative to communicating the results of your work.
+
+This is a solid foundation for applying R at work and continuing learning R independently. 
+
+### Content{#r_content}
+
+Click on a topic to see details.
+
+<details><summary>R programming language</summary>
+<p>
+* Syntax
+* Coding style and why you need one
+* Data structures and indexing
+* Type coercion
+* Loops and how to control code execution
+</p>
+</details>
+
+<details><summary>RStudio IDE</summary>
+<p>
+* Learning to enjoy working in RStudio
+* Avoiding syntax errors, speeding-up your work, finding things and getting help
+</p>
+</details>
+
+<details><summary>R Markdown</summary>
+<p>
+* What is a reproducible research and how you may benefit from it
+* How to combine code, results and narrative to communicate the result of your analysis efficiently
+* How to automate reporting
+* Introduction to interactive tables and charts
+</p>
+</details>
+
+<details><summary>Packages</summary>
+<p>
+* Most popular packages by topic
+* What are function conflicts, how to manage them and why should you care 
+* Package versions and how to manage them
+</p>
+</details>
+
+<details><summary>Functions</summary>
+<p>
+* Understanding how functions work
+* When and how to write a function
+* Introduction to functional programming with `apply`-like functions
+</p>
+</details>
+
+<details><summary>Data import and export</summary>
+<p>
+* Tabular and plain text
+* Excel spreadsheets
+* Parsing JSON files 
+* Querying data from the SQL database
+* Reading files from the Internet
+</p>
+</details>
+
+<details><summary>Data manipulation</summary>
+<p>
+* Operations with rows and columns
+* Grouped aggregations
+* Finding and removing duplicates
+* Dealing with missing values
+* Recoding values
+</p>
+</details>
+
+<details><summary>Comparing and joining multiple tables</summary>
+<p>
+* Many ways to join relational and non-relational data
+* Finding similarities and differences between tables 
+</p>
+</details>
+
+<details><summary>Tidy data</summary>
+<p>
+* Concept of tidy data
+* Typical problems and how to solve them
+</p>
+</details>
+
+<details><summary>Visualization with ggplot2</summary>
+<p>
+* Layered grammar of graphics
+* Choosing an appropriate type of chart
+* From elementary to advanced graphics
+</p>
+</details>
+
+
+
+### References from previous workshops{#r_references}
+
+“*Many thanks to Dmitrijs for a perfect course in 3 days. The content is well-thought-through and oriented to results. In 3 days gained clarity on a practical level about what can be done with R – from data processing to visualization. Recommend.*”, Sandijs Liepiņš, SIA Mintos.
+
+“*Very organized and patient instructor. Replies to absolutely all questions. Takes into account the interests of the audience.*”, Elīna Tilta-Gerika, AAS SEB Life Insurance. 
+
+“*This course is valuable both for those who would like to learn about opportunities that R offers and for those who have learn R on their own. Course material is very well structured with a focus on practical applications. After the course you will be able to put new knowledge straight into the practice.*”, Anonymous.
+
+“*Very valuable course and excellent presentation by the instructor.*”, Dita, Central Statistical Bureau of Latvia.
+
+“*I definitely recommend this course to everyone who is new to R and also those who already use R but are not confident in their knowledge. The content is high quality, well structured and easy to understand! I would apply if there was a continuation of this course, thank you! :)*”, Sintija
+
+
+### Request a workshop{#r_request}
+
+Please send workshop requests to dmitrijs.kass@gmail.com. Workshops usually take place in Riga (Latvia) but may be held in other countries as well.
+
+<!-- # Git and GitHub for data scientists -->
+
+<!-- ## Content -->
+

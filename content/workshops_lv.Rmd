@@ -1,0 +1,38 @@
+---
+title: "Praktiskās nodarbības"
+output: html_document
+---
+
+[*Parādīt šo lapu angļu valodā*](/workshops/).
+
+
+* [Mūsdienīga datu analīze un vizualizācija ar R](#r_name)
+    * [Mācību rezultāti](#r_outcomes)
+    * [Saturs](#r_content)
+    * [Atsauksmes](#r_references)
+    * [Pieteikties](#r_request)
+
+
+...
+
+# Mūsdienīga datu analīze un vizualizācija ar R{#r_name}
+
+teksts
+
+### Mācību rezultāti{#r_outcomes}
+
+teksts
+
+### Saturs{#r_content}
+
+teksts
+
+### Atsauksmes{#r_references}
+
+teksts
+
+### Pieteikties{#r_request}
+
+teksts
+
+

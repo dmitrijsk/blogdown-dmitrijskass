@@ -111,7 +111,7 @@ Dainis
 </tr>
 </tbody>
 </table>
-<p>Below is the same data in the scatterplot. Please do a mental exercise and assign these four customers into two clusters.</p>
+<p>Below is the same data in the scatter plot. Please do a mental exercise and assign these four customers into two clusters.</p>
 <p><img src="/post/2019-07-27-effect-of-not-standardizing-variables-in-k-means-clustering_files/figure-html/plot_surprise_1_question-1.png" width="576" style="display: block; margin: auto;" /></p>
 <p>Ready?</p>
 <p>Did you assign Artis with Baiba into one cluster and Cintija with Dainis into another? That’s not what k-means would do without standardizing the variables.</p>
@@ -167,7 +167,7 @@ groceries_num_scaled</code></pre>
 <p>Repeat k-means clustering using <em>standardized</em> variables:</p>
 <pre class="r"><code>set.seed(1)
 kmeans_scaled &lt;- kmeans(groceries_num_scaled, centers = 2)</code></pre>
-<p>The results have changed: Artis and Baiba are now in cluster 1 and Cintija and Dainis are in cluster 2.</p>
+<p>The results have changed. Artis and Baiba are now in cluster 1 - customers buying 9-10 kilos of bread and almost no caviar. Cintija and Dainis are in cluster 2 - customers buying less bread but loving caviar.</p>
 <p><img src="/post/2019-07-27-effect-of-not-standardizing-variables-in-k-means-clustering_files/figure-html/plot_kmeans_scaled_standardized_measurements-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <div id="results" class="section level1">

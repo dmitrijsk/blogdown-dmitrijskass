@@ -87,7 +87,7 @@ groceries_df %>%
   kableExtra::kable_styling(full_width = FALSE, bootstrap_options = c("condensed"))
 ```
 
-Below is the same data in the scatterplot. Please do a mental exercise and assign these four customers into two clusters.
+Below is the same data in the scatter plot. Please do a mental exercise and assign these four customers into two clusters.
 
 ```{r plot_surprise_1_question, fig.height=4, fig.width=6}
 groceries_df %>% 
@@ -241,7 +241,7 @@ set.seed(1)
 kmeans_scaled <- kmeans(groceries_num_scaled, centers = 2)
 ```
 
-The results have changed: Artis and Baiba are now in cluster 1 and Cintija and Dainis are in cluster 2.
+The results have changed. Artis and Baiba are now in cluster 1 - customers buying 9-10 kilos of bread and almost no caviar. Cintija and Dainis are in cluster 2 - customers buying less bread but loving caviar.
 
 ```{r plot_kmeans_scaled_standardized_measurements, fig.height=4}
 var_min_vec <- apply(groceries_num, MARGIN = 2, FUN = min)

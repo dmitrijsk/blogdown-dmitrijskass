@@ -155,7 +155,7 @@ p +
   geom_text(aes(label = customer), size = 3.5, hjust = "left", nudge_x = 0.035, show.legend = FALSE)
 ```
 
-The catch is in the visualization - notice that x and y axes have different scales. The length of one unit on the x axis (i.e. 1 kilo of caviar) is exactly 20 times shorter than the length of one unit on the y axis (i.e. 1 kilo of bread). As a result, diagonal distances are hard to evaluate visually. It seems that Cintija is closer to Dainis than to Baiba. But it's an illusion. Note the distances on the plot below:
+The catch is in the visualization - notice that x and y axes have different scales. The length of one unit on the x axis (i.e. 1 kilo of caviar) is exactly 20 times longer than the length of one unit on the y axis (i.e. 1 kilo of bread). As a result, diagonal distances are hard to evaluate visually. It seems that Cintija is closer to Dainis than to Baiba. But it's an illusion. Note the distances on the plot below:
 
 ```{r plot_kmeans_orig_with_dist, warning=FALSE, fig.height=4, fig.width=6}
 # groceries_num <- as.data.frame(groceries_num)
@@ -184,7 +184,7 @@ All pairwise Euclidean distances can be calculated with `dist()`:
 # Add rownames to see customer names in a distance matrix.
 groceries_num <- as.data.frame(groceries_num)
 rownames(groceries_num) <- groceries_df$customer
-# Euclidean distances.
+# Euclidean distances in kilos.
 round(dist(groceries_num), 1)
 ```
 
@@ -211,7 +211,7 @@ Different standardization methods are available, including z-standardization (al
 
 $$Z=\frac{X-\bar{x}}{s}.$$
 
-After z-standardization each variable has a mean $\bar{x}$ of 0 and a standard deviation $s$ of 1. Z-standardization can be done with `scale()`. 
+After z-standardization each variable has a mean $\bar{z}$ of 0 and a standard deviation $s$ of 1. Z-standardization can be done with `scale()`. 
 
 In cluster analysis, however, range standardization (e.g., to a range of 0 to 1) typically works better [@milligan_cooper]. Range standardization requires subtracting the minimum value and then dividing it by the range (i.e., the difference between the maximum and minimum value):
 
@@ -261,9 +261,9 @@ groceries_df %>%
   geom_point(size = 3, show.legend = FALSE) +
   geom_point(data = centers_scaled_df, aes(x = caviar_kg_scaled, y = bread_kg_scaled), size = 6, shape = "x") +
   labs(title = "Same scale axes, standardized units",
-       subtitle = "K-means clustering with scaled variables",
-       x = "standardized weight",
-       y = "standardized price", 
+       subtitle = "K-means clustering with standardized variables",
+       x = "standardized weight of caviar",
+       y = "standardized weight of bread", 
        color = "Cluster centers:") +
   theme_classic() +
   theme(legend.position = "top", 

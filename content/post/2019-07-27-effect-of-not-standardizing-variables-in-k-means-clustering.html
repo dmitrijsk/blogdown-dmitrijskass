@@ -127,13 +127,13 @@ set.seed(1)
 kmeans_orig &lt;- kmeans(groceries_num, centers = 2)</code></pre>
 <p>The result is plotted below with Dainis being alone in cluster 2 and all other customers in cluster 1. Hopefully, you are surprised.</p>
 <p><img src="/post/2019-07-27-effect-of-not-standardizing-variables-in-k-means-clustering_files/figure-html/plot_kmeans_orig-1.png" width="576" style="display: block; margin: auto;" /></p>
-<p>The catch is in the visualization - notice that x and y axes have different scales. The length of one unit on the x axis (i.e. 1 kilo of caviar) is exactly 20 times shorter than the length of one unit on the y axis (i.e. 1 kilo of bread). As a result, diagonal distances are hard to evaluate visually. It seems that Cintija is closer to Dainis than to Baiba. But it’s an illusion. Note the distances on the plot below:</p>
+<p>The catch is in the visualization - notice that x and y axes have different scales. The length of one unit on the x axis (i.e. 1 kilo of caviar) is exactly 20 times longer than the length of one unit on the y axis (i.e. 1 kilo of bread). As a result, diagonal distances are hard to evaluate visually. It seems that Cintija is closer to Dainis than to Baiba. But it’s an illusion. Note the distances on the plot below:</p>
 <p><img src="/post/2019-07-27-effect-of-not-standardizing-variables-in-k-means-clustering_files/figure-html/plot_kmeans_orig_with_dist-1.png" width="576" style="display: block; margin: auto;" /></p>
 <p>All pairwise Euclidean distances can be calculated with <code>dist()</code>:</p>
 <pre class="r"><code># Add rownames to see customer names in a distance matrix.
 groceries_num &lt;- as.data.frame(groceries_num)
 rownames(groceries_num) &lt;- groceries_df$customer
-# Euclidean distances.
+# Euclidean distances in kilos.
 round(dist(groceries_num), 1)</code></pre>
 <pre><code>##         Artis Baiba Cintija
 ## Baiba     1.0              
@@ -148,7 +148,7 @@ round(dist(groceries_num), 1)</code></pre>
 <h1>Standardized variables</h1>
 <p>Different standardization methods are available, including z-standardization (also called z-score standardization) and range standardization. Z-standardization rescales each variable <span class="math inline">\(X\)</span> by subtracting its mean <span class="math inline">\(\bar{x}\)</span> and dividing by its standard deviation <span class="math inline">\(s\)</span>:</p>
 <p><span class="math display">\[Z=\frac{X-\bar{x}}{s}.\]</span></p>
-<p>After z-standardization each variable has a mean <span class="math inline">\(\bar{x}\)</span> of 0 and a standard deviation <span class="math inline">\(s\)</span> of 1. Z-standardization can be done with <code>scale()</code>.</p>
+<p>After z-standardization each variable has a mean <span class="math inline">\(\bar{z}\)</span> of 0 and a standard deviation <span class="math inline">\(s\)</span> of 1. Z-standardization can be done with <code>scale()</code>.</p>
 <p>In cluster analysis, however, range standardization (e.g., to a range of 0 to 1) typically works better <span class="citation">(Milligan and Cooper 1988)</span>. Range standardization requires subtracting the minimum value and then dividing it by the range (i.e., the difference between the maximum and minimum value):</p>
 <p><span class="math display">\[R = \frac{X - X_{min}}{X_{max} - X_{min}}\]</span></p>
 <p>We can write a one-line function to perform range standardization:</p>

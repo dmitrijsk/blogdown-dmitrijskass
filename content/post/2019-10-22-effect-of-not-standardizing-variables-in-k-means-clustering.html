@@ -1,7 +1,7 @@
 ---
 title: Effect of (not) standardizing variables in k-means clustering
 author: Dmitrijs Kass
-date: '2019-08-25'
+date: '2019-10-22'
 slug: effect-of-not-standardizing-variables-in-k-means-clustering
 categories:
   - clustering
@@ -39,9 +39,9 @@ bibliography: effect-of-not-standardizing-variables-in-k-means-clustering.bib
 <p>The Euclidean distance of two points <span class="math inline">\((x_1, y_1)\)</span> and <span class="math inline">\((x_2,y_2)\)</span> in a 2-dimensional space is calculated as</p>
 <p><span class="math display">\[\sqrt{(x_2−x_1)^2+(y_2−y_1)^2}\text{.}\]</span>
 For example, if we are given two points with coordinates (1, 2) and (4, 6) then the Euclidean distance <span class="math inline">\(d\)</span> between these points is 5:</p>
-<p><img src="/post/2019-07-27-effect-of-not-standardizing-variables-in-k-means-clustering_files/figure-html/plot_distance-1.png" width="480" style="display: block; margin: auto;" /></p>
+<p><img src="/post/2019-10-22-effect-of-not-standardizing-variables-in-k-means-clustering_files/figure-html/plot_distance-1.png" width="480" style="display: block; margin: auto;" /></p>
 <p>Let’s take k-means clustering. The algorithm aims to partition observations into <em>k</em> groups such that the sum of squared <em>distances</em> from observations to the assigned cluster centers is minimized. In the example plotted below, there are two distinct clusters (<span class="math inline">\(k=2\)</span>) with 10 observations in each. Cluster centers are highlighted with colored crosses.</p>
-<p><img src="/post/2019-07-27-effect-of-not-standardizing-variables-in-k-means-clustering_files/figure-html/plot_clusters-1.png" width="384" style="display: block; margin: auto;" /></p>
+<p><img src="/post/2019-10-22-effect-of-not-standardizing-variables-in-k-means-clustering_files/figure-html/plot_clusters-1.png" width="384" style="display: block; margin: auto;" /></p>
 </div>
 <div id="surprise" class="section level1">
 <h1>Surprise</h1>
@@ -112,7 +112,7 @@ Dainis
 </tbody>
 </table>
 <p>Below is the same data in the scatter plot. Please do a mental exercise and assign these four customers into two clusters.</p>
-<p><img src="/post/2019-07-27-effect-of-not-standardizing-variables-in-k-means-clustering_files/figure-html/plot_surprise_1_question-1.png" width="576" style="display: block; margin: auto;" /></p>
+<p><img src="/post/2019-10-22-effect-of-not-standardizing-variables-in-k-means-clustering_files/figure-html/plot_surprise_1_question-1.png" width="576" style="display: block; margin: auto;" /></p>
 <p>Ready?</p>
 <p>Did you assign Artis with Baiba into one cluster and Cintija with Dainis into another? That’s not what k-means would do without standardizing the variables.</p>
 </div>
@@ -126,9 +126,9 @@ set.seed(1)
 # K-means with original variables.
 kmeans_orig &lt;- kmeans(groceries_num, centers = 2)</code></pre>
 <p>The result is plotted below with Dainis being alone in cluster 2 and all other customers in cluster 1. Hopefully, you are surprised.</p>
-<p><img src="/post/2019-07-27-effect-of-not-standardizing-variables-in-k-means-clustering_files/figure-html/plot_kmeans_orig-1.png" width="576" style="display: block; margin: auto;" /></p>
+<p><img src="/post/2019-10-22-effect-of-not-standardizing-variables-in-k-means-clustering_files/figure-html/plot_kmeans_orig-1.png" width="576" style="display: block; margin: auto;" /></p>
 <p>The catch is in the visualization - notice that x and y axes have different scales. The length of one unit on the x axis (i.e. 1 kilo of caviar) is exactly 20 times longer than the length of one unit on the y axis (i.e. 1 kilo of bread). As a result, diagonal distances are hard to evaluate visually. It seems that Cintija is closer to Dainis than to Baiba. But it’s an illusion. Note the distances on the plot below:</p>
-<p><img src="/post/2019-07-27-effect-of-not-standardizing-variables-in-k-means-clustering_files/figure-html/plot_kmeans_orig_with_dist-1.png" width="576" style="display: block; margin: auto;" /></p>
+<p><img src="/post/2019-10-22-effect-of-not-standardizing-variables-in-k-means-clustering_files/figure-html/plot_kmeans_orig_with_dist-1.png" width="576" style="display: block; margin: auto;" /></p>
 <p>All pairwise Euclidean distances can be calculated with <code>dist()</code>:</p>
 <pre class="r"><code># Add rownames to see customer names in a distance matrix.
 groceries_num &lt;- as.data.frame(groceries_num)
@@ -140,7 +140,7 @@ round(dist(groceries_num), 1)</code></pre>
 ## Cintija   2.7   1.7        
 ## Dainis    5.6   4.6     3.0</code></pre>
 <p>If we re-plot the same data set while ensuring that one unit on the x-axis (i.e. 1 kilo of caviar) has the same length as one unit on the y-axis (i.e. 1 kilo of bread), the k-means result is no longer a surprise:</p>
-<p><img src="/post/2019-07-27-effect-of-not-standardizing-variables-in-k-means-clustering_files/figure-html/plot_kmeans_orig_coord_equal-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="/post/2019-10-22-effect-of-not-standardizing-variables-in-k-means-clustering_files/figure-html/plot_kmeans_orig_coord_equal-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>Now this clustering may look correct as Dainis stands away from other customers. However, acknowledge that caviar is a delicacy. In comparison with bread, it is consumed in considerably smaller amounts and it is priced considerably higher. Therefore, a difference of 1 kilo of caviar in customer purchasing habits is more important than a difference of the same weight of bread. A calculation of distances using original, or non-standardized, variables does not differentiate between caviar and bread, essentially assuming these two products are identical. <strong>To summarize, a higher variation in bread weights makes this product be more important for Euclidean distance calculations and, as a result, for clustering results.</strong></p>
 <p>So the results of clustering depend on the variation of variables in the data set. We can resolve this problem by standardizing the data prior to the clustering.</p>
 </div>
@@ -168,12 +168,12 @@ groceries_num_scaled</code></pre>
 <pre class="r"><code>set.seed(1)
 kmeans_scaled &lt;- kmeans(groceries_num_scaled, centers = 2)</code></pre>
 <p>The results have changed. Artis and Baiba are now in cluster 1 - customers buying 9-10 kilos of bread and almost no caviar. Cintija and Dainis are in cluster 2 - customers buying less bread but loving caviar.</p>
-<p><img src="/post/2019-07-27-effect-of-not-standardizing-variables-in-k-means-clustering_files/figure-html/plot_kmeans_scaled_standardized_measurements-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="/post/2019-10-22-effect-of-not-standardizing-variables-in-k-means-clustering_files/figure-html/plot_kmeans_scaled_standardized_measurements-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <div id="results" class="section level1">
 <h1>Results</h1>
 <p>Below is the side-by-side illustration of the effect of variable standardization on k-means clustering. Clustering plotted on the left uses original variables and does not differentiate between a kilo of caviar from a kilo of bread. Clustering plotted on the right uses standardized variables and takes into account the fact that caviar is a delicacy purchased in considerably smaller volumes than bread.</p>
-<p><img src="/post/2019-07-27-effect-of-not-standardizing-variables-in-k-means-clustering_files/figure-html/plot_kmeans_combined-1.png" width="768" style="display: block; margin: auto;" /></p>
+<p><img src="/post/2019-10-22-effect-of-not-standardizing-variables-in-k-means-clustering_files/figure-html/plot_kmeans_combined-1.png" width="768" style="display: block; margin: auto;" /></p>
 </div>
 <div id="conclusions" class="section level1">
 <h1>Conclusions</h1>

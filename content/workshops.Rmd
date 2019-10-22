@@ -5,48 +5,60 @@ output:
     fig_caption: true
 ---
 
-[*Show this page in Latvian*](/workshops_lv/).
-
-* [Data analysis and visualization with R](#r_name)
-    * [Learning outcomes](#r_outcomes)
-    * [Content](#r_content)
-    * [References from previous workshops](#r_references)
-    * [Request a workshop](#r_request)
-    
 R is a free open-source programming language and an environment that, along with Python, became an industry standard for data science and machine learning. R and RStudio together offer great tools for a broad range of business and academic needs: from exploratory data analysis, reproducible research, statistics, machine learning, automated data processing and web scraping to building interactive reports and web applications. 
+
+With practice, the content of the [**Data analysis and visualization with R**](#r_name) workshop has proven to lay a solid foundation for applying R at work and continuing learning R independently. 
+
+If you have an interest in other topics, the content may be tailored to your needs - please send me a description of topics you would like to cover to dmitrijs.kass@gmail.com.
+
+<!-- * [Data science toolbox: Git and GitHub](#git_name) -->
+
+<br>
 
 # Data analysis and visualization with R{#r_name}
 
-This is an in-person 3-day workshop in data analysis and visualization with R. It covers all steps of a typical data science project except for modelling, i.e. about 70-80% of the work:
+This is a 3-day in-person workshop, where it is my pleasure to guide you from the basics to advanced data analysis and visualization with R. It suits both new R users and those, whose experience in R is fragmented. The content is built around essential skills that a working data analyst/scientist should be comfortable with. It was **battle-tested on 150+ participants** and [**earned honourable reviews**](#r_references). Participants of previous workshops emphasize my passion for clearly explaining new material, sharing practical experience and answering all your questions.
+
+### Practical information
+
+* 3-day in-person workshop guided by a working data scientist with 3+ years of teaching experience in both academia and industry.
+* **Content**: full cycle of steps of a [typical data analysis project](#r_content).
+* **Price**: 400 EUR per person; discounts apply to students and groups of 3+ members.
+* **Place**: if the group consists of representatives of one company then your company's premises in Riga (Latvia) or other location; otherwise [the House of Science in University of Latvia Academic Centre](https://www.akademiskaiscentrs.lu.lv/ekas/zinatnu-maja/) or another place if the workshop is held outside Riga. 
+* **Language of instruction**: English, Latvian, Russian.
+* **Prerequisites**: prior experience in programming is an advantage, but not required.
+
+Book now by sending your request to dmitrijs.kass@gmail.com.
 
 
-```{r, echo = FALSE, fig.cap = "Typical steps in a data science project as in \"R for Data Science\" by Garrett Grolemund and Hadley Wickham [here](https://r4ds.had.co.nz/introduction.html)"}
-knitr::include_graphics("/img/data_science_project_steps.png")
-```
 
-Modelling is mentioned only briefly to show how it fits into the steps covered. The content is battle-tested on 150+ participants. It is targeted at new R users and those, whose experience in R is fragmented. The language of instruction is English, Latvian or Russian. The length and content may be modified depending on your needs. Prior experience in programming is an advantage, but not required. Often workshop participants are experienced Excel users, willing to benefit from opportunities offered by a programming language, or users of other statistical software, such as SPSS and Stata.
+<!-- ### Learning outcomes{#r_outcomes} -->
 
-### Learning outcomes{#r_outcomes}
+<!-- After a 3-day workshop you will feel comfortable using R and RStudio in doing the following: -->
 
-After a 3-day workshop you will feel comfortable using R and RStudio in doing the following:
+<!-- * writing predictable and well-structured code, -->
+<!-- * data import/export from files and SQL databases, -->
+<!-- * tidying data,  -->
+<!-- * exploratory data analysis and visualization,  -->
+<!-- * manipulating and joining large data sets, -->
+<!-- * automating data analysis, -->
+<!-- * generating reports with code, results and narrative to communicating the results of your work. -->
 
-* data import from files and SQL databases,
-* data export, 
-* tidying data, 
-* exploratory data analysis and visualization, 
-* manipulating and joining large data sets,
-* automating data analysis,
-* generating reports with code, results and narrative to communicating the results of your work.
 
-This is a solid foundation for applying R at work and continuing learning R independently. 
 
 ### Content{#r_content}
+
+The content covers in detail all steps of a typical data analysis project except for modelling, which is only briefly discussed to show how statistical tests and regression fit into the steps covered:
+
+```{r, echo = FALSE, fig.cap = "Typical steps in a data science project as in \"R for Data Science\" by G. Grolemund and H. Wickham"}
+knitr::include_graphics("/img/data_science_project_steps.png")
+```
 
 Click on a topic to see details.
 
 <details><summary>R programming language</summary>
 <p>
-* Syntax
+* Learning to write well-structured and predictable code
 * Coding style and why you need one
 * Data structures and indexing
 * Type coercion
@@ -67,6 +79,14 @@ Click on a topic to see details.
 * How to combine code, results and narrative to communicate the result of your analysis efficiently
 * How to automate reporting
 * Introduction to interactive tables and charts
+</p>
+</details>
+
+<details><summary>Visualization with ggplot2</summary>
+<p>
+* Layered grammar of graphics
+* Choosing an appropriate type of chart
+* From elementary to advanced graphics
 </p>
 </details>
 
@@ -120,34 +140,29 @@ Click on a topic to see details.
 </p>
 </details>
 
-<details><summary>Visualization with ggplot2</summary>
-<p>
-* Layered grammar of graphics
-* Choosing an appropriate type of chart
-* From elementary to advanced graphics
-</p>
-</details>
 
 
 
 ### References from previous workshops{#r_references}
 
-“*Many thanks to Dmitrijs for a perfect course in 3 days. The content is well-thought-through and oriented to results. In 3 days gained clarity on a practical level about what can be done with R – from data processing to visualization. Recommend.*”, Sandijs Liepiņš, SIA Mintos.
+“Many thanks to Dmitrijs for a perfect course in 3 days. The content is well-thought-through and oriented to results. In 3 days gained clarity on a practical level about what can be done with R – from data processing to visualization. Recommend.”  
+Sandijs Liepiņš, SIA Mintos.
 
-“*Very organized and patient instructor. Replies to absolutely all questions. Takes into account the interests of the audience.*”, Elīna Tilta-Gerika, AAS SEB Life Insurance. 
+“Very self-organized and patient instructor. Replies to absolutely all questions. Takes into account the interests of the audience.”  
+Elīna Tilta-Gerika, AAS SEB Life Insurance. 
 
-“*This course is valuable both for those who would like to learn about opportunities that R offers and for those who have learn R on their own. Course material is very well structured with a focus on practical applications. After the course you will be able to put new knowledge straight into the practice.*”, Anonymous.
+“This course is valuable both for those who would like to learn about opportunities that R offers and for those who have learnt R on their own. Course material is very well structured with a focus on practical applications. After the course you will be able to put new knowledge straight into the practice.”  
+Anonymous.
 
-“*Very valuable course and excellent presentation by the instructor.*”, Dita, Central Statistical Bureau of Latvia.
+“Very valuable course and excellent presentation by the instructor.”  
+Dita, Central Statistical Bureau of Latvia.
 
-“*I definitely recommend this course to everyone who is new to R and also those who already use R but are not confident in their knowledge. The content is high quality, well structured and easy to understand! I would apply if there was a continuation of this course, thank you! :)*”, Sintija
+“I definitely recommend this course to everyone who is new to R and also those who already use R but are not confident in their knowledge. The content is high quality, well structured and easy to understand! I would apply if there was a continuation of this course, thank you! :)”  
+Sintija
+
+<a href="#top">Back to Top</a>
 
 
-### Request a workshop{#r_request}
+<hr>
 
-Please send workshop requests to dmitrijs.kass@gmail.com. Workshops usually take place in Riga (Latvia) but may be held in other countries as well.
-
-<!-- # Git and GitHub for data scientists -->
-
-<!-- ## Content -->
-
+<!-- # Data science toolbox: Git and GitHub{#git_name} -->

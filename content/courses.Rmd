@@ -48,11 +48,13 @@ Book now by sending your request to dmitrijs.kass@gmail.com.
 
 ### Content{#r_content}
 
-The content covers all steps of a typical data analysis project. Modelling is only briefly discussed with several examples of statistical tests and machine learning algorithms. The main emphasis is made on how to perform data pre-processing and post-processing to fits modelling into tall other steps covered:
+The content covers all steps of a typical data analysis project:
 
 ```{r, echo = FALSE, fig.cap = "Typical steps in a data science project as in \"R for Data Science\" by G. Grolemund and H. Wickham", out.width=500, fig.align='center'}
 knitr::include_graphics("/img/data_science_project_steps.png")
 ```
+
+Modelling is only briefly discussed with several practical examples of statistical tests and machine learning algorithms. The main emphasis is made on how to perform data pre- and post-processing to fit modelling into all other steps covered.
 
 Click on a topic to see details.
 
@@ -122,10 +124,10 @@ Click on a topic to see details.
 </p>
 </details>
 
-<details><summary>Brief look at statistics and machine learning</summary>
+<details><summary>Elements of statistics and machine learning</summary>
 <p>
 * Data pre- and post-processing.
-* Examples of statistical tests and machine learning algorithms.
+* Practical examples of several statistical tests and machine learning algorithms.
 </p>
 </details>
 
@@ -161,7 +163,7 @@ Click on a topic to see details.
 
 
 
-### References from previous workshops{#r_references}
+### References from previous courses{#r_references}
 
 “Many thanks to Dmitrijs for a perfect course in 3 days. The content is well-thought-through and oriented to results. In 3 days gained clarity on a practical level about what can be done with R – from data processing to visualization. Recommend.”  
 Sandijs Liepiņš, SIA Mintos.

@@ -22,7 +22,7 @@ This is a 3-day in-person course, where it is my pleasure to guide you from the 
 ### Practical information
 
 * 3-day in-person course guided by a working data scientist with 3+ years of teaching experience in both academia and industry (see [About](/about/)).
-* **Content**: full cycle of steps of a [typical data analysis project](#r_content).
+* **Content**: [see below](#r_content).
 * **Price**: 350 EUR per person; discounts apply to groups of 3+ members.
 * **Place**: for groups - your company's premises in Riga (Latvia) or other location; otherwise [the House of Science in the University of Latvia Academic Centre](https://www.akademiskaiscentrs.lu.lv/ekas/zinatnu-maja/) or another place depending on availability. 
 * **Language of instruction**: English, Latvian or Russian.
@@ -48,9 +48,9 @@ Book now by sending your request to dmitrijs.kass@gmail.com.
 
 ### Content{#r_content}
 
-The content covers in detail all steps of a typical data analysis project except for modelling, which is only briefly discussed to show how statistical tests and regression fit into the steps covered:
+The content covers all steps of a typical data analysis project. Modelling is only briefly discussed with several examples of statistical tests and machine learning algorithms. The main emphasis is made on how to perform data pre-processing and post-processing to fits modelling into tall other steps covered:
 
-```{r, echo = FALSE, fig.cap = "Typical steps in a data science project as in \"R for Data Science\" by G. Grolemund and H. Wickham"}
+```{r, echo = FALSE, fig.cap = "Typical steps in a data science project as in \"R for Data Science\" by G. Grolemund and H. Wickham", out.width=500, fig.align='center'}
 knitr::include_graphics("/img/data_science_project_steps.png")
 ```
 
@@ -73,39 +73,6 @@ Click on a topic to see details.
 </p>
 </details>
 
-<details><summary>R Markdown</summary>
-<p>
-* What is a reproducible research and how you may benefit from it
-* How to combine code, results and narrative to communicate the result of your analysis efficiently
-* How to automate reporting
-* Introduction to interactive tables and charts
-</p>
-</details>
-
-<details><summary>Visualization with ggplot2</summary>
-<p>
-* Layered grammar of graphics
-* Choosing an appropriate type of chart
-* From elementary to advanced graphics
-</p>
-</details>
-
-<details><summary>Packages</summary>
-<p>
-* Most popular packages by topic
-* What are function conflicts, how to manage them and why you should care
-* Package versions and how to manage them
-</p>
-</details>
-
-<details><summary>Functions</summary>
-<p>
-* Understanding how functions work
-* When and how to write a function
-* Introduction to functional programming with `apply`-like functions
-</p>
-</details>
-
 <details><summary>Data import and export</summary>
 <p>
 * Tabular and plain text
@@ -113,6 +80,20 @@ Click on a topic to see details.
 * Parsing JSON files 
 * Querying data from the SQL database
 * Reading files from the Internet
+</p>
+</details>
+
+<details><summary>Tidy data</summary>
+<p>
+* Concept of tidy data
+* Typical problems of untidy data and how to solve them
+</p>
+</details>
+
+<details><summary>Exploratory data analysis (EDA)</summary>
+<p>
+* Tabular and graphical exploration of data
+* Packages for an automated EDA (aEDA)
 </p>
 </details>
 
@@ -133,12 +114,49 @@ Click on a topic to see details.
 </p>
 </details>
 
-<details><summary>Tidy data</summary>
+<details><summary>Visualization with ggplot2</summary>
 <p>
-* Concept of tidy data
-* Typical problems and how to solve them
+* Layered grammar of graphics
+* Choosing an appropriate type of chart
+* From elementary to advanced graphics
 </p>
 </details>
+
+<details><summary>Brief look at statistics and machine learning</summary>
+<p>
+* Data pre- and post-processing.
+* Examples of statistical tests and machine learning algorithms.
+</p>
+</details>
+
+<details><summary>Packages</summary>
+<p>
+* Most popular packages by topic
+* What are function conflicts, how to manage them and why you should care
+* Package versions and how to manage them
+</p>
+</details>
+
+<details><summary>Functions</summary>
+<p>
+* Understanding how functions work
+* When and how to write a function
+* Introduction to functional programming with `apply`-like functions
+</p>
+</details>
+
+<details><summary>R Markdown</summary>
+<p>
+* What is a reproducible research and how you may benefit from it
+* How to combine code, results and narrative to communicate the result of your analysis efficiently
+* How to automate reporting
+* Introduction to interactive tables and charts
+</p>
+</details>
+
+
+
+
 
 
 

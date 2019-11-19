@@ -29,6 +29,15 @@ code {
   background-color: rgba(0, 0, 0, 0.02);
 }
 
+p.caption {
+  font-size: 0.9em;
+  font-style: italic;
+  color: grey;
+  margin-right: 10%;
+  margin-left: 10%;  
+  text-align: justify;
+}
+
 /*Rescale images: https://stackoverflow.com/questions/45827291/resize-a-plot-generated-in-r-in-a-web-page-generated-by-blogdown-to-different-sc*/
 /*https://bookdown.org/yihui/blogdown/templates.html*/
 img, iframe, video { max-width: 100%; }

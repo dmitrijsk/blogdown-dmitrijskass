@@ -22,9 +22,10 @@ This is a 3-day in-person course, where it is my pleasure to guide you from the 
 ### Practical information
 
 * 3-day in-person course guided by a working data scientist with 3+ years of teaching experience in both academia and industry (see [About](/about/)).
+* **Size of group**: maximum of 15 persons.
 * **Content**: [see below](#r_content).
-* **Price**: 350 EUR per person; discounts apply to groups of 3+ members.
-* **Place**: for groups - your company's premises in Riga (Latvia) or other location; otherwise [the House of Science in the University of Latvia Academic Centre](https://www.akademiskaiscentrs.lu.lv/ekas/zinatnu-maja/) or another place depending on availability. 
+* **Price**: 400 EUR per person; discounts apply to groups of 3+ members.
+* **Place**: [the House of Science in the University of Latvia Academic Centre](https://www.akademiskaiscentrs.lu.lv/en/buildings/the-house-of-science/) or another place depending on availability. For groups - your company's premises in Riga (Latvia) or other location.
 * **Language of instruction**: English, Latvian or Russian.
 * **Prerequisites**: prior experience in programming is an advantage, but not required.
 
@@ -50,11 +51,13 @@ Book now by sending your request to dmitrijs.kass@gmail.com.
 
 The content covers all steps of a typical data analysis project:
 
-```{r, echo = FALSE, fig.cap = "Typical steps in a data science project as in \"R for Data Science\" by G. Grolemund and H. Wickham", out.width=500, fig.align='center'}
+```{r, echo = FALSE, out.width=500, fig.align='center'}
 knitr::include_graphics("/img/data_science_project_steps.png")
 ```
 
-Modelling is only briefly discussed with several practical examples of statistical tests and machine learning algorithms. The main emphasis is made on how to perform data pre- and post-processing to fit modelling into all other steps covered.
+<p style="color:gray;font-size:50%;text-align:center;">Image source: \"R for Data Science\" by G. Grolemund and H. Wickham.</p>
+
+Modelling is a separate topic it itself. Therefore, it is only briefly discussed with several practical examples of statistical tests and machine learning algorithms. The main emphasis is made on how to perform data pre- and post-processing to plug modelling into all other steps covered.
 
 Click on a topic to see details.
 

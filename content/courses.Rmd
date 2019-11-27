@@ -5,9 +5,9 @@ output:
     fig_caption: true
 ---
 
-R is a free open-source programming language and an environment that, along with Python, has became an industry standard for data science and machine learning. R and RStudio together offer great tools for a broad range of business and academic needs: from exploratory data analysis, reproducible research, statistics, machine learning, automated data processing and web scraping to building interactive reports and web applications. 
+R is a free open-source programming language and an environment that, along with Python, has become an industry standard for data science and machine learning. R and RStudio together offer great tools for a broad range of business and academic needs: from exploratory data analysis, reproducible research, statistics, machine learning, automated data processing and web scraping to building interactive reports and web applications. 
 
-With practice, the content of the [**Data analysis and visualization with R programming language**](#r_name) course has been proven to lay a solid foundation for applying R at work and continuing learning R independently. 
+With 3+ year-long practice, the content of the [**Data analysis and visualization with R programming language**](#r_name) course has been proven to lay a solid foundation for applying R at work and continuing learning R independently. 
 
 If you have an interest in other topics, the content may be tailored to your needs - please send a description of topics you would like to cover to dmitrijs.kass@gmail.com.
 
@@ -21,7 +21,7 @@ This is a 3-day in-person course, where it is my pleasure to guide you from the 
 
 ### Practical information
 
-* 3-day in-person course guided by a working data scientist with 3+ years of teaching experience in both academia and industry (see [About](/about/)).
+* 3-day in-person course guided by a working data scientist with 3+ years of teaching experience in both academia and industry ([LinkedIn](https://www.linkedin.com/in/dmitrijs-kass-prm/)).
 * **Size of group**: maximum of 15 persons.
 * **Content**: [see below](#r_content).
 * **Price**: 400 EUR per person; discounts apply to groups of 3+ members.

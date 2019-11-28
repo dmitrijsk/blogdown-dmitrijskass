@@ -13,6 +13,8 @@ output:
     toc: yes
 ---
 
+<meta property="og:image" content="/post/2019-05-08-swdchallenge-artisanal-data_files/figure-html/slopes_plot_chunk-1.png">
+
 This post is a participation in [#SWDchallenge: artisanal data](http://www.storytellingwithdata.com/blog/2019/5/1/swdchallenge-artisanal-data). Along with that it **visualizes two common measures of word importance: tf and tf-idf**. Variations of tf-idf, term frequency-inverse document frequency, are often used by search engines and text-based recommender systems.
 
 ----

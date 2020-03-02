@@ -8,20 +8,20 @@ output:
 **15-17, April and 20-22, May  
 Riga, Latvia**
 
-Ability to extract value from business data is crucial in any competitive environment. However, the variety, volume and velocity at which data is being generated in 2020 may limit or paralyze these attempts. In 3 days, learn to employ R programming language, RStudio, statistics and the elements of machine learning to automate data analysis and arrive at data-driven decision that benefit your business.
+Ability to extract value from business data is crucial in any competitive environment. However, the variety, volume and velocity at which data is being generated in 2020 may limit or block these attempts. In 3 days learn how to employ R programming language, RStudio, statistics and the elements of machine learning to automate data analysis and arrive at data-driven decisions that benefit your business.
 
 [You will learn:]{#learning_outcomes}
 
 * How to avoid being fooled by randomness.
-* How to conduct and analyse online controlled experiments (also known as [A/B testing](https://hbr.org/2017/09/the-surprising-power-of-online-experiments)) that allow establishing a causal relationship.
-* How to automate data gathering from online sources about your competitor products.
-* How to automate complex analysis from data import to generation of visually compelling PDF and HTML reports that contain code, results and your narrative.
+* How to conduct and analyse online controlled experiments (also known as [A/B testing](https://hbr.org/2017/09/the-surprising-power-of-online-experiments)) that allow you to establish a causal relationship.
+* How to automate data gathering from online sources about your competitors' products.
+* How to automate complex analysis from data import to presentation of results in visually compelling PDF and HTML reports that contain code, results and your narrative.
 * How to use clustering for segmenting products into groups that share similar characteristics and simplify the selection process for your customers.
 * How to optimize budget spending by predicting customer behaviour.
 * How to visualize large volumes of data and explore it with simple yet powerful statistical techniques.
 * How to optimize investment decisions using diversification.
 
-This 3-day in-person course is guided by [Dmitrijs Kass](https://www.linkedin.com/in/dmitrijs-kass-prm/), head of data science at Creamfinance with years of teaching experience in both business and academia. The course is practice-heavy and aimed at data analysts, risk analysts, data scientists and other professionals using high volumes of data to arrive at useful conclusions.
+This 3-day in-person course is guided by [Dmitrijs Kass](https://www.linkedin.com/in/dmitrijs-kass-prm/), head of data science at Creamfinance and with years of teaching experience in both business and academia. The course is practice-heavy and aimed at data analysts, risk analysts, data scientists and other professionals using high volumes of data to arrive at useful conclusions.
 
 
 
@@ -33,13 +33,23 @@ This 3-day in-person course is guided by [Dmitrijs Kass](https://www.linkedin.co
 * Price: 400 EUR per person.
 * Place: Riga, [the House of Science in the University of Latvia Academic Centre](https://www.akademiskaiscentrs.lu.lv/en/buildings/the-house-of-science/) or another place depending on availability. 
 * Language of instruction: English, Latvian or Russian, depending on the group.
-* Prerequisites: experience in analysing high volumes of data in Excel or any other tool. Prior experience in programming is an advantage, but not required.
+* Prerequisites: experience in analysing high volumes of data in Excel or any other tool. Prior experience in programming is an advantage, but not essential
+
+
+
+
+### Instructor{#instructor}
+
+I am Dmitrijs Kass, the head of data science at Creamfinance, a company with data-driven decisions at the core of its values. I am passionate about data science, enjoy sharing my practical experience and explaining complex concepts in simple ways that aid understanding and long-term retention of ideas. I am also a regular instructor for data analysis with R programming language at the Physics, Mathematics and Optometry faculty of Latvian University and, recently, at Riga Business School. I have also battle-tested the course on data analysis and visualization with R on 150+ business representatives and earned [honourable reviews](#testimonials).
+
+
+<br>
 
 <p style="text-align:center;">[**Book now.**](#book)</p>
 
 <br>
 
-Learn more about the [skills](#skills) you will acquire, about [the instructor](#instructor) and [why exactly R](#why_r) is the tool of choice.
+Learn more about the [skills](#skills) you will acquire and [exactly why R](#why_r) is the correct tool.
 
 
 
@@ -56,9 +66,9 @@ To achieve the [learning outcomes](#learning_outcomes), you will acquire a wide 
 * Elegant visualization.
 * Descriptive statistics, confidence intervals, statistical distributions and tests.
 * Communication of analysis results with RMarkdown.
-* Scheduling an autonomous execution of R scripts at selected time.
+* Autonomous execution of R scripts according to the schedule.
 
-<a href="#top">Back to Top</a>
+<!-- <a href="#top">Back to Top</a> -->
 
 
 
@@ -66,22 +76,15 @@ To achieve the [learning outcomes](#learning_outcomes), you will acquire a wide 
 
 <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSdIR3mvny4SltPyXCzgOZ0XVU15-pCiLo92c7Uto-HKypsChQ/viewform?embedded=true" width="640" height="1200" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
 
-<a href="#top">Back to Top</a>
+<!-- <a href="#top">Back to Top</a> -->
 
-
-
-
-
-### Instructor{#instructor}
-
-My name is Dmitrijs Kass, I am the data science team leader at Creamfinance, a company with data-driven decisions at the core of its values. I am passionate about data science, enjoy sharing my practical experience and explaining complex concepts in simple ways that aid understanding and long-term retention of ideas. Therefore, I am a regular instructor for data analysis with R programming language at the Physics, Mathematics and Optometry faculty of Latvian University and, recently, at Riga Business School. I have also battle-tested the course on data analysis and visualization with R on 150+ business representatives and earned [honourable reviews](#testimonials).
 
 
 
 
 ### Why R?{#why_r}
 
-R is a free open-source programming language and an environment that, along with Python, has become an industry standard for data science and machine learning. R and RStudio together offer great tools for a broad range of business and academic needs: from exploratory data analysis, reproducible research, statistics, machine learning, automated data processing and web scraping to building interactive reports and web applications.
+It is popular - as well in Riga. R is a free open-source programming language and an environment that, along with Python, has become an [industry standard](https://polygraph-cool.github.io/kaggle_survey/#what) for data science and machine learning. R and RStudio together offer great tools for a broad range of business and academic needs: from exploratory data analysis, reproducible research, statistics, machine learning, automated data processing and web scraping to building interactive reports and web applications.
 
 
 
@@ -90,7 +93,7 @@ R is a free open-source programming language and an environment that, along with
 
 The course may be organized on a different day at your premises.
 
-<a href="#top">Back to Top</a>
+<!-- <a href="#top">Back to Top</a> -->
 
 
 
@@ -99,7 +102,7 @@ The course may be organized on a different day at your premises.
 
 The content may be tailored to your needs - please send a description of topics you would like to cover [using this form](#book).
 
-<a href="#top">Back to Top</a>
+<!-- <a href="#top">Back to Top</a> -->
 
 
 

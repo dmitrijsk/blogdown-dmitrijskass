@@ -1,35 +1,163 @@
 ---
-title: Courses and Workshops
+title: Data-driven decision making and automation with R
 output:
   blogdown::html_page:
     fig_caption: true
 ---
 
-R is a free open-source programming language and an environment that, along with Python, has become an industry standard for data science and machine learning. R and RStudio together offer great tools for a broad range of business and academic needs: from exploratory data analysis, reproducible research, statistics, machine learning, automated data processing and web scraping to building interactive reports and web applications. 
+**15-17, April and 20-22, May  
+Riga, Latvia**
 
-With 3+ year-long practice, the content of the [**Data analysis and visualization with R programming language**](#r_name) course has been proven to lay a solid foundation for applying R at work and continuing learning R independently. 
+Ability to extract value from business data is crucial in any competitive environment. However, the variety, volume and velocity at which data is being generated in 2020 may limit or paralyze these attempts. In 3 days, learn to employ R programming language, RStudio, statistics and the elements of machine learning to automate data analysis and arrive at data-driven decision that benefit your business.
 
-If you have an interest in other topics, the content may be tailored to your needs - please send a description of topics you would like to cover to dmitrijs.kass@gmail.com.
+[You will learn:]{#learning_outcomes}
 
-<!-- * [Data science toolbox: Git and GitHub](#git_name) -->
+* How to avoid being fooled by randomness.
+* How to conduct and analyse online controlled experiments (also known as [A/B testing](https://hbr.org/2017/09/the-surprising-power-of-online-experiments)) that allow establishing a causal relationship.
+* How to automate data gathering from online sources about your competitor products.
+* How to automate complex analysis from data import to generation of visually compelling PDF and HTML reports that contain code, results and your narrative.
+* How to use clustering for segmenting products into groups that share similar characteristics and simplify the selection process for your customers.
+* How to optimize budget spending by predicting customer behaviour.
+* How to visualize large volumes of data and explore it with simple yet powerful statistical techniques.
+* How to optimize investment decisions using diversification.
+
+This 3-day in-person course is guided by [Dmitrijs Kass](https://www.linkedin.com/in/dmitrijs-kass-prm/), head of data science at Creamfinance with years of teaching experience in both business and academia. The course is practice-heavy and aimed at data analysts, risk analysts, data scientists and other professionals using high volumes of data to arrive at useful conclusions.
+
+
+
+
+### Practical information:
+
+* 3-day in-person course.
+* Size of group: maximum of 10 persons.
+* Price: 400 EUR per person.
+* Place: Riga, [the House of Science in the University of Latvia Academic Centre](https://www.akademiskaiscentrs.lu.lv/en/buildings/the-house-of-science/) or another place depending on availability. 
+* Language of instruction: English, Latvian or Russian, depending on the group.
+* Prerequisites: experience in analysing high volumes of data in Excel or any other tool. Prior experience in programming is an advantage, but not required.
+
+<p style="text-align:center;">[**Book now.**](#book)</p>
 
 <br>
 
-# Data analysis and visualization with R programming language{#r_name}
+Learn more about the [skills](#skills) you will acquire, about [the instructor](#instructor) and [why exactly R](#why_r) is the tool of choice.
 
-This is a 3-day in-person course, where it is my pleasure to guide you from the basics to advanced data analysis and visualization with R. It is suitable for both new R users and those whose experience in R is fragmented. The content is built around essential skills that a working data analyst/scientist should be comfortable with. It was **battle-tested on 150+ participants** and [**earned honourable reviews**](#r_references). Participants of previous courses have commented favourably my passion for clearly explaining new material, sharing practical experience and answering all your questions.
 
-### Practical information
 
-* 3-day in-person course guided by a working data scientist with 3+ years of teaching experience in both academia and industry ([LinkedIn](https://www.linkedin.com/in/dmitrijs-kass-prm/)).
-* **Size of group**: maximum of 15 persons.
-* **Content**: [see below](#r_content).
-* **Price**: 400 EUR per person; discounts apply to groups of 3+ members.
-* **Place**: [the House of Science in the University of Latvia Academic Centre](https://www.akademiskaiscentrs.lu.lv/en/buildings/the-house-of-science/) or another place depending on availability. For groups - your company's premises in Riga (Latvia) or other location.
-* **Language of instruction**: English, Latvian or Russian.
-* **Prerequisites**: prior experience in programming is an advantage, but not required.
 
-Book now by sending your request to dmitrijs.kass@gmail.com.
+### Skills you will acquire{#skills}
+
+To achieve the [learning outcomes](#learning_outcomes), you will acquire a wide range of technical skills in R:
+
+* R syntax, data structures, loops, control flow, writing R functions.
+* Knowledge about the most popular R packages.
+* Data import from conventional and unconventional data sources, including SQL database and web scraping.
+* Data cleaning.
+* Table manipulations and joins.
+* Elegant visualization.
+* Descriptive statistics, confidence intervals, statistical distributions and tests.
+* Communication of analysis results with RMarkdown.
+* Scheduling an autonomous execution of R scripts at selected time.
+
+<a href="#top">Back to Top</a>
+
+
+
+### Book now{#book}
+
+<iframe src="https://docs.google.com/forms/d/e/1FAIpQLSdIR3mvny4SltPyXCzgOZ0XVU15-pCiLo92c7Uto-HKypsChQ/viewform?embedded=true" width="640" height="1200" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
+
+<a href="#top">Back to Top</a>
+
+
+
+
+
+### Instructor{#instructor}
+
+My name is Dmitrijs Kass, I am the data science team leader at Creamfinance, a company with data-driven decisions at the core of its values. I am passionate about data science, enjoy sharing my practical experience and explaining complex concepts in simple ways that aid understanding and long-term retention of ideas. Therefore, I am a regular instructor for data analysis with R programming language at the Physics, Mathematics and Optometry faculty of Latvian University and, recently, at Riga Business School. I have also battle-tested the course on data analysis and visualization with R on 150+ business representatives and earned [honourable reviews](#testimonials).
+
+
+
+
+### Why R?{#why_r}
+
+R is a free open-source programming language and an environment that, along with Python, has become an industry standard for data science and machine learning. R and RStudio together offer great tools for a broad range of business and academic needs: from exploratory data analysis, reproducible research, statistics, machine learning, automated data processing and web scraping to building interactive reports and web applications.
+
+
+
+
+### Are you a group of 4+?
+
+The course may be organized on a different day at your premises.
+
+<a href="#top">Back to Top</a>
+
+
+
+
+### Do you need a different topic, venue or date?
+
+The content may be tailored to your needs - please send a description of topics you would like to cover [using this form](#book).
+
+<a href="#top">Back to Top</a>
+
+
+
+
+### Testimonials{#testimonials}
+
+*The course content is regularly updated based on the feedback of participants and may not match the content currently offered.*
+
+"Data Analysis with R was extremely useful for our analytics team to become more efficient in working with data, and generate ever-more impactful business insights using the power of R. The course is a well-balanced combination of key analytics scenarios from data cleaning to statistical modelling and visualization. Above all, Dmitrijs has a natural talent to explain concepts of all levels of complexity to both technical and non-technical audiences."
+Nikita Strezhnev, Rimi Baltic.
+
+“Many thanks to Dmitrijs for a perfect course in 3 days. The content is well-thought-through and oriented to results. In 3 days gained clarity on a practical level about what can be done with R – from data processing to visualization. Recommend.”
+Sandijs Liepiņš, SIA Mintos.
+
+“Very self-organized and patient instructor. Replies to absolutely all questions. Takes into account the interests of the audience.”
+Elīna Tilta-Gerika, AAS SEB Life Insurance.
+
+“This course is valuable both for those who would like to learn about the opportunities that R offers and for those who have learnt R on their own. Course material is very well structured with a focus on practical applications. After the course you will be able to put new knowledge straight into practice.”
+Anonymous.
+
+“Very valuable course and excellent presentation by the instructor.”
+Dita, Central Statistical Bureau of Latvia.
+
+“I definitely recommend this course to everyone who is new to R and also those who already use R but are not confident in their knowledge. The content is high quality, well structured and easy to understand! I would apply if there was a continuation of this course, thank you!”
+Sintija
+
+
+
+
+
+
+
+
+<!-- R is a free open-source programming language and an environment that, along with Python, has become an industry standard for data science and machine learning. R and RStudio together offer great tools for a broad range of business and academic needs: from exploratory data analysis, reproducible research, statistics, machine learning, automated data processing and web scraping to building interactive reports and web applications. -->
+
+<!-- With 3+ year-long practice, the content of the [**Data analysis and visualization with R programming language**](#r_name) course has been proven to lay a solid foundation for applying R at work and continuing learning R independently. -->
+
+<!-- If you have an interest in other topics, the content may be tailored to your needs - please send a description of topics you would like to cover to dmitrijs.kass@gmail.com. -->
+
+<!-- * [Data science toolbox: Git and GitHub](#git_name) -->
+
+<!-- <br> -->
+
+<!-- # Data analysis and visualization with R programming language{#r_name} -->
+
+<!-- This is a 3-day in-person course, where it is my pleasure to guide you from the basics to advanced data analysis and visualization with R. It is suitable for both new R users and those whose experience in R is fragmented. The content is built around essential skills that a working data analyst/scientist should be comfortable with. It was **battle-tested on 150+ participants** and [**earned honourable reviews**](#r_references). Participants of previous courses have commented favourably my passion for clearly explaining new material, sharing practical experience and answering all your questions. -->
+
+<!-- ### Practical information -->
+
+<!-- * 3-day in-person course guided by a working data scientist with 3+ years of teaching experience in both academia and industry ([LinkedIn](https://www.linkedin.com/in/dmitrijs-kass-prm/)). -->
+<!-- * **Size of group**: maximum of 15 persons. -->
+<!-- * **Content**: [see below](#r_content). -->
+<!-- * **Price**: 400 EUR per person; discounts apply to groups of 3+ members. -->
+<!-- * **Place**: [the House of Science in the University of Latvia Academic Centre](https://www.akademiskaiscentrs.lu.lv/en/buildings/the-house-of-science/) or another place depending on availability. For groups - your company's premises in Riga (Latvia) or other location. -->
+<!-- * **Language of instruction**: English, Latvian or Russian. -->
+<!-- * **Prerequisites**: prior experience in programming is an advantage, but not required. -->
+
+<!-- Book now by sending your request to dmitrijs.kass@gmail.com. -->
 
 
 
@@ -47,145 +175,140 @@ Book now by sending your request to dmitrijs.kass@gmail.com.
 
 
 
-### Content{#r_content}
+<!-- ### Content{#r_content} -->
 
-The content covers all steps of a typical data analysis project:
+<!-- The content covers all steps of a typical data analysis project: -->
 
-```{r, echo = FALSE, out.width=500, fig.align='center'}
-knitr::include_graphics("/img/data_science_project_steps.png")
-```
+<!-- ```{r, echo = FALSE, out.width=500, fig.align='center'} -->
+<!-- knitr::include_graphics("/img/data_science_project_steps.png") -->
+<!-- ``` -->
 
-<p style="color:gray;font-size:50%;text-align:center;">Image source: \"R for Data Science\" by G. Grolemund and H. Wickham.</p>
+<!-- <p style="color:gray;font-size:50%;text-align:center;">Image source: \"R for Data Science\" by G. Grolemund and H. Wickham.</p> -->
 
-Modelling is a separate topic it itself. Therefore, it is only briefly discussed with several practical examples of statistical tests and machine learning algorithms. The main emphasis is made on how to perform data pre- and post-processing to plug modelling into all other steps covered.
+<!-- Modelling is a separate topic it itself. Therefore, it is only briefly discussed with several practical examples of statistical tests and machine learning algorithms. The main emphasis is made on how to perform data pre- and post-processing to plug modelling into all other steps covered. -->
 
-Click on a topic to see details.
+<!-- Click on a topic to see details. -->
 
-<details><summary>R programming language</summary>
-<p>
-* Learning to write well-structured and predictable code
-* Coding style and why you need one
-* Data structures and indexing
-* Type coercion
-* Loops and how to control code execution
-</p>
-</details>
+<!-- <details><summary>R programming language</summary> -->
+<!-- <p> -->
+<!-- * Learning to write well-structured and predictable code -->
+<!-- * Coding style and why you need one -->
+<!-- * Data structures and indexing -->
+<!-- * Type coercion -->
+<!-- * Loops and how to control code execution -->
+<!-- </p> -->
+<!-- </details> -->
 
-<details><summary>RStudio IDE</summary>
-<p>
-* Learning to enjoy working in RStudio
-* Avoiding syntax errors, speeding-up your work, finding things and getting help
-</p>
-</details>
+<!-- <details><summary>RStudio IDE</summary> -->
+<!-- <p> -->
+<!-- * Learning to enjoy working in RStudio -->
+<!-- * Avoiding syntax errors, speeding-up your work, finding things and getting help -->
+<!-- </p> -->
+<!-- </details> -->
 
-<details><summary>Data import and export</summary>
-<p>
-* Tabular and plain text
-* Excel spreadsheets
-* Parsing JSON files 
-* Querying data from the SQL database
-* Reading files from the Internet
-</p>
-</details>
+<!-- <details><summary>Data import and export</summary> -->
+<!-- <p> -->
+<!-- * Tabular and plain text -->
+<!-- * Excel spreadsheets -->
+<!-- * Parsing JSON files -->
+<!-- * Querying data from the SQL database -->
+<!-- * Reading files from the Internet -->
+<!-- </p> -->
+<!-- </details> -->
 
-<details><summary>Tidy data</summary>
-<p>
-* Concept of tidy data
-* Typical problems of untidy data and how to solve them
-</p>
-</details>
+<!-- <details><summary>Tidy data</summary> -->
+<!-- <p> -->
+<!-- * Concept of tidy data -->
+<!-- * Typical problems of untidy data and how to solve them -->
+<!-- </p> -->
+<!-- </details> -->
 
-<details><summary>Exploratory data analysis (EDA)</summary>
-<p>
-* Tabular and graphical exploration of data
-* Packages for an automated EDA (aEDA)
-</p>
-</details>
+<!-- <details><summary>Exploratory data analysis (EDA)</summary> -->
+<!-- <p> -->
+<!-- * Tabular and graphical exploration of data -->
+<!-- * Packages for an automated EDA (aEDA) -->
+<!-- </p> -->
+<!-- </details> -->
 
-<details><summary>Data manipulation</summary>
-<p>
-* Operations with rows and columns
-* Grouped aggregations
-* Finding and removing duplicates
-* Dealing with missing values
-* Recoding values
-</p>
-</details>
+<!-- <details><summary>Data manipulation</summary> -->
+<!-- <p> -->
+<!-- * Operations with rows and columns -->
+<!-- * Grouped aggregations -->
+<!-- * Finding and removing duplicates -->
+<!-- * Dealing with missing values -->
+<!-- * Recoding values -->
+<!-- </p> -->
+<!-- </details> -->
 
-<details><summary>Comparing and joining multiple tables</summary>
-<p>
-* Many ways to join relational and non-relational data
-* Finding similarities and differences between tables 
-</p>
-</details>
+<!-- <details><summary>Comparing and joining multiple tables</summary> -->
+<!-- <p> -->
+<!-- * Many ways to join relational and non-relational data -->
+<!-- * Finding similarities and differences between tables -->
+<!-- </p> -->
+<!-- </details> -->
 
-<details><summary>Visualization with ggplot2</summary>
-<p>
-* Layered grammar of graphics
-* Choosing an appropriate type of chart
-* From elementary to advanced graphics
-</p>
-</details>
+<!-- <details><summary>Visualization with ggplot2</summary> -->
+<!-- <p> -->
+<!-- * Layered grammar of graphics -->
+<!-- * Choosing an appropriate type of chart -->
+<!-- * From elementary to advanced graphics -->
+<!-- </p> -->
+<!-- </details> -->
 
-<details><summary>Elements of statistics and machine learning</summary>
-<p>
-* Data pre- and post-processing.
-* Practical examples of several statistical tests and machine learning algorithms.
-</p>
-</details>
+<!-- <details><summary>Elements of statistics and machine learning</summary> -->
+<!-- <p> -->
+<!-- * Data pre- and post-processing. -->
+<!-- * Practical examples of several statistical tests and machine learning algorithms. -->
+<!-- </p> -->
+<!-- </details> -->
 
-<details><summary>Packages</summary>
-<p>
-* Most popular packages by topic
-* What are function conflicts, how to manage them and why you should care
-* Package versions and how to manage them
-</p>
-</details>
+<!-- <details><summary>Packages</summary> -->
+<!-- <p> -->
+<!-- * Most popular packages by topic -->
+<!-- * What are function conflicts, how to manage them and why you should care -->
+<!-- * Package versions and how to manage them -->
+<!-- </p> -->
+<!-- </details> -->
 
-<details><summary>Functions</summary>
-<p>
-* Understanding how functions work
-* When and how to write a function
-* Introduction to functional programming with `apply`-like functions
-</p>
-</details>
+<!-- <details><summary>Functions</summary> -->
+<!-- <p> -->
+<!-- * Understanding how functions work -->
+<!-- * When and how to write a function -->
+<!-- * Introduction to functional programming with `apply`-like functions -->
+<!-- </p> -->
+<!-- </details> -->
 
-<details><summary>R Markdown</summary>
-<p>
-* What is a reproducible research and how you may benefit from it
-* How to combine code, results and narrative to communicate the result of your analysis efficiently
-* How to automate reporting
-* Introduction to interactive tables and charts
-</p>
-</details>
-
-
+<!-- <details><summary>R Markdown</summary> -->
+<!-- <p> -->
+<!-- * What is a reproducible research and how you may benefit from it -->
+<!-- * How to combine code, results and narrative to communicate the result of your analysis efficiently -->
+<!-- * How to automate reporting -->
+<!-- * Introduction to interactive tables and charts -->
+<!-- </p> -->
+<!-- </details> -->
 
 
 
+<!-- ### References from previous courses{#r_references} -->
+
+<!-- “Many thanks to Dmitrijs for a perfect course in 3 days. The content is well-thought-through and oriented to results. In 3 days gained clarity on a practical level about what can be done with R – from data processing to visualization. Recommend.” -->
+<!-- Sandijs Liepiņš, SIA Mintos. -->
+
+<!-- “Very self-organized and patient instructor. Replies to absolutely all questions. Takes into account the interests of the audience.” -->
+<!-- Elīna Tilta-Gerika, AAS SEB Life Insurance. -->
+
+<!-- “This course is valuable both for those who would like to learn about the opportunities that R offers and for those who have learnt R on their own. Course material is very well structured with a focus on practical applications. After the course you will be able to put new knowledge straight into practice.” -->
+<!-- Anonymous. -->
+
+<!-- “Very valuable course and excellent presentation by the instructor.” -->
+<!-- Dita, Central Statistical Bureau of Latvia. -->
+
+<!-- “I definitely recommend this course to everyone who is new to R and also those who already use R but are not confident in their knowledge. The content is high quality, well structured and easy to understand! I would apply if there was a continuation of this course, thank you! :)” -->
+<!-- Sintija -->
+
+<!-- <a href="#top">Back to Top</a> -->
 
 
-
-### References from previous courses{#r_references}
-
-“Many thanks to Dmitrijs for a perfect course in 3 days. The content is well-thought-through and oriented to results. In 3 days gained clarity on a practical level about what can be done with R – from data processing to visualization. Recommend.”  
-Sandijs Liepiņš, SIA Mintos.
-
-“Very self-organized and patient instructor. Replies to absolutely all questions. Takes into account the interests of the audience.”  
-Elīna Tilta-Gerika, AAS SEB Life Insurance. 
-
-“This course is valuable both for those who would like to learn about the opportunities that R offers and for those who have learnt R on their own. Course material is very well structured with a focus on practical applications. After the course you will be able to put new knowledge straight into practice.”  
-Anonymous.
-
-“Very valuable course and excellent presentation by the instructor.”  
-Dita, Central Statistical Bureau of Latvia.
-
-“I definitely recommend this course to everyone who is new to R and also those who already use R but are not confident in their knowledge. The content is high quality, well structured and easy to understand! I would apply if there was a continuation of this course, thank you! :)”  
-Sintija
-
-<a href="#top">Back to Top</a>
-
-
-<hr>
+<!-- <hr> -->
 
 <!-- # Data science toolbox: Git and GitHub{#git_name} -->

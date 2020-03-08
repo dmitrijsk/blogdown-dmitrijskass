@@ -28,14 +28,22 @@ h1 {
 }
 section {
 	width: 679px;
-	/*margin: 70px auto;*/
+	margin: 20px auto;
    
 }
+blockquote {
+    display: block;
+    margin-block-start: 0;
+    margin-block-end: 0;
+    margin-inline-start: 0;
+    margin-inline-end: 0;
+}
+
 
 /* Simple Slider */
 .white-back{
-	box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-	background: #fff;
+	/*box-shadow: 0 2px 5px rgba(0,0,0,0.2);*/
+	/*background: #fff;*/
 }
 .simple blockquote p {
 	border-top: 1px solid #ccc;
@@ -50,16 +58,16 @@ section {
 	font-size: 1em;
 	float: right;
 	font-style: normal;
-	color: #1e528e;
+	/*color: #1e528e;*/
 }
 .simple cite a {
-	color: #2d91c2;
+	/*color: #2d91c2;*/
 	font-style: italic;
 	text-decoration: none;
 	font-size:.85em;
 }
 .simple cite a:hover {
-	color: #00B4CC;
+	/*color: #00B4CC;*/
 }
 /* A custom cursor to let folks know they can drag things */
 
@@ -70,45 +78,57 @@ section {
 /* Bubble Slider */
 
 .Bubble blockquote {
-	margin: 10px 10px 0;
-	background: #fff;
-	padding: 60px;
+/*	margin: 10px 10px 0;
+	/*background: #fff;*/
+	/*padding: 60px;*/
 	position: relative;
 	border: none;
 	border-radius: 8px;
 	font-size: 1.25em;
-	color: #1e528e;
+	/*color: #1e528e;*/
 }
 .Bubble blockquote:before, .Bubble blockquote:after {
-	content: "\201C";
+/*	content: "\201C";
 	position: absolute;
 	font-size: 80px;
 	padding: 10px;
 	line-height: 1;
-	color: #1e528e;
+	color: #1e528e;*/
 }
 .Bubble blockquote:before {
-	top: 0;
-	left: 10px;
+/*	top: 0;
+	left: 10px;*/
 }
 .Bubble blockquote:after {
-	content: "\201D";
+/*	content: "\201D";
 	right: 10px;
-	bottom: -.5em;
+	bottom: -.5em;*/
 }
 .Bubble div {
 	width: 0;
 	height: 0;
-	border-left: 0 solid transparent;
+/*	border-left: 0 solid transparent;
 	border-right: 20px solid transparent;
-	border-top: 20px solid #fff;
+	border-top: 20px solid #fff;*/
 	margin: 0 0 0 60px;
 	margin-bottom: 10px;
 }
 .Bubble cite {
-	padding-left: 20px;
+/*	padding-left: 20px;
 	font-size: 1.25em;
-  color:#f7f7f7;
+  color:#f7f7f7;*/
+}
+
+.Testimonial{
+
+	width: 400px;
+	height: 200px;
+
+}
+
+.Testimonial p{
+
+	word-wrap: break-word;
 }
 
 /* Bubble Slider */

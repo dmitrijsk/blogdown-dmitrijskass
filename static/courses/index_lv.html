@@ -1,207 +1,203 @@
 <!-- copy start  -->
 
 <html lang="en" >
-<head>
-  <meta charset="UTF-8">
-
-
-<!-- Viwport for moblies fix -->
-  <meta id="testViewport" name=viewport content="width=device-width, initial-scale=1">
-<script>
-if (screen.width < 1300) {
-    var mvp = document.getElementById('testViewport');
-    mvp.setAttribute('content','width=800');
-}
-</script>
-
-<!-- Viwport for moblies fix end -->
-  
-<link href="https://fonts.googleapis.com/css?family=Montserrat&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js" type="text/javascript"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
-<!-- <link rel='stylesheet' href='https://cdn.jsdelivr.net/jquery.slick/1.5.0/slick.css'> -->
-<link rel='stylesheet' href='https://cdn.jsdelivr.net/jquery.slick/1.5.0/slick.css'>
-<link rel='stylesheet' href='https://cdn.jsdelivr.net/jquery.slick/1.5.0/slick-theme.css'>
-<link rel="stylesheet" href="style.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prefixfree/1.0.7/prefixfree.min.js"></script>
-
+	<head>
+		<meta charset="UTF-8">
+		<title>R kurss: Uz datiem balstītu lēmumu pieņemšana un automatizācija</title>
+	
+		<!-- Viwport for moblies fix -->
+		<meta id="testViewport" name=viewport content="width=device-width, initial-scale=1">
+		<script>
+			if (screen.width < 1300) {
+				var mvp = document.getElementById('testViewport');
+				mvp.setAttribute('content','width=800');
+			}
+		</script>
+		<!-- Viwport for moblies fix end -->
+		  
+		<link href="https://fonts.googleapis.com/css?family=Montserrat&display=swap" rel="stylesheet">
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js" type="text/javascript"></script>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+		<!-- <link rel='stylesheet' href='https://cdn.jsdelivr.net/jquery.slick/1.5.0/slick.css'> -->
+		<link rel='stylesheet' href='https://cdn.jsdelivr.net/jquery.slick/1.5.0/slick.css'>
+		<link rel='stylesheet' href='https://cdn.jsdelivr.net/jquery.slick/1.5.0/slick-theme.css'>
+		<link rel="stylesheet" href="style.css">
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/prefixfree/1.0.7/prefixfree.min.js"></script>
 
 <!-- copy end  -->
 
-<style media="screen,print">
-	p {
-	font-family: 'Montserrat', sans-serif;
-	}
-	a{
-		text-decoration: none;
-	}
-	#g-En-new-box ,
-	#g-En-new-box .g-artboard {
-		margin:0 auto;
-	}
-	#g-En-new-box p {
-		margin:0;
-	}
-	#g-En-new-box .g-aiAbs {
-		position:absolute;
-	}
-	#g-En-new-box .g-aiImg {
-		position:absolute;
-		top:0;
-		display:block;
-		width:100% !important;
-	}
-	#g-En-new-box .g-aiSymbol {
-		position: absolute;
-		box-sizing: border-box;
-	}
-	#g-En-new-box .g-aiPointText p { white-space: nowrap; }
-	#g-main_with_slider {
-		position:relative;
-		overflow:hidden;
-	}
-	#g-main_with_slider p {
-		font-weight:500;
-		line-height:19px;
-		filter:alpha(opacity=100);
-		-ms-filter:progid:DXImageTransform.Microsoft.Alpha(Opacity=100);
-		opacity:1;
-		letter-spacing:0em;
-		font-size:14px;
-		text-align:left;
-		color:rgb(0,0,0);
-		text-transform:none;
-		padding-bottom:0;
-		padding-top:0;
-		mix-blend-mode:normal;
-		font-style:normal;
-		height:auto;
-		position:static;
-	}
-	#g-main_with_slider .g-pstyle0 {
-		font-weight:700;
-		height:19px;
-		font-size:16px;
-		color:rgb(31,126,178);
-	}
-	#g-main_with_slider .g-pstyle1 {
-		font-weight:700;
-		line-height:43px;
-		height:43px;
-		font-size:36px;
-		color:rgb(255,255,255);
-	}
-	#g-main_with_slider .g-pstyle2 {
-		line-height:36px;
-		height:36px;
-		font-size:30px;
-		color:rgb(255,255,255);
-	}
-	#g-main_with_slider .g-pstyle3 {
-		font-weight:700;
-		font-size:16px;
-		text-align:justify;
-		color:rgb(255,255,255);
-	}
-	#g-main_with_slider .g-pstyle4 {
-		font-weight:700;
-		line-height:22px;
-		height:22px;
-		font-size:19px;
-		color:rgb(0,113,188);
-	}
-	#g-main_with_slider .g-pstyle5 {
-		font-weight:700;
-		line-height:22px;
-		height:22px;
-		font-size:19px;
-		text-align:justify;
-		color:rgb(255,255,255);
-	}
-	#g-main_with_slider .g-pstyle6 {
-		line-height:21px;
-		height:21px;
-		font-size:16px;
-		text-align:justify;
-		color:rgb(255,255,255);
-	}
-	#g-main_with_slider .g-pstyle7 {
-		line-height:16px;
-		font-size:14px;
-	}
-	#g-main_with_slider .g-pstyle8 {
-		line-height:21px;
-		font-size:16px;
-		text-align:justify;
-		color:rgb(255,255,255);
-	}
-	#g-main_with_slider .g-pstyle9 {
-		font-weight:700;
-		line-height:21px;
-		font-size:16px;
-		text-align:justify;
-		color:rgb(255,255,255);
-	}
-	#g-main_with_slider .g-pstyle10 {
-		font-weight:700;
-		line-height:20px;
-		height:20px;
-		font-size:17px;
-		text-transform:uppercase;
-		color:rgb(255,255,255);
-	}
-	#g-main_with_slider .g-pstyle11 {
-		text-align:justify;
-	}
-	#g-main_with_slider .g-pstyle12 {
-		font-weight:700;
-		line-height:22px;
-		height:22px;
-		font-size:19px;
-		color:rgb(255,255,255);
-	}
-	#g-main_with_slider .g-pstyle13 {
-		color:rgb(255,255,255);
-	}
-	#g-main_with_slider .g-pstyle14 {
-		font-weight:700;
-		line-height:22px;
-		font-size:19px;
-		text-align:justify;
-		color:rgb(31,126,178);
-	}
-	#g-main_with_slider .g-cstyle0 {
-		font-weight:700;
-	}
-	#g-main_with_slider .g-cstyle1 {
-		font-weight:500;
-	}
-</style>
+		<style media="screen,print">
+			p {
+			font-family: 'Montserrat', sans-serif;
+			}
+			a{
+				text-decoration: none;
+			}
+			#g-En-new-box ,
+			#g-En-new-box .g-artboard {
+				margin:0 auto;
+			}
+			#g-En-new-box p {
+				margin:0;
+			}
+			#g-En-new-box .g-aiAbs {
+				position:absolute;
+			}
+			#g-En-new-box .g-aiImg {
+				position:absolute;
+				top:0;
+				display:block;
+				width:100% !important;
+			}
+			#g-En-new-box .g-aiSymbol {
+				position: absolute;
+				box-sizing: border-box;
+			}
+			#g-En-new-box .g-aiPointText p { white-space: nowrap; }
+			#g-main_with_slider {
+				position:relative;
+				overflow:hidden;
+			}
+			#g-main_with_slider p {
+				font-weight:500;
+				line-height:19px;
+				filter:alpha(opacity=100);
+				-ms-filter:progid:DXImageTransform.Microsoft.Alpha(Opacity=100);
+				opacity:1;
+				letter-spacing:0em;
+				font-size:14px;
+				text-align:left;
+				color:rgb(0,0,0);
+				text-transform:none;
+				padding-bottom:0;
+				padding-top:0;
+				mix-blend-mode:normal;
+				font-style:normal;
+				height:auto;
+				position:static;
+			}
+			#g-main_with_slider .g-pstyle0 {
+				font-weight:700;
+				height:19px;
+				font-size:16px;
+				color:rgb(31,126,178);
+			}
+			#g-main_with_slider .g-pstyle1 {
+				font-weight:700;
+				line-height:43px;
+				height:43px;
+				font-size:36px;
+				color:rgb(255,255,255);
+			}
+			#g-main_with_slider .g-pstyle2 {
+				line-height:36px;
+				height:36px;
+				font-size:30px;
+				color:rgb(255,255,255);
+			}
+			#g-main_with_slider .g-pstyle3 {
+				font-weight:700;
+				font-size:16px;
+				text-align:justify;
+				color:rgb(255,255,255);
+			}
+			#g-main_with_slider .g-pstyle4 {
+				font-weight:700;
+				line-height:22px;
+				height:22px;
+				font-size:19px;
+				color:rgb(0,113,188);
+			}
+			#g-main_with_slider .g-pstyle5 {
+				font-weight:700;
+				line-height:22px;
+				height:22px;
+				font-size:19px;
+				text-align:justify;
+				color:rgb(255,255,255);
+			}
+			#g-main_with_slider .g-pstyle6 {
+				line-height:21px;
+				height:21px;
+				font-size:16px;
+				text-align:justify;
+				color:rgb(255,255,255);
+			}
+			#g-main_with_slider .g-pstyle7 {
+				line-height:16px;
+				font-size:14px;
+			}
+			#g-main_with_slider .g-pstyle8 {
+				line-height:21px;
+				font-size:16px;
+				text-align:justify;
+				color:rgb(255,255,255);
+			}
+			#g-main_with_slider .g-pstyle9 {
+				font-weight:700;
+				line-height:21px;
+				font-size:16px;
+				text-align:justify;
+				color:rgb(255,255,255);
+			}
+			#g-main_with_slider .g-pstyle10 {
+				font-weight:700;
+				line-height:20px;
+				height:20px;
+				font-size:17px;
+				text-transform:uppercase;
+				color:rgb(255,255,255);
+			}
+			#g-main_with_slider .g-pstyle11 {
+				text-align:justify;
+			}
+			#g-main_with_slider .g-pstyle12 {
+				font-weight:700;
+				line-height:22px;
+				height:22px;
+				font-size:19px;
+				color:rgb(255,255,255);
+			}
+			#g-main_with_slider .g-pstyle13 {
+				color:rgb(255,255,255);
+			}
+			#g-main_with_slider .g-pstyle14 {
+				font-weight:700;
+				line-height:22px;
+				font-size:19px;
+				text-align:justify;
+				color:rgb(31,126,178);
+			}
+			#g-main_with_slider .g-cstyle0 {
+				font-weight:700;
+			}
+			#g-main_with_slider .g-cstyle1 {
+				font-weight:500;
+			}
+		</style>
 
-<style type="text/css">
-.no-fouc {
-	display: none;
-}
-.slick-dots li button:before {
-    font-family: 'slick';
-    font-size: 12px !important;
-    line-height: 20px;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 20px;
-    height: 20px;
-    content: '•';
-    text-align: center;
-    opacity: .25;
-    color: white !important;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
-
-</style>
-
-</head>
+		<style type="text/css">
+			.no-fouc {
+				display: none;
+			}
+			.slick-dots li button:before {
+				font-family: 'slick';
+				font-size: 12px !important;
+				line-height: 20px;
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 20px;
+				height: 20px;
+				content: '•';
+				text-align: center;
+				opacity: .25;
+				color: white !important;
+				-webkit-font-smoothing: antialiased;
+				-moz-osx-font-smoothing: grayscale;
+			}
+		</style>
+	</head>
 <body>
 
 <div id="g-En-new-box" class="ai2html">
@@ -211,7 +207,7 @@ if (screen.width < 1300) {
 <div style=""></div>
 		<img id="g-main_with_slider-img" class="g-aiImg" alt="" src="main_with_slider.jpg"/>
 		<div id="g-ai0-1" class="g-Layer_1 g-aiAbs g-aiPointText" style="top:2.8694%;margin-top:-10.4px;left:72.8%;width:61px;">
-			<p class="g-pstyle0"><a href="https://dmitrijskass.netlify.com" style="color:1F7EB2;">Blogs</a></p>
+			<p class="g-pstyle0"><a href="https://dmitrijskass.netlify.com" target="_blank" style="color:1F7EB2;">Blogs</a></p>
 		</div>
 		<div id="g-ai0-2" class="g-Layer_1 g-aiAbs g-aiPointText" style="top:2.8694%;margin-top:-10.4px;left:85.152%;width:43px;">
 			<p class="g-pstyle0"><a href="index_lv.html" style="color:1F7EB2;">LV</a></p>
@@ -220,7 +216,7 @@ if (screen.width < 1300) {
 			<p class="g-pstyle0"><a href="index.html" style="color:1F7EB2;">EN</a></p>
 		</div>
 		<div id="g-ai0-4" class="g-Layer_1 g-aiAbs g-aiPointText" style="top:6.7318%;margin-top:-67.1px;left:9.555%;width:479px;">
-			<p class="g-pstyle1">UZ DATIEM BALSTĪTA</p>
+			<p class="g-pstyle1">UZ DATIEM BALSTĪTU</p>
 			<p class="g-pstyle1">LĒMUMU PIEŅEMŠANA</p>
 			<p class="g-pstyle1">UN AUTOMATIZĀCIJA AR R</p>
 		</div>
@@ -231,7 +227,7 @@ if (screen.width < 1300) {
 			<p class="g-pstyle2">Rīga, Latvija</p>
 		</div>
 		<div id="g-ai0-7" class="g-Layer_1 g-aiAbs" style="top:15.40%;left:10.4161%;width:82.75%;">
-			<p class="g-pstyle3">Spēja iegūt vērtību no komercdatiem ir principiāli svarīga jebkurā konkurējošā vidē. Tomēr daudzveidība, apjoms un ātrums, kurā dati 2020.g. tiek radīti, var ierobežot vai bloķēt šos mēģinājumus. 3 dienās iemācieties, kā izmantot R programmēšanas valodu, RStudio, statistiku un mašīnmācīšanās elementus ar mērķi automatizēt datu analīzi un pieņemt lēmumus, pamatojoties uz datiem, kas nāk par labu jūsu biznesam.</p>
+			<p class="g-pstyle3">Spēja iegūt vērtību no komercdatiem ir principiāli svarīga jebkurā konkurējošā vidē. Tomēr daudzveidība, apjoms un ātrums, kādā dati 2020.g. tiek radīti, var to būtiski ierobežot vai pat bloķēt. 3 dienās iemācoties izmantot R programmēšanas valodu, RStudio, statistikas un mašīnmācīšanās elementus, spēsiet automatizēt datu analīzi un pieņemt pamatotākus lēmumus. Tas būs nenovērtējams ieguvums jūsu biznesa attīstībai.</p>
 		</div>
 		<div id="g-ai0-8" class="g-Layer_1 g-aiAbs g-aiPointText" style="top:24.4514%;margin-top:-11.9px;left:17.8059%;width:158px;">
 			<p class="g-pstyle4">Jūs iemācīsieties:</p>
@@ -250,7 +246,7 @@ if (screen.width < 1300) {
 			<p class="g-pstyle8"><span class="g-cstyle0">Prakses un teorijas sadalījums: </span>80% prakse un 20% teorija.</p>
 			<p class="g-pstyle9">Grupas lielums: <span class="g-cstyle1">Līdz 10 personām.</span></p>
 			<p class="g-pstyle8"><span class="g-cstyle0">Cena: </span>400 EUR.</p>
-			<p class="g-pstyle9">Kur: <span class="g-cstyle1">Rīga</span></p>
+			<p class="g-pstyle9">Kur: <span class="g-cstyle1">Rīga, LU Zinātņu māja</span></p>
 			<p class="g-pstyle8"><span class="g-cstyle0">Valodas: </span> Angļu, latviešu vai krievu.</p>
 			<p class="g-pstyle8"><span class="g-cstyle0">Priekšnoteikumi: </span>Pieredze lielu datu apjomu analīzē ar Excel vai jebkuru citu instrumentu. Iepriekšēja pieredze programmēšanā ir priekšrocība, bet nav obligāta.</p>
 			<p>&nbsp;</p>
@@ -262,31 +258,31 @@ if (screen.width < 1300) {
 		<div id="g-ai0-13" class="g-Layer_1 g-aiAbs" style="top:33.8998%;left:17.806%;width:31.25%;">
 			<p class="g-pstyle7">Automatizēt komplekso analīzi no datu importa līdz PDF/HTML atskaišu sastādīšanai.</p>
 		</div>
-		<div id="g-ai0-14" class="g-Layer_1 g-aiAbs" style="top:38.7999%;left:17.806%;width:31.625%;">
-			<p class="g-pstyle7">Izmantot klasterizāciju mārketinga analīzei.</p>
+		<div id="g-ai0-14" class="g-Layer_1 g-aiAbs" style="top:38.3999%;left:17.806%;width:31.625%;">
+			<p class="g-pstyle7">Novērtēt nenoteiktību un atšķirt statistiski nozīmīgus efektus no nejaušiem.</p>
 		</div>
 		<div id="g-ai0-15" class="g-Layer_1 g-aiAbs g-aiPointText" style="top:41.55%;margin-top:-10.8px;left:75.3477%;width:126px;">
-			<p class="g-pstyle10"><a href="book_lv.html" style="color:FFFFFF;">Reģistrēties</a></p>
+			<p class="g-pstyle10"><a href="book_lv.html" target="_blank" style="color:FFFFFF;">Reģistrēties</a></p>
 		</div>
-		<div id="g-ai0-16" class="g-Layer_1 g-aiAbs" style="top:43.0318%;left:17.806%;width:30.125%;">
+		<div id="g-ai0-16" class="g-Layer_1 g-aiAbs" style="top:42.6%;left:17.806%;width:30.125%;">
 			<p class="g-pstyle7">Optimizēt ar investīcijām saistītus lēmumus, izmantojot diversifikāciju.</p>
 		</div>
-		<div id="g-ai0-17" class="g-Layer_1 g-aiAbs" style="top:47.3974%;left:17.806%;width:30.125%;">
+		<div id="g-ai0-17" class="g-Layer_1 g-aiAbs" style="top:47.0%;left:17.806%;width:30.125%;">
 			<p class="g-pstyle7">Automatizēt datu vākšanu par konkurentu produktiem ar <i>web scraping</i>.</p>
 		</div>
 		<div id="g-ai0-18" class="g-Layer_1 g-aiAbs" style="top:49.4465%;left:53.5873%;width:39.5%;">
-			<p class="g-pstyle11">Dmitrijs Kass, datu zinātnieku komandas vadītājs Creamfinance un neatkarīgais datu zinātnes konsultants. Dmitrijs arī regulāri pasniedz datu analīzi un vizualizāciju ar R programmēšanas valodu uzņēmumiem un studentiem Latvijas Universitātes Fizikas, matemātikas un optometrijas fakultātē. Dmitrijs ir dedzīgs datu zinātnieks un ar prieku dalās savā praktiskajā pieredzē un skaidro sarežģītus jēdzienus vienkāršos veidos, kas noved pie izpratnes.</p>
+			<p class="g-pstyle11">Dmitrijs Kass <a href="https://www.linkedin.com/in/dmitrijs-kass-prm/" target="_blank" style="text-decoration: underline;color:000000;">(LinkedIn)</a>, datu zinātnieku komandas vadītājs Creamfinance un neatkarīgais datu zinātnes konsultants. Dmitrijs arī regulāri māca datu analīzi un vizualizāciju ar R programmēšanas valodu uzņēmumiem un studentiem Latvijas Universitātes Fizikas, matemātikas un optometrijas fakultātē. Dmitrijs ir dedzīgs datu zinātnieks, kas ar prieku dalās savā praktiskajā pieredzē un skaidro sarežģītus jēdzienus vienkāršā veidā, palīdzot gūt izpratni par aplūkojamo jautājumu.</p>
 		</div>
-		<div id="g-ai0-19" class="g-Layer_1 g-aiAbs" style="top:51.6738%;left:17.806%;width:30.75%;">
-			<p class="g-pstyle7">Paaugstināt jūsu mājas lapas klikšķu un darījumu skaitu ar A/B testēšanu.</p>
+		<div id="g-ai0-19" class="g-Layer_1 g-aiAbs" style="top:51.3738%;left:17.806%;width:30.75%;">
+			<p class="g-pstyle7">Paaugstināt jūsu mājas lapas klikšķu un darījumu skaitu ar <a href="https://hbr.org/2017/09/the-surprising-power-of-online-experiments" target="_blank" style="text-decoration: underline;color:000000;">A/B testēšanu</a>.</p>
 		</div>
-		<div id="g-ai0-20" class="g-Layer_1 g-aiAbs" style="top:56.3957%;left:17.806%;width:24.25%;">
-			<p class="g-pstyle7">Izvairīties no apmuļķošanas ar nejaušību.</p>
+		<div id="g-ai0-20" class="g-Layer_1 g-aiAbs" style="top:56.1957%;left:17.806%;width:24.25%;">
+			<p class="g-pstyle7">Izmantot klasterizāciju mārketinga analīzei.</p>
 		</div>
-		<div id="g-ai0-21" class="g-Layer_1 g-aiAbs g-aiPointText" style="top:61.5141%;margin-top:-11.9px;left:7.3894%;width:237px;">
+		<div id="g-ai0-21" class="g-Layer_1 g-aiAbs g-aiPointText" style="top:62.0%;margin-top:-11.9px;left:7.3894%;width:237px;">
 			<p class="g-pstyle12">Iemaņas, kuras jūs iegūsiet:</p>
 		</div>
-		<div id="g-ai0-22" class="g-Layer_1 g-aiAbs" style="top:62.1877%;left:7.3894%;width:87.375%;">
+		<div id="g-ai0-22" class="g-Layer_1 g-aiAbs" style="top:63.0%;left:7.3894%;width:87.375%;">
 			<p class="g-pstyle13">&bull;	Aprakstošu statistiku, ticamības intervālu un statistisku testu pielietošana.</p>
 			<p class="g-pstyle13">&bull;	Izvēlētu pārraudzīto un nepārraudzīto mašīnmācīšanās metožu pielietošana.</p>
 			<p class="g-pstyle13">&bull;	A/B testēšanas pielietojums saskaņā ar labāko praksi.</p>
@@ -298,17 +294,17 @@ if (screen.width < 1300) {
 			<p class="g-pstyle13">&bull;	R sintakse, stils, pakotnes, datu struktūras, cikli, vadības plūsma, lietotāja definētas funkcijas.</p>
 			<p class="g-pstyle13">Un vēl daudz vairāk!</p>
 		</div>
-		<div id="g-ai0-23" class="g-Layer_1 g-aiAbs" style="top:72.2988%;left:7.3894%;width:83.125%;">
+		<div id="g-ai0-23" class="g-Layer_1 g-aiAbs" style="top:74.2%;left:7.3894%;width:83.125%;">
 			<p class="g-pstyle14">Kāpēc R?</p>
 			<p class="g-pstyle11">R ir ļoti populāra, bezmaksas atklāta pirmkoda programmēšanas valoda un vide, kas, līdz ar Python, ir kļuvusi par nozares standartu datu analīzei un mašīnmācīšanai. R un RStudio kopā piedāvā lieliskus instrumentus plašam biznesa un akadēmisko vajadzību klāstam no izpētes datu analīzes, reproducējamās izpētes, statistikas un mašīnmācīšanās līdz interaktīvu atskaišu sastādīšanai un tīmekļa aplikācijām.</p>
 			<p>&nbsp;</p>
 			<p class="g-pstyle14">Vai jūs esat grupa no 4+ personām?</p>
 			<p class="g-pstyle11">Kursu var noorganizēt atsevišķā dienā jūsu telpās.</p>
 			<p>&nbsp;</p>
-			<p class="g-pstyle14">Vai jūs interesē citāds temats, norises vieta vai datums?</p>
-			<p class="g-pstyle11">Saturs var tikt pielāgots jūsu interesēm – lūdzu, atsūtiet tematu aprakstu, kurus jūs vēlētos aptvert, izmantojot <a href="book_lv.html" style="text-decoration: underline;color:000000;">šo formu</a>.</p>
+			<p class="g-pstyle14">Vai jūs interesē cits temats, norises vieta vai datums?</p>
+			<p class="g-pstyle11">Saturs var tikt pielāgots jūsu interesēm – lūdzu, atsūtiet tematu aprakstu, kurus jūs vēlētos aptvert, izmantojot <a href="book_lv.html" target="_blank" style="text-decoration: underline;color:000000;">šo formu</a>.</p>
 		</div>
-		<div id="g-ai0-24" class="g-Layer_1 g-aiAbs g-aiPointText" style="top:87.1724%;margin-top:-11.9px;left:7.3894%;width:147px;">
+		<div id="g-ai0-24" class="g-Layer_1 g-aiAbs g-aiPointText" style="top:88.5%;margin-top:-11.9px;left:7.3894%;width:147px;">
 			<p class="g-pstyle12">Atsauksmes:</p>
 			
 			<!-- Testimonials start -->

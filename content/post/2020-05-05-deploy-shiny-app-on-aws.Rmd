@@ -1,0 +1,337 @@
+---
+title: "Deploy Shiny apps on AWS: How and Why"
+author: Dmitrijs Kass
+date: '2020-05-05'
+slug: deploy-shiny-app-on-aws
+categories:
+  - shiny
+tags: []
+output:
+  blogdown::html_page:
+    toc: yes
+---
+
+```{r eval = TRUE, echo = FALSE}
+knitr::opts_chunk$set(echo = FALSE, eval = TRUE)
+```
+
+AWS (Amazon Web Services)
+
+
+
+
+
+Before we start, why AWS? AWS is one of leaders in the marketplace of cloud computing. It has a wide range of products, including Elastic Compute Cloud (EC2), a secure and resizable virtual server in the cloud, which is what we need for deploying Shiny apps. EC2 is free to try for one year. And there are lots of educational resources, including [Coursera](https://www.coursera.org/specializations/aws-fundamentals) and [edX](https://www.edx.org/school/aws) MOOCs.
+
+# Launch a virtual server
+
+1. Create a new AWS account and log into the AWS Management Console.
+2. AWS offers a broad set of cloud-based products[^2]. We are interested in EC2 (Elastic Compute Cloud), which is a virtual server in the cloud, also called an instance[^1]. Click on **EC2** in the Compute product category to open the EC2 Dashboard.
+
+[^1]: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instances-and-amis.html
+[^2]: https://aws.amazon.com/products/
+
+```{r}
+# knitr::include_graphics("/img/aws/ec2_dashboard.png")
+```
+
+3. Launch an Amazon EC2 instance by clicking the **Launch instance** button. This grings us to the 7-step process.
+
+```{r fig.align='center', fig.cap="Launch instance button in the EC2 Dashboard"}
+knitr::include_graphics("/img/aws/launch_instance.png")
+```
+
+**Step 1: Choose an Amazon Machine Image (AMI).**
+
+<!-- Select a Linux distribution (often abbreviated as distro[^5]) -->
+<!-- [^5]: https://en.wikipedia.org/wiki/Linux_distribution -->
+
+Select a Linux distribution. An important selection criteria is an availability of R, RStudio Server and Shiny Server distributions for the selected Linux distribution. We will pick the latest release of Ubuntu Server, which is 18.04 LTS at the time of writing. 
+
+```{r fig.align='center', fig.cap="Amazon Machine Image (AMI) with Ubuntu Server among other available Linux distributions"}
+knitr::include_graphics("/img/aws/ubuntu_server_instance.png")
+```
+
+The full name of this release is Ubuntu 18.04 LTS (Bionic Beaver). Note the code name[^4] in the brackets - Ubuntu releases are often referred to using only the adjective portion of it. Here it is *Bionic*, remember it - we will need it later.
+
+[^4]: https://en.wikipedia.org/wiki/Ubuntu_version_history
+
+<!-- LTS is an abbreviation for "Long Term Support"[^4]. -->
+<!-- [^4]: https://wiki.ubuntu.com/LTS -->
+
+**Step 2: Choose an Instance Type.**
+
+t2.micro instance type is preselected. It is the only free tier eligible type, which means it is free for one year. Scroll through other types of instances just to familiarize yourself with other available options. Then press **Next: Configure Instance Details**.
+
+<!-- There are many types of EC2 instances[^3] -->
+<!-- [^3]: https://aws.amazon.com/ec2/instance-types/ -->
+
+**Step 3: Configure Instance Details.**
+
+No changes here. Press **Next: Add storage**.
+
+**Step 4: Add Storage.**
+
+The default storage size is 8GB. The maximum within the free tier is 30GB. The default value is sufficient for this tutorial. Press **Next: Add Tags**.
+
+**Step 5: Add Tags.**
+
+No changes here. Press **Next: Configure Security Group**.
+
+
+<!-- Optional. A tag is a label that you assign to an AWS resource. Each tag consists of a key and an optional value, both of which you define. -->
+
+<!-- Amazon Web Services allows customers to assign metadata to their AWS resources in the form -->
+<!-- of tags. Each tag is a simple label consisting of a customer-defined key and an optional value -->
+<!-- that can make it easier to manage, search for, and filter resources.  -->
+
+
+<!-- Tags are a great way to organize AWS resources in the AWS Management Console. You can -->
+<!-- configure tags to be displayed with resources and can search and filter by tag.  -->
+
+<!-- Tagging your Amazon EC2 resources: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html -->
+<!-- Tagging Best Practices: https://d1.awsstatic.com/whitepapers/aws-tagging-best-practices.pdf -->
+
+**Step 6: Configure Security Group**
+
+Changes will be needed here but we will make them later when the time comes. For now just note that there is already one Inbound rule with type SSH and the port 22. Press **Review and Launch**.
+
+**Step 7: Review Instance Launch**
+
+Review your instance launch details, press **Launch** and a new window will pop up.
+
+4. We will use SSH (Secure Shell) to connect to our instance. Select **Create a new key pair**, give it a name and press **Download Key Pair**. Store your private key in a secure and accessible location and press **Launch Instances**.
+
+```{r fig.align='center', fig.cap="Create a new key pair and launch an instance"}
+knitr::include_graphics("/img/aws/key_pair.png")
+```
+
+Review the Launch Status page. It says, "Your instances are launching, and it may take a few minutes until they are in the **running** state, when they will be ready for you to use. Usage hours on your new instances will start immediately and continue to accrue until you stop or terminate your instances.
+Click **View Instances** to monitor your instances' status. Once your instances are in the **running** state, you can **connect** to them from the Instances screen."
+
+# Connect to a virtual server
+
+1. A public IP address is an IPv4 address that's reachable from the Internet. You can use a public address to connect to your instance[^6]. Note that if you will stop an instance someday, its public IPv4 address will be released. It means that a new public IPv4 address will be assigned to your instance when you will start it again.
+
+[^6]: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-instance-addressing.html#concepts-public-addresses
+
+2. My IPv4 Public is 54.172.160.16. If you are a Windows user, as I am, you will need an SSH client to connect to your instance. We will use PuTTY, which is available for free at https://www.putty.org/.
+
+3. PuTTY doesn't natively support the private key format (.pem) generated by Amazon EC2. You must convert your private key into a .ppk file before you can connect to your instance using PuTTY. You can use the PuTTYgen tool (PuTTY Key Generator) for this conversion[^7].
+
+[^7]: https://aws.amazon.com/premiumsupport/knowledge-center/convert-pem-file-into-ppk/
+
+```{r fig.align='center', fig.cap = "PuTTY Key Generator"}
+knitr::include_graphics("/img/aws/putty_keygen.png")
+```
+
+
+PASSPHRASE???
+
+  Press **Load**, select **RSA** type of key and press **Generate**.
+  
+4. Open PuTTY, enter the IPv4 Public of your instance into **Host Name (or IP address)**, 54.172.160.16 in my case. The default **Port** is 22 and your EC2 instance must be ready to establish a connection using the same port number. 
+
+```{r fig.align='center', fig.cap = "PuTTY Configuration - Session."}
+knitr::include_graphics("/img/aws/putty_conf.png")
+```
+
+Remember from **Step 6: Configure Security Group** above, port 22 is already open for SSH communication. So we may continue.
+
+```{r fig.align='center', fig.cap = "EC2 > Security Groups."}
+knitr::include_graphics("/img/aws/security_groups_22.png")
+```
+
+Go to Connection > SSH > Auth, press **Browse** and select your private key. Press **Open**.
+
+```{r fig.align='center', fig.cap = "PuTTY Configuration - Auth."}
+knitr::include_graphics("/img/aws/putty_auth.png")
+```
+
+The terminal will open. 
+
+5. In the terminal, enter `ubuntu` as a login and the passphrase if you created it. Your teminal should look approximately like this:
+
+```{r fig.align='center', fig.cap = "PuTTY terminal after login as ubuntu user."}
+knitr::include_graphics("/img/aws/terminal_login.png")
+```
+
+6. Feel like home. Write `pwd` (*p*rint *w*orking *d*irectory) and hit Enter to verify that you really are at home (directory).
+
+```{bash, eval = FALSE, echo = TRUE}
+pwd
+```
+
+Congratulations! By now you have launched a virtual server and established a secure connection with it. In the next step you will install R and few packages.
+
+
+
+
+# Install R and packages
+
+1. To install the latest version of R we should tell Ubuntu where to get it from. Open [the official instructions](https://cran.r-project.org/bin/linux/ubuntu/README.html) for how to install R on Ubuntu. Under the **Installation** heading you will find something like 
+
+```{r fig.align='center', fig.cap = "Excerpt from R installation guide for Ubuntu."}
+knitr::include_graphics("/img/aws/cran_ubuntu_readme.png")
+```
+
+2. Which one do you need? Remember the adjective from the code name of the selected Ubuntu release? *Bionic*. Therefore, you need option two.
+
+```{bash, eval = FALSE, echo = TRUE}
+sudo sh -c 'echo "deb https://cloud.r-project.org/bin/linux/ubuntu bionic-cran40/" >> /etc/apt/sources.list'
+```
+
+Note: `ubuntu` user has minimal access rights, therefore, we will always use `sudo` (*su*peruser *do*) that allows `ubuntu` user to run programs with security priveleges of the superuser (root user). `>>` appends the text on the left at the end of the file on the right.
+
+<!-- **Append the file in the text editor** -->
+
+<!-- Open `/etc/apt/sources.list` in the nano text editor:  -->
+
+
+
+<!-- ```{bash, eval = FALSE, echo = TRUE} -->
+<!-- $ sudo nano /etc/apt/sources.list -->
+<!-- ``` -->
+
+<!-- You will need the following shortcuts: CTRL+U to paste, CTRL+O to save and CTRL+X to exit. -->
+
+3. Verify that it worked.
+
+```{bash, eval = FALSE, echo = TRUE}
+cat /etc/apt/sources.list
+```
+
+4. Further in the documentation see that "The Ubuntu archives on CRAN are signed with key ID 0x51716619e084dab9. To add the key to your system with one command use":
+
+```{bash, eval = FALSE, echo = TRUE}
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
+```
+
+5. Download the package lists from the repositories:
+
+```{bash, eval = FALSE, echo = TRUE}
+sudo apt-get update
+```
+
+6. Install R:
+
+```{bash, eval = FALSE, echo = TRUE}
+sudo apt-get install r-base
+```
+
+7. Open R to verify that it works. 
+
+```{bash, eval = FALSE, echo = TRUE}
+R
+```
+
+8. Feels like we could install few packages while we are in R. But this is a wrong place and a wrong time.
+
+**Wrong place**
+
+As R was opened by `ubuntu` user, the default library `/usr/local/lib/R/site-library` is not writable. As a result, you will be offered to use a personal library under `/home/ubuntu/R/x86_64-pc-linux-gnu-library/4.0`. Later we will be running Shiny apps under the `shiny` user and R packages from `/home/ubuntu` will be unavailable. To avoid installing the same set of packages for each user, install them into the default library. Quit R for now with `q()`.
+
+**Wrong time**
+
+Compilation of some packages requires >1GB of RAM, which is all we have. To guard youself against out-of-memory errors, add some swap space to your instance. Below I just provide a list of commands from a beautifully written ["How To Add Swap Space on Ubuntu 18.04"](https://www.digitalocean.com/community/tutorials/how-to-add-swap-space-on-ubuntu-18-04) article by the DigitalOcean:
+
+```{bash, eval = FALSE, echo = TRUE}
+sudo fallocate -l 1G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+free -h
+```
+
+The output of the last command should indicate that 1GB of swap space is available:
+
+```{r fig.align='center', fig.cap = "Output of `free -h`"}
+knitr::include_graphics("/img/aws/free_h.png")
+```
+
+One more thing. Let me tell you that several R packages will fail to install because `libssl-dev`, `libcurl4-openssl-dev` and `libxml2-dev` Ubuntu packages are missing. This is easy to fix:
+
+```{bash, eval = FALSE, echo = TRUE}
+sudo apt-get install libssl-dev libcurl4-openssl-dev libxml2-dev 
+```
+
+9. Now you are ready to install R packages into the default library that is available to all users.
+
+```{bash, eval = FALSE, echo = TRUE}
+sudo su - -c "R -e \"install.packages(c('shiny', 'rmarkdown', 'plotly', 'tidyverse'), repos='http://cran.rstudio.com/')\""
+```
+
+You have approximately 20 minutes while packages are being installed.
+
+
+
+
+# Install Shiny Server
+
+[Official instructions](https://rstudio.com/products/shiny/download-server/ubuntu/)
+
+```{bash, eval = FALSE, echo = TRUE}
+sudo apt-get install gdebi-core
+sudo wget https://download3.rstudio.org/ubuntu-14.04/x86_64/shiny-server-1.5.13.944-amd64.deb
+sudo gdebi shiny-server-1.5.13.944-amd64.deb
+```
+
+The default configuration above will create a single server listening on port 3838, serving any application contained within `/srv/shiny-server/` at the root URL (/). This means that the default Shiny app should be already available at http://54.172.160.16:3838/. But it is not.
+
+
+
+
+
+```{r fig.align='center', fig.cap = "...`"}
+knitr::include_graphics("/img/aws/shiny_not_reachable.png")
+```
+
+Inbound security rules...
+
+```{r fig.align='center', fig.cap = "..."}
+knitr::include_graphics("/img/aws/shiny_welcome.png")
+```
+
+
+
+<!-- # Install RStudio Server -->
+
+<!-- [Official instructions](https://rstudio.com/products/rstudio/download-server/debian-ubuntu/). -->
+
+<!-- ```{bash, eval = FALSE, echo = TRUE} -->
+<!-- sudo apt-get install gdebi-core -->
+<!-- sudo (in my case did not work without sudo) wget https://download2.rstudio.org/server/bionic/amd64/rstudio-server-1.2.5042-amd64.deb -->
+<!-- sudo gdebi rstudio-server-1.2.5042-amd64.deb -->
+<!-- ``` -->
+
+
+# Clone your git repo
+
+use https
+
+```{bash, eval = FALSE, echo = TRUE}
+
+```
+
+
+# Deploy your own apps
+
+```{bash, eval = FALSE, echo = TRUE}
+cd /srv/shiny-server
+sudo ln -s ~/git/tutorials/apps .
+ls
+sudo rm index.html
+sudo rm -R sample-apps
+```
+
+
+
+
+# FAQ
+
+**What is the price of Amazon EC2 t2.micro instance after the free period ends?**
+
+Check the [pricelist](https://aws.amazon.com/ec2/pricing/on-demand/). At the time of writing, it is $0.0116 per hour. So, approximately $\$0.0116 \times 24 \times 30 = \$8.35$ per month.
+
+**t2.micro is not sufficient anymore. How to resize?**
+

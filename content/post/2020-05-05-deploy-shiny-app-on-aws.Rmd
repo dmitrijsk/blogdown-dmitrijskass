@@ -35,7 +35,7 @@ Before we start, why AWS? AWS is one of leaders in the marketplace of cloud comp
 # knitr::include_graphics("/img/aws/ec2_dashboard.png")
 ```
 
-3. Launch an Amazon EC2 instance by clicking the **Launch instance** button. This grings us to the 7-step process.
+3. Launch an Amazon EC2 instance by clicking the **Launch instance** button. This brings us to the 7-step process.
 
 ```{r fig.align='center', fig.cap="Launch instance button in the EC2 Dashboard"}
 knitr::include_graphics("/img/aws/launch_instance.png")
@@ -150,17 +150,22 @@ knitr::include_graphics("/img/aws/putty_auth.png")
 
 The terminal will open. 
 
-5. In the terminal, enter `ubuntu` as a login and the passphrase if you created it. Your teminal should look approximately like this:
+5. In the terminal, enter `ubuntu` as a login and the passphrase if you created it. Your terminal should look approximately like this:
 
 ```{r fig.align='center', fig.cap = "PuTTY terminal after login as ubuntu user."}
 knitr::include_graphics("/img/aws/terminal_login.png")
 ```
 
-6. Feel like home. Write `pwd` (*p*rint *w*orking *d*irectory) and hit Enter to verify that you really are at home (directory).
+Make yourself at home!
+
+6. Verify that you really are at home (directory).
 
 ```{bash, eval = FALSE, echo = TRUE}
 pwd
 ```
+
+Note: `pwd` stands for "print working directory".
+
 
 Congratulations! By now you have launched a virtual server and established a secure connection with it. In the next step you will install R and few packages.
 
@@ -181,7 +186,9 @@ knitr::include_graphics("/img/aws/cran_ubuntu_readme.png")
 sudo sh -c 'echo "deb https://cloud.r-project.org/bin/linux/ubuntu bionic-cran40/" >> /etc/apt/sources.list'
 ```
 
-Note: `ubuntu` user has minimal access rights, therefore, we will always use `sudo` (*su*peruser *do*) that allows `ubuntu` user to run programs with security priveleges of the superuser (root user). `>>` appends the text on the left at the end of the file on the right.
+Note: `ubuntu` user has minimal access rights, therefore, we will always use `sudo` (*su*peruser *do*) that allows `ubuntu` user to run programs with security privileges of the superuser (root user). 
+
+Note: `>>` takes the text on the left and appends it at the end of the file on the right.
 
 <!-- **Append the file in the text editor** -->
 
@@ -201,46 +208,43 @@ Note: `ubuntu` user has minimal access rights, therefore, we will always use `su
 cat /etc/apt/sources.list
 ```
 
+Note: `cat` is short for "concatenate".
+
 4. Further in the documentation see that "The Ubuntu archives on CRAN are signed with key ID 0x51716619e084dab9. To add the key to your system with one command use":
 
 ```{bash, eval = FALSE, echo = TRUE}
 sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
 ```
 
-5. Download the package lists from the repositories:
+5. Download the package lists from the repositories and install R:
 
 ```{bash, eval = FALSE, echo = TRUE}
 sudo apt-get update
-```
-
-6. Install R:
-
-```{bash, eval = FALSE, echo = TRUE}
 sudo apt-get install r-base
 ```
 
-7. Open R to verify that it works. 
+6. Open R to verify that it works. 
 
 ```{bash, eval = FALSE, echo = TRUE}
 R
 ```
 
-8. Feels like we could install few packages while we are in R. But this is a wrong place and a wrong time.
+7. Feels like we could install few packages while we are in R. But this is a wrong place and a wrong time.
 
 **Wrong place**
 
-As R was opened by `ubuntu` user, the default library `/usr/local/lib/R/site-library` is not writable. As a result, you will be offered to use a personal library under `/home/ubuntu/R/x86_64-pc-linux-gnu-library/4.0`. Later we will be running Shiny apps under the `shiny` user and R packages from `/home/ubuntu` will be unavailable. To avoid installing the same set of packages for each user, install them into the default library. Quit R for now with `q()`.
+The default library `/usr/local/lib/R/site-library` is not writable for `ubuntu` user. As a result, you will be offered to use a personal library under `/home/ubuntu/R/x86_64-pc-linux-gnu-library/4.0`. This is a wrong place to install packages because `ubuntu` will not be the only user to use them. Shiny apps will be run by `shiny` user who does not have access to `/home/ubuntu`. To avoid installing the same set of packages for each user, install them into the default library. Quit R for now with `q()`.
 
 **Wrong time**
 
-Compilation of some packages requires >1GB of RAM, which is all we have. To guard youself against out-of-memory errors, add some swap space to your instance. Below I just provide a list of commands from a beautifully written ["How To Add Swap Space on Ubuntu 18.04"](https://www.digitalocean.com/community/tutorials/how-to-add-swap-space-on-ubuntu-18-04) article by the DigitalOcean:
+Compilation of some packages requires >1GB of RAM, which is all we have under the free tier. To guard yourself against out-of-memory errors, add some swap space to your instance. Below I just provide a commented list of commands from an easy-to-follow article ["How To Add Swap Space on Ubuntu 18.04"](https://www.digitalocean.com/community/tutorials/how-to-add-swap-space-on-ubuntu-18-04) by the DigitalOcean:
 
 ```{bash, eval = FALSE, echo = TRUE}
-sudo fallocate -l 1G /swapfile
-sudo chmod 600 /swapfile
-sudo mkswap /swapfile
-sudo swapon /swapfile
-free -h
+sudo fallocate -l 1G /swapfile  # Create a swap file.
+sudo chmod 600 /swapfile        # Make the file only accessible to root.
+sudo mkswap /swapfile           # Mark the file as swap space.
+sudo swapon /swapfile           # Enable the swap file.
+free -h                         # Verify that there is an active swap space.
 ```
 
 The output of the last command should indicate that 1GB of swap space is available:
@@ -249,11 +253,21 @@ The output of the last command should indicate that 1GB of swap space is availab
 knitr::include_graphics("/img/aws/free_h.png")
 ```
 
-One more thing. Let me tell you that several R packages will fail to install because `libssl-dev`, `libcurl4-openssl-dev` and `libxml2-dev` Ubuntu packages are missing. This is easy to fix:
+Now it is the right time.
+
+Yet still one more thing. Let me tell you that several R packages will fail to install because `libssl-dev`, `libcurl4-openssl-dev` and `libxml2-dev` Ubuntu packages are missing. This is easy to fix:
 
 ```{bash, eval = FALSE, echo = TRUE}
 sudo apt-get install libssl-dev libcurl4-openssl-dev libxml2-dev 
 ```
+
+Without this spoiler you'd find this out from package error messages, like the one from XXX below.
+
+```{r fig.align='center', fig.cap = "Error message in R about missing Ubuntu packages that prevented XXX from being installed."}
+knitr::include_graphics("/img/aws/r_package_error_msg.png")
+```
+
+
 
 9. Now you are ready to install R packages into the default library that is available to all users.
 
@@ -268,7 +282,7 @@ You have approximately 20 minutes while packages are being installed.
 
 # Install Shiny Server
 
-[Official instructions](https://rstudio.com/products/shiny/download-server/ubuntu/)
+1. Follow the [official instructions](https://rstudio.com/products/shiny/download-server/ubuntu/) from RStudio. At the time of writing, the last version of Shiny Server is 1.5.13.944.
 
 ```{bash, eval = FALSE, echo = TRUE}
 sudo apt-get install gdebi-core
@@ -276,19 +290,30 @@ sudo wget https://download3.rstudio.org/ubuntu-14.04/x86_64/shiny-server-1.5.13.
 sudo gdebi shiny-server-1.5.13.944-amd64.deb
 ```
 
-The default configuration above will create a single server listening on port 3838, serving any application contained within `/srv/shiny-server/` at the root URL (/). This means that the default Shiny app should be already available at http://54.172.160.16:3838/. But it is not.
+2. The default configuration of Shiny Server is stored in `/etc/shiny-server/shiny-server.conf`. Print it:
+
+```{bash, eval = FALSE, echo = TRUE}
+cat /etc/shiny-server/shiny-server.conf
+```
+
+Note: Lines beginning with a `#` are treated as comments.
 
 
+3. The default configuration above will create a server listening on port 3838, serving any application contained within `/srv/shiny-server/` at the root URL (/). Shiny Server comes with a "Hello World!" app in the mentioned directory, so it should be already available at http://54.172.160.16:3838/. But it is not because the port 3838 is not open by default.
 
-
-
-```{r fig.align='center', fig.cap = "...`"}
+```{r fig.align='center', fig.cap = "Shiny Server can't be reached because the port 3838 was not opened."}
 knitr::include_graphics("/img/aws/shiny_not_reachable.png")
 ```
 
-Inbound security rules...
+3. To open the port go back to the **EC2 Dashboard** in your browser. Click on **Running instances**, select your instance, find the **Security Groups** column and click on **launch-wizard-1**. Find the **Inbound rules** and add one more like in a figure below.
 
-```{r fig.align='center', fig.cap = "..."}
+```{r fig.align='center', fig.cap = "Adding inbound security rules for the Shiny Server."}
+knitr::include_graphics("/img/aws/inbound_rules_with_shiny.png")
+```
+
+4. Save updated security rules and refresh http://54.172.160.16:3838/ in the browser. If you followed all steps in this tutorial then you should see a welcome page with a Shiny app and a Shiny doc.
+
+```{r fig.align='center', fig.cap = "Shiny Server's Welcome page"}
 knitr::include_graphics("/img/aws/shiny_welcome.png")
 ```
 
@@ -304,25 +329,81 @@ knitr::include_graphics("/img/aws/shiny_welcome.png")
 <!-- sudo gdebi rstudio-server-1.2.5042-amd64.deb -->
 <!-- ``` -->
 
+Congratulations with successfully installing a Shiny Server. The next step is to deploy your own apps and there are various ways to get your scripts to `/srv/shiny-server/`. One way is to use your favorite file manager for copying files between a local computer and remote servers, such as WinSCP or FileZilla. However, you may quickly lose track of app versions, so we will stick to a sound practice of using git.
 
 # Clone your git repo
 
-use https
+1. If you have your own git repository with Shiny apps then just use your own web URL and branch names. If you'd like to use mine then first go to https://github.com/dmitrijsk/tutorials and fork it (you must have a GitHub account to do it).
+
+Note: Git is one of the most valuable tools you may use in your programmer's life. I highly recommend learning it. Public repositories are for free.
+
+2. You may clone the git repo directly to `/srv/shiny-server/`. But in general, I think it is best to keep our hands away from `/srv/shiny-server/` and avoid breaking something unintentionally. We will use the home directory instead and will link it with `/srv/shiny-server/`.
+
+3. Create a new directory in the home directory:
 
 ```{bash, eval = FALSE, echo = TRUE}
-
+mkdir ~/git  # Create a new "git" directory in the home directory.
+cd ~/git     # Go to "git" directory.
 ```
+
+Note: `mkdir` stands for "make directory" and `cd` stands for "change directory".
+
+3. Clone with HTTPS:
+
+```{bash, eval = FALSE, echo = TRUE}
+git clone https://github.com/dmitrijsk/tutorials.git
+```
+
+4. Verify that you have cloned two directories with Shiny apps.
+
+```{bash, eval = FALSE, echo = TRUE}
+cd ~/git/tutorials/apps
+ls
+```
+
+Note: `ls` *lists* files.
+
+
 
 
 # Deploy your own apps
 
+1. Go to `/srv/shiny-server` and verify that it contains the welcome page and sample apps. Delete both:
+
 ```{bash, eval = FALSE, echo = TRUE}
 cd /srv/shiny-server
-sudo ln -s ~/git/tutorials/apps .
 ls
 sudo rm index.html
 sudo rm -R sample-apps
 ```
+
+Note: `rm` stands for "remove", option `-R` removes directories and their contents recursively.
+
+2. Create a link to the git repo:
+
+```{bash, eval = FALSE, echo = TRUE}
+sudo ln -s ~/git/tutorials/apps/
+ls
+```
+
+Note: `ln` stands for "link" and option `-s` makes a symbolic link instead of a hard link.
+
+3. Refresh the browser's page. You should see directories with your Shiny apps:
+
+```{r fig.align='center', fig.cap = "Directory index generated by Shiny Server"}
+knitr::include_graphics("/img/aws/index_of_apps.png")
+```
+
+4. Click on the "minimum-variance-portfolio-cor" to open a app demonstrating the influence of correlation between two investment asset returns on the mean and variance of portfolio returns.
+
+Congratulations! Let's summarize what you have successfully done:
+
+1. Created an account with AWS and launched a virtual server, also called an instance.
+2. Securely connected to the instance using SSH and configured it by installing Ubuntu packages, R, R packages and Shiny Server.
+3. Deployed Shiny apps from GitHub by cloning a repo to your instance and linking with a directory hosting Shiny apps.
+
+Your Shiny apps are now available to the world.
+
 
 
 

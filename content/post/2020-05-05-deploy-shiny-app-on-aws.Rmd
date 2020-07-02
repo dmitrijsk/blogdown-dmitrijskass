@@ -157,7 +157,7 @@ You have just launched a virtual server in the cloud. Note that usage hours on y
     knitr::include_graphics("/img/aws/putty_keygen.png")
     ```
 
-    Press **Load**, optionally create a key passphrase, press **Generate** and then **Save private key**. In case of an issue read detailed instructions [here](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/putty.html).
+    Press **Load**, optionally create a key passphrase (i.e. password-protect your private key), press **Generate** and then **Save private key**. In case of an issue read detailed instructions [here](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/putty.html).
 
 
 [^7]: [AWS article. "How do I convert a .pem file into a .ppk, and vice versa, on Windows and Linux?"](https://aws.amazon.com/premiumsupport/knowledge-center/convert-pem-file-into-ppk/). 
@@ -454,6 +454,7 @@ Congratulations with successfully installing a Shiny Server! The next step is to
     ```{bash, eval = FALSE, echo = TRUE}
     $ sudo ln -s ~/git/tutorials/apps/
     $ ls
+    apps
     ```
 
     Note: `ln -s` makes a symbolic link.
@@ -487,6 +488,7 @@ Here are the things that you may want to add to the basic steps covered in this 
 1. Restrict an access to your Shiny apps by adding web authentication.
 1. Replace the public IPv4 with your custom web address.
 1. Resize the instance if t2.micro is insufficient.
+1. Install RStudio Server to write code directly on the remote machine because.
 1. Control the costs and usage of your AWS EC2 instances.
 
 <!-- Check the [pricelist](https://aws.amazon.com/ec2/pricing/on-demand/). At the time of writing, it is $0.0116 per hour. So, approximately $\$0.0116 \times 24 \times 30 = \$8.35$ per month. -->

@@ -1,0 +1,13 @@
+---
+title: Gradient descent with linear regression from scratch (Python)
+author: Dmitrijs Kass
+date: '2021-04-03'
+slug: gradient-descent-with-linear-regression-from-scratch
+categories:
+  - Python
+  - gradient descent
+  - linear regression
+tags: []
+---
+
+Hello.

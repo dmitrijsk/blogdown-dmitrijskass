@@ -1,0 +1,55 @@
+---
+title: Gradient descent with linear regression from scratch (Python)
+author: Dmitrijs Kass
+date: '2021-04-03'
+slug: gradient-descent-with-linear-regression-from-scratch
+categories:
+  - Python
+  - gradient descent
+  - linear regression
+tags: []
+---
+
+We want to minimize a convex, continuous and differentiable loss function $J(w)$. In this blog post we discuss the most popular "hill-climbing" algorithm, **gradient descent**, using linear regression as an example, and build it from scratch in Python.
+
+## Theoretical idea
+
+**Taylor expansion** 
+
+Simplify the function you would like to minimize by using the first-order  Taylor polynomial. Provided that the norm $\lVert \mathbf{s} \rVert_2$ is small (i.e., $\mathbf{w}+\mathbf{s}$ is very close to $\mathbf{w}$), we can linearly approximate the function $J(\mathbf{w} + \mathbf{s})$ by its first derivative:
+
+$$J(\mathbf{w}+\mathbf{s}) \approx J(w) + g(\mathbf{w})^T \mathbf{s},$$
+
+where $g(\mathbf{w}) = \nabla_\mathbf{w} J(\mathbf{w})$ is the gradient of $J$. This approximation is valid only when the step size $\mathbf{s}$ is small and we will return to this in the learning rate discussion.
+
+Note: Components of $\nabla_\mathbf{w} J(\mathbf{w})$ are the first partial derivatives of $J$ w.r.t. $w$. The gradient of $J$ at a point $\mathbf{w}$ is vector pointing in the direction of the steepest slope (i.e., increase) at that point. The steepness of the slope at that point is given by the magnitude of the gradient vector. Source: [Wiki](https://en.wikipedia.org/wiki/Gradient)
+
+**Convergence**
+
+The gradient $\nabla_\mathbf{w} J(\mathbf{w})$ points in the direction of the maximum rate of change of $J$. Therefore, $-\nabla_\mathbf{w} J(\mathbf{w})$ points in the direction of the steepest descent. Setting $\mathbf{s} = -\alpha g(\mathbf{w})$ for a sufficiently small $\alpha>0$ (very important as we will see later) guarantees to decrease the function: 
+
+$\underset{after\ one\ update}{\underbrace{J(\mathbf{w} + (-\alpha g(\mathbf{w}))}} \approx J(\mathbf{w}) - \underset{>0}{\underbrace{\alpha\overset{>0}{\overbrace{ g(\mathbf{w})^T g(\mathbf{w})}}}} < \underset{before}{\underbrace{J(\mathbf{w})}}$ 
+
+Source: [Gradient Descent (and Beyond)](https://www.cs.cornell.edu/courses/cs4780/2018fa/lectures/lecturenote07.html)
+
+## Algorithm
+
+**Input:** Objective function $J(\mathbf{w})$, initial $\mathbf{w}^{(0)}$, learning rate $\alpha$, tolerance level $\epsilon$. \
+**Result:** $\widehat{\mathbf{w}}$. 
+
+1. Set $i \leftarrow 0$
+2. **while** $\lVert w^{(i)} - w^{(i-1)} \rVert > \epsilon$  **do**
+    3. Update $\mathbf{w}^{(t+1)} \leftarrow \mathbf{w}^{(t)} - \alpha \nabla_\mathbf{w} J(\mathbf{w}^{(t)})$
+    4. Update $i \leftarrow i + 1$
+5. **end**
+6. **return** $\widehat{\mathbf{w}} \leftarrow \mathbf{w}^{(t-1)}$
+
+Adapted from [Supervised Machine Learning](http://smlbook.org/), Chapter 5 "Learning parametric models".
+
+## Initialization of parameters $w^{(0)}$
+
+Initialization can be done arbitrarily here because we are dealing with a convex loss function. For convex problems there is only one stationary point, which also is the global minimum. 
+
+Note: Sometimes we can save computation time by *warm-starting* the optimization procedure with a good initial guess. For example, iterations $2..k$ of a $k$-fold cross-validation may use parameters corresponding to a minimum loss in the previous iterations.
+
+## Learning rate $\alpha$

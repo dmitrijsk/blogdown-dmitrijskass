@@ -1,0 +1,52 @@
+---
+title: Gradient descent with linear regression from scratch (Python)
+author: Dmitrijs Kass
+date: '2021-04-03'
+slug: gradient-descent-with-linear-regression-from-scratch
+categories:
+  - Python
+  - gradient descent
+  - linear regression
+tags: []
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<p>We want to minimize a convex, continuous and differentiable loss function <span class="math inline">\(J(w)\)</span>. In this blog post we discuss the most popular “hill-climbing” algorithm, <strong>gradient descent</strong>, using linear regression as an example, and build it from scratch in Python.</p>
+<div id="theoretical-idea" class="section level2">
+<h2>Theoretical idea</h2>
+<p><strong>Taylor expansion</strong></p>
+<p>Simplify the function you would like to minimize by using the first-order Taylor polynomial. Provided that the norm <span class="math inline">\(\lVert \mathbf{s} \rVert_2\)</span> is small (i.e., <span class="math inline">\(\mathbf{w}+\mathbf{s}\)</span> is very close to <span class="math inline">\(\mathbf{w}\)</span>), we can linearly approximate the function <span class="math inline">\(J(\mathbf{w} + \mathbf{s})\)</span> by its first derivative:</p>
+<p><span class="math display">\[J(\mathbf{w}+\mathbf{s}) \approx J(w) + g(\mathbf{w})^T \mathbf{s},\]</span></p>
+<p>where <span class="math inline">\(g(\mathbf{w}) = \nabla_\mathbf{w} J(\mathbf{w})\)</span> is the gradient of <span class="math inline">\(J\)</span>. This approximation is valid only when the step size <span class="math inline">\(\mathbf{s}\)</span> is small and we will return to this in the learning rate discussion.</p>
+<p>Note: Components of <span class="math inline">\(\nabla_\mathbf{w} J(\mathbf{w})\)</span> are the first partial derivatives of <span class="math inline">\(J\)</span> w.r.t. <span class="math inline">\(w\)</span>. The gradient of <span class="math inline">\(J\)</span> at a point <span class="math inline">\(\mathbf{w}\)</span> is vector pointing in the direction of the steepest slope (i.e., increase) at that point. The steepness of the slope at that point is given by the magnitude of the gradient vector. Source: <a href="https://en.wikipedia.org/wiki/Gradient">Wiki</a></p>
+<p><strong>Convergence</strong></p>
+<p>The gradient <span class="math inline">\(\nabla_\mathbf{w} J(\mathbf{w})\)</span> points in the direction of the maximum rate of change of <span class="math inline">\(J\)</span>. Therefore, <span class="math inline">\(-\nabla_\mathbf{w} J(\mathbf{w})\)</span> points in the direction of the steepest descent. Setting <span class="math inline">\(\mathbf{s} = -\alpha g(\mathbf{w})\)</span> for a sufficiently small <span class="math inline">\(\alpha&gt;0\)</span> (very important as we will see later) guarantees to decrease the function:</p>
+<p><span class="math inline">\(\underset{after\ one\ update}{\underbrace{J(\mathbf{w} + (-\alpha g(\mathbf{w}))}} \approx J(\mathbf{w}) - \underset{&gt;0}{\underbrace{\alpha\overset{&gt;0}{\overbrace{ g(\mathbf{w})^T g(\mathbf{w})}}}} &lt; \underset{before}{\underbrace{J(\mathbf{w})}}\)</span></p>
+<p>Source: <a href="https://www.cs.cornell.edu/courses/cs4780/2018fa/lectures/lecturenote07.html">Gradient Descent (and Beyond)</a></p>
+</div>
+<div id="algorithm" class="section level2">
+<h2>Algorithm</h2>
+<p><strong>Input:</strong> Objective function <span class="math inline">\(J(\mathbf{w})\)</span>, initial <span class="math inline">\(\mathbf{w}^{(0)}\)</span>, learning rate <span class="math inline">\(\alpha\)</span>, tolerance level <span class="math inline">\(\epsilon\)</span>.<br />
+<strong>Result:</strong> <span class="math inline">\(\widehat{\mathbf{w}}\)</span>.</p>
+<ol style="list-style-type: decimal">
+<li>Set <span class="math inline">\(i \leftarrow 0\)</span></li>
+<li><strong>while</strong> <span class="math inline">\(\lVert w^{(i)} - w^{(i-1)} \rVert &gt; \epsilon\)</span> <strong>do</strong>
+<ol start="3" style="list-style-type: decimal">
+<li>Update <span class="math inline">\(\mathbf{w}^{(t+1)} \leftarrow \mathbf{w}^{(t)} - \alpha \nabla_\mathbf{w} J(\mathbf{w}^{(t)})\)</span></li>
+<li>Update <span class="math inline">\(i \leftarrow i + 1\)</span></li>
+</ol></li>
+<li><strong>end</strong></li>
+<li><strong>return</strong> <span class="math inline">\(\widehat{\mathbf{w}} \leftarrow \mathbf{w}^{(t-1)}\)</span></li>
+</ol>
+<p>Adapted from <a href="http://smlbook.org/">Supervised Machine Learning</a>, Chapter 5 “Learning parametric models”.</p>
+</div>
+<div id="initialization-of-parameters-w0" class="section level2">
+<h2>Initialization of parameters <span class="math inline">\(w^{(0)}\)</span></h2>
+<p>Initialization can be done arbitrarily here because we are dealing with a convex loss function. For convex problems there is only one stationary point, which also is the global minimum.</p>
+<p>Note: Sometimes we can save computation time by <em>warm-starting</em> the optimization procedure with a good initial guess. For example, iterations <span class="math inline">\(2..k\)</span> of a <span class="math inline">\(k\)</span>-fold cross-validation may use parameters corresponding to a minimum loss in the previous iterations.</p>
+</div>
+<div id="learning-rate-alpha" class="section level2">
+<h2>Learning rate <span class="math inline">\(\alpha\)</span></h2>
+</div>

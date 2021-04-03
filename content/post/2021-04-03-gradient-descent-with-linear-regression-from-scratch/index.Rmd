@@ -10,27 +10,44 @@ categories:
 tags: []
 ---
 
-We want to minimize a convex, continuous and differentiable loss function $J(w)$. In this blog post we discuss the most popular "hill-climbing" algorithm, **gradient descent**, using linear regression as an example, and build it from scratch in Python.
+We want to minimize a convex, continuous and differentiable cost function $J(w)$. In this blog post we discuss the most popular "hill-climbing" algorithm, **gradient descent**, using linear regression as an example, and build it from scratch in Python.
 
-## Theoretical idea
+# Theoretical idea of the gradient descent
 
-**Taylor expansion** 
+## Taylor expansion
 
 Simplify the function you would like to minimize by using the first-order  Taylor polynomial. Provided that the norm $\lVert \mathbf{s} \rVert_2$ is small (i.e., $\mathbf{w}+\mathbf{s}$ is very close to $\mathbf{w}$), we can linearly approximate the function $J(\mathbf{w} + \mathbf{s})$ by its first derivative:
 
-$$J(\mathbf{w}+\mathbf{s}) \approx J(w) + g(\mathbf{w})^T \mathbf{s},$$
+$$J(\mathbf{w}+\mathbf{s}) \approx J(w) + \nabla J(\mathbf{w})^T \mathbf{s},$$
 
-where $g(\mathbf{w}) = \nabla_\mathbf{w} J(\mathbf{w})$ is the gradient of $J$. This approximation is valid only when the step size $\mathbf{s}$ is small and we will return to this in the learning rate discussion.
+where $\nabla J(\mathbf{w})$ is the gradient of $J$. This approximation is valid only when the step size $\mathbf{s}$ is small and we will return to this in the learning rate discussion.
 
-Note: Components of $\nabla_\mathbf{w} J(\mathbf{w})$ are the first partial derivatives of $J$ w.r.t. $w$. The gradient of $J$ at a point $\mathbf{w}$ is vector pointing in the direction of the steepest slope (i.e., increase) at that point. The steepness of the slope at that point is given by the magnitude of the gradient vector. Source: [Wiki](https://en.wikipedia.org/wiki/Gradient)
+The gradient vector 
 
-**Convergence**
+$$
+\nabla J(\mathbf{w})=\left[\begin{array}{c}
+\dfrac{\partial J}{\partial w_1}(\mathbf{w})\\
+\vdots \\
+\dfrac{\partial J}{\partial w_p}(\mathbf{w}) 
+\end{array}\right]
+$$
 
-The gradient $\nabla_\mathbf{w} J(\mathbf{w})$ points in the direction of the maximum rate of change of $J$. Therefore, $-\nabla_\mathbf{w} J(\mathbf{w})$ points in the direction of the steepest descent. Setting $\mathbf{s} = -\alpha g(\mathbf{w})$ for a sufficiently small $\alpha>0$ (very important as we will see later) guarantees to decrease the function: 
+gives the direction of steepest ascent on the surface of the function $J$, and the rate of change in this direction is $\lVert \nabla J(\mathbf{w}) \rVert$.
 
-$\underset{after\ one\ update}{\underbrace{J(\mathbf{w} + (-\alpha g(\mathbf{w}))}} \approx J(\mathbf{w}) - \underset{>0}{\underbrace{\alpha\overset{>0}{\overbrace{ g(\mathbf{w})^T g(\mathbf{w})}}}} < \underset{before}{\underbrace{J(\mathbf{w})}}$ 
+Source: [Multivariate functions and partial derivatives. Section 3.2. The Gradient](https://people.math.umass.edu/~havens/Partials.pdf)
+
+## Convergence
+
+Consequently, $-\nabla J(\mathbf{w})$ points in the direction of the steepest descent. Setting $\mathbf{s} = -\alpha \nabla J(\mathbf{w})$ for a *sufficiently small* $\alpha>0$ guarantees to decrease the function:
+
+$\underset{after\ one\ update}{\underbrace{J(\mathbf{w} + (-\alpha \nabla J(\mathbf{w}))}} \approx J(\mathbf{w}) - \underset{>0}{\underbrace{\alpha\overset{>0}{\overbrace{ \nabla J(\mathbf{w})^T \nabla J(\mathbf{w})}}}} < \underset{before}{\underbrace{J(\mathbf{w})}}$ 
 
 Source: [Gradient Descent (and Beyond)](https://www.cs.cornell.edu/courses/cs4780/2018fa/lectures/lecturenote07.html)
+
+So the iterations of steepest descent are:
+
+$$\mathbf{w}^{(i+1)} \leftarrow \mathbf{w}^{(i)} - \alpha \nabla J(\mathbf{w}^{(i)}).$$
+
 
 ## Algorithm
 
@@ -39,12 +56,82 @@ Source: [Gradient Descent (and Beyond)](https://www.cs.cornell.edu/courses/cs478
 
 1. Set $i \leftarrow 0$
 2. **while** $\lVert w^{(i)} - w^{(i-1)} \rVert > \epsilon$  **do**
-    3. Update $\mathbf{w}^{(t+1)} \leftarrow \mathbf{w}^{(t)} - \alpha \nabla_\mathbf{w} J(\mathbf{w}^{(t)})$
+    3. Update $\mathbf{w}^{(i+1)} \leftarrow \mathbf{w}^{(i)} - \alpha \nabla J(\mathbf{w}^{(i)})$
     4. Update $i \leftarrow i + 1$
 5. **end**
-6. **return** $\widehat{\mathbf{w}} \leftarrow \mathbf{w}^{(t-1)}$
+6. **return** $\widehat{\mathbf{w}} \leftarrow \mathbf{w}^{(i-1)}$
 
 Adapted from [Supervised Machine Learning](http://smlbook.org/), Chapter 5 "Learning parametric models".
+
+Now we need to define function that we would like to minimize with the gradient descent. We will use linear regression as an example.
+
+
+
+# Linear regression
+
+## Model
+
+Regression amounts to learning the relationships between some input variables $\mathbf{x} = [x_1, \dots, x_p]^T$ and a numerical output variable $\mathbf{y}$.
+
+The linear regression model assumes that the output variable $y$ can be described as an affine combination of the $p$ input variables $x_1, \dots, x_p$ plus a noise term $\epsilon$,
+
+$$y = w_0 + w_1x_1 + \dots + w_px_p + \epsilon.$$
+The coefficients $\mathbf{w} = [w_0, \dots, w_p]^T$ are called weights or parameters of the model.
+
+Prepend $\mathbf{x}$ with a constant 1 to write the linear regression model compactly as 
+
+$$y = \mathbf{w}^T \mathbf{x} + \epsilon.$$
+
+A predicted output variable $\widehat{y}$ for some input variables $\mathbf{x}$ using learned parameters $\mathbf{\widehat{w}}$ is obtained with 
+
+$$\widehat{y} = \mathbf{\widehat{w}}^T \mathbf{x}.$$
+
+## Cost function
+
+The cost function with the squared error loss is given by 
+
+$$J(\mathbf{w}) = \frac{1}{n} \sum_{i=1}^{n}(\widehat{y_i} - y_i)^2.$$
+
+
+We will use the squared error loss function 
+
+$$L(\widehat{y}, y) = (\widehat{y} - y)^2,$$
+
+and the cost function $J$ as the average loss $L$ evaluated on the training data,
+
+$$J(\mathbf{w}) = \frac{1}{n} \sum_{i=1}^{n}L(\widehat{y_i}, y_i).$$
+
+The parameters of the model are obtained by minimizing the cost function,
+
+$$\widehat{\mathbf{w}} = \arg\min_\mathbf{w} J(\mathbf{w}).$$
+$J(\mathbf{w})$ is a convex, continuous and differentiable function. Now we need to calculate the gradient of the cost function.
+
+## Gradient
+
+We will our linear regression model has an intercept, i.e., $x_0=1$. Then the gradient of $J(\mathbf{w})$ is
+
+$$
+\nabla J(\mathbf{w})=
+
+\left[\begin{array}{c}
+\dfrac{\partial J}{\partial w_0}(\mathbf{w})\\
+\dfrac{\partial J}{\partial w_1}(\mathbf{w})\\
+\vdots \\
+\dfrac{\partial J}{\partial w_p}(\mathbf{w}) 
+\end{array}\right]=
+
+\left[\begin{array}{c}
+\dfrac{\partial J}{\partial w_0}(\mathbf{w})\\
+\dfrac{\partial J}{\partial w_1}(\mathbf{w})\\
+\vdots \\
+\dfrac{\partial J}{\partial w_p}(\mathbf{w}) 
+\end{array}\right]
+$$
+
+
+
+
+# Implementation in Python
 
 ## Initialization of parameters $w^{(0)}$
 

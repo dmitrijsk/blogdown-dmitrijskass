@@ -13,18 +13,32 @@ tags: []
 <script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
 
 
-<p>We want to minimize a convex, continuous and differentiable loss function <span class="math inline">\(J(w)\)</span>. In this blog post we discuss the most popular “hill-climbing” algorithm, <strong>gradient descent</strong>, using linear regression as an example, and build it from scratch in Python.</p>
-<div id="theoretical-idea" class="section level2">
-<h2>Theoretical idea</h2>
-<p><strong>Taylor expansion</strong></p>
+<p>We want to minimize a convex, continuous and differentiable cost function <span class="math inline">\(J(w)\)</span>. In this blog post we discuss the most popular “hill-climbing” algorithm, <strong>gradient descent</strong>, using linear regression as an example, and build it from scratch in Python.</p>
+<div id="theoretical-idea-of-the-gradient-descent" class="section level1">
+<h1>Theoretical idea of the gradient descent</h1>
+<div id="taylor-expansion" class="section level2">
+<h2>Taylor expansion</h2>
 <p>Simplify the function you would like to minimize by using the first-order Taylor polynomial. Provided that the norm <span class="math inline">\(\lVert \mathbf{s} \rVert_2\)</span> is small (i.e., <span class="math inline">\(\mathbf{w}+\mathbf{s}\)</span> is very close to <span class="math inline">\(\mathbf{w}\)</span>), we can linearly approximate the function <span class="math inline">\(J(\mathbf{w} + \mathbf{s})\)</span> by its first derivative:</p>
-<p><span class="math display">\[J(\mathbf{w}+\mathbf{s}) \approx J(w) + g(\mathbf{w})^T \mathbf{s},\]</span></p>
-<p>where <span class="math inline">\(g(\mathbf{w}) = \nabla_\mathbf{w} J(\mathbf{w})\)</span> is the gradient of <span class="math inline">\(J\)</span>. This approximation is valid only when the step size <span class="math inline">\(\mathbf{s}\)</span> is small and we will return to this in the learning rate discussion.</p>
-<p>Note: Components of <span class="math inline">\(\nabla_\mathbf{w} J(\mathbf{w})\)</span> are the first partial derivatives of <span class="math inline">\(J\)</span> w.r.t. <span class="math inline">\(w\)</span>. The gradient of <span class="math inline">\(J\)</span> at a point <span class="math inline">\(\mathbf{w}\)</span> is vector pointing in the direction of the steepest slope (i.e., increase) at that point. The steepness of the slope at that point is given by the magnitude of the gradient vector. Source: <a href="https://en.wikipedia.org/wiki/Gradient">Wiki</a></p>
-<p><strong>Convergence</strong></p>
-<p>The gradient <span class="math inline">\(\nabla_\mathbf{w} J(\mathbf{w})\)</span> points in the direction of the maximum rate of change of <span class="math inline">\(J\)</span>. Therefore, <span class="math inline">\(-\nabla_\mathbf{w} J(\mathbf{w})\)</span> points in the direction of the steepest descent. Setting <span class="math inline">\(\mathbf{s} = -\alpha g(\mathbf{w})\)</span> for a sufficiently small <span class="math inline">\(\alpha&gt;0\)</span> (very important as we will see later) guarantees to decrease the function:</p>
-<p><span class="math inline">\(\underset{after\ one\ update}{\underbrace{J(\mathbf{w} + (-\alpha g(\mathbf{w}))}} \approx J(\mathbf{w}) - \underset{&gt;0}{\underbrace{\alpha\overset{&gt;0}{\overbrace{ g(\mathbf{w})^T g(\mathbf{w})}}}} &lt; \underset{before}{\underbrace{J(\mathbf{w})}}\)</span></p>
+<p><span class="math display">\[J(\mathbf{w}+\mathbf{s}) \approx J(w) + \nabla J(\mathbf{w})^T \mathbf{s},\]</span></p>
+<p>where <span class="math inline">\(\nabla J(\mathbf{w})\)</span> is the gradient of <span class="math inline">\(J\)</span>. This approximation is valid only when the step size <span class="math inline">\(\mathbf{s}\)</span> is small and we will return to this in the learning rate discussion.</p>
+<p>The gradient vector</p>
+<p><span class="math display">\[
+\nabla J(\mathbf{w})=\left[\begin{array}{c}
+\dfrac{\partial J}{\partial w_1}(\mathbf{w})\\
+\vdots \\
+\dfrac{\partial J}{\partial w_p}(\mathbf{w}) 
+\end{array}\right]
+\]</span></p>
+<p>gives the direction of steepest ascent on the surface of the function <span class="math inline">\(J\)</span>, and the rate of change in this direction is <span class="math inline">\(\lVert \nabla J(\mathbf{w}) \rVert\)</span>.</p>
+<p>Source: <a href="https://people.math.umass.edu/~havens/Partials.pdf">Multivariate functions and partial derivatives. Section 3.2. The Gradient</a></p>
+</div>
+<div id="convergence" class="section level2">
+<h2>Convergence</h2>
+<p>Consequently, <span class="math inline">\(-\nabla J(\mathbf{w})\)</span> points in the direction of the steepest descent. Setting <span class="math inline">\(\mathbf{s} = -\alpha \nabla J(\mathbf{w})\)</span> for a <em>sufficiently small</em> <span class="math inline">\(\alpha&gt;0\)</span> guarantees to decrease the function:</p>
+<p><span class="math inline">\(\underset{after\ one\ update}{\underbrace{J(\mathbf{w} + (-\alpha \nabla J(\mathbf{w}))}} \approx J(\mathbf{w}) - \underset{&gt;0}{\underbrace{\alpha\overset{&gt;0}{\overbrace{ \nabla J(\mathbf{w})^T \nabla J(\mathbf{w})}}}} &lt; \underset{before}{\underbrace{J(\mathbf{w})}}\)</span></p>
 <p>Source: <a href="https://www.cs.cornell.edu/courses/cs4780/2018fa/lectures/lecturenote07.html">Gradient Descent (and Beyond)</a></p>
+<p>So the iterations of steepest descent are:</p>
+<p><span class="math display">\[\mathbf{w}^{(i+1)} \leftarrow \mathbf{w}^{(i)} - \alpha \nabla J(\mathbf{w}^{(i)}).\]</span></p>
 </div>
 <div id="algorithm" class="section level2">
 <h2>Algorithm</h2>
@@ -34,14 +48,52 @@ tags: []
 <li>Set <span class="math inline">\(i \leftarrow 0\)</span></li>
 <li><strong>while</strong> <span class="math inline">\(\lVert w^{(i)} - w^{(i-1)} \rVert &gt; \epsilon\)</span> <strong>do</strong>
 <ol start="3" style="list-style-type: decimal">
-<li>Update <span class="math inline">\(\mathbf{w}^{(t+1)} \leftarrow \mathbf{w}^{(t)} - \alpha \nabla_\mathbf{w} J(\mathbf{w}^{(t)})\)</span></li>
+<li>Update <span class="math inline">\(\mathbf{w}^{(i+1)} \leftarrow \mathbf{w}^{(i)} - \alpha \nabla J(\mathbf{w}^{(i)})\)</span></li>
 <li>Update <span class="math inline">\(i \leftarrow i + 1\)</span></li>
 </ol></li>
 <li><strong>end</strong></li>
-<li><strong>return</strong> <span class="math inline">\(\widehat{\mathbf{w}} \leftarrow \mathbf{w}^{(t-1)}\)</span></li>
+<li><strong>return</strong> <span class="math inline">\(\widehat{\mathbf{w}} \leftarrow \mathbf{w}^{(i-1)}\)</span></li>
 </ol>
 <p>Adapted from <a href="http://smlbook.org/">Supervised Machine Learning</a>, Chapter 5 “Learning parametric models”.</p>
+<p>Now we need to define function that we would like to minimize with the gradient descent. We will use linear regression as an example.</p>
 </div>
+</div>
+<div id="linear-regression" class="section level1">
+<h1>Linear regression</h1>
+<div id="model" class="section level2">
+<h2>Model</h2>
+<p>Regression amounts to learning the relationships between some input variables <span class="math inline">\(\mathbf{x} = [x_1, \dots, x_p]^T\)</span> and a numerical output variable <span class="math inline">\(\mathbf{y}\)</span>.</p>
+<p>The linear regression model assumes that the output variable <span class="math inline">\(y\)</span> can be described as an affine combination of the <span class="math inline">\(p\)</span> input variables <span class="math inline">\(x_1, \dots, x_p\)</span> plus a noise term <span class="math inline">\(\epsilon\)</span>,</p>
+<p><span class="math display">\[y = w_0 + w_1x_1 + \dots + w_px_p + \epsilon.\]</span>
+The coefficients <span class="math inline">\(\mathbf{w} = [w_0, \dots, w_p]^T\)</span> are called weights or parameters of the model.</p>
+<p>Prepend <span class="math inline">\(\mathbf{x}\)</span> with a constant 1 to write the linear regression model compactly as</p>
+<p><span class="math display">\[y = \mathbf{w}^T \mathbf{x} + \epsilon.\]</span></p>
+<p>A predicted output variable <span class="math inline">\(\widehat{y}\)</span> for some input variables <span class="math inline">\(\mathbf{x}\)</span> using learned parameters <span class="math inline">\(\mathbf{\widehat{w}}\)</span> is obtained with</p>
+<p><span class="math display">\[\widehat{y} = \mathbf{\widehat{w}}^T \mathbf{x}.\]</span></p>
+</div>
+<div id="cost-function" class="section level2">
+<h2>Cost function</h2>
+<p>The cost function with the squared error loss is given by</p>
+<p><span class="math display">\[J(\mathbf{w}) = \frac{1}{n} \sum_{i=1}^{n}(\widehat{y_i} - y_i)^2.\]</span></p>
+<p>We will use the squared error loss function</p>
+<p><span class="math display">\[L(\widehat{y}, y) = (\widehat{y} - y)^2,\]</span></p>
+<p>and the cost function <span class="math inline">\(J\)</span> as the average loss <span class="math inline">\(L\)</span> evaluated on the training data,</p>
+<p><span class="math display">\[J(\mathbf{w}) = \frac{1}{n} \sum_{i=1}^{n}L(\widehat{y_i}, y_i).\]</span></p>
+<p>The parameters of the model are obtained by minimizing the cost function,</p>
+<p><span class="math display">\[\widehat{\mathbf{w}} = \arg\min_\mathbf{w} J(\mathbf{w}).\]</span>
+<span class="math inline">\(J(\mathbf{w})\)</span> is a convex, continuous and differentiable function. Now we need to calculate the gradient of the cost function.</p>
+</div>
+<div id="gradient" class="section level2">
+<h2>Gradient</h2>
+<p>We will our linear regression model has an intercept, i.e., <span class="math inline">\(x_0=1\)</span>. Then the gradient of <span class="math inline">\(J(\mathbf{w})\)</span> is</p>
+<p>$$
+J()=</p>
+<p>=</p>
+<p>$$</p>
+</div>
+</div>
+<div id="implementation-in-python" class="section level1">
+<h1>Implementation in Python</h1>
 <div id="initialization-of-parameters-w0" class="section level2">
 <h2>Initialization of parameters <span class="math inline">\(w^{(0)}\)</span></h2>
 <p>Initialization can be done arbitrarily here because we are dealing with a convex loss function. For convex problems there is only one stationary point, which also is the global minimum.</p>
@@ -49,4 +101,5 @@ tags: []
 </div>
 <div id="learning-rate-alpha" class="section level2">
 <h2>Learning rate <span class="math inline">\(\alpha\)</span></h2>
+</div>
 </div>

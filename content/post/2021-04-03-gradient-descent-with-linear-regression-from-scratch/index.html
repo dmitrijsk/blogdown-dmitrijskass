@@ -13,7 +13,14 @@ tags: []
 <script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
 
 
-<p>We want to minimize a convex, continuous and differentiable cost function <span class="math inline">\(J(w)\)</span>. In this blog post we discuss the most popular “hill-climbing” algorithm, <strong>gradient descent</strong>, using linear regression as an example, and build it from scratch in Python.</p>
+<p><img src="images/surface.png" style="width:100.0%" /></p>
+<p>We want to minimize a convex, continuous and differentiable cost function <span class="math inline">\(J(\mathbf{w})\)</span>. In this blog post we discuss the most popular “hill-climbing” algorithm, <strong>gradient descent</strong>, using linear regression, and build it from scratch in Python. A few highlights:</p>
+<ul>
+<li>Linear regression is generalized to work with any number of predictors.</li>
+<li>Implementation of the gradient descent uses an object oriented approach.</li>
+<li>The process of parameter learning is illustrated using animated plots.</li>
+<li>Impact of the learning rate on convergence (divergence) is illustrated.</li>
+</ul>
 <div id="theoretical-idea-of-the-gradient-descent" class="section level1">
 <h1>Theoretical idea of the gradient descent</h1>
 <div id="taylor-expansion" class="section level2">
@@ -62,44 +69,104 @@ tags: []
 <h1>Linear regression</h1>
 <div id="model" class="section level2">
 <h2>Model</h2>
-<p>Regression amounts to learning the relationships between some input variables <span class="math inline">\(\mathbf{x} = [x_1, \dots, x_p]^T\)</span> and a numerical output variable <span class="math inline">\(\mathbf{y}\)</span>.</p>
-<p>The linear regression model assumes that the output variable <span class="math inline">\(y\)</span> can be described as an affine combination of the <span class="math inline">\(p\)</span> input variables <span class="math inline">\(x_1, \dots, x_p\)</span> plus a noise term <span class="math inline">\(\epsilon\)</span>,</p>
+<!-- Regression amounts to learning the relationships between some input variables $\mathbf{x} = [x_1, \dots, x_p]^T$ and a numerical output variable $\mathbf{y}$. -->
+<p>The linear regression model assumes that the numerical output variable <span class="math inline">\(y\)</span> can be described as an affine combination of the <span class="math inline">\(p\)</span> input variables <span class="math inline">\(x_1, \dots, x_p\)</span> plus a noise term <span class="math inline">\(\epsilon\)</span>,</p>
 <p><span class="math display">\[y = w_0 + w_1x_1 + \dots + w_px_p + \epsilon.\]</span>
 The coefficients <span class="math inline">\(\mathbf{w} = [w_0, \dots, w_p]^T\)</span> are called weights or parameters of the model.</p>
-<p>Prepend <span class="math inline">\(\mathbf{x}\)</span> with a constant 1 to write the linear regression model compactly as</p>
+<p>Prepend <span class="math inline">\(\mathbf{x}\)</span> with a constant 1 to express the linear regression model compactly as</p>
 <p><span class="math display">\[y = \mathbf{w}^T \mathbf{x} + \epsilon.\]</span></p>
-<p>A predicted output variable <span class="math inline">\(\widehat{y}\)</span> for some input variables <span class="math inline">\(\mathbf{x}\)</span> using learned parameters <span class="math inline">\(\mathbf{\widehat{w}}\)</span> is obtained with</p>
-<p><span class="math display">\[\widehat{y} = \mathbf{\widehat{w}}^T \mathbf{x}.\]</span></p>
+<p>The predicted output variable <span class="math inline">\(\widehat{y}\)</span> for some input variables <span class="math inline">\(\mathbf{x}\)</span> using learned parameters <span class="math inline">\(\mathbf{\widehat{w}}\)</span> is obtained with</p>
+<p><span class="math display">\[\widehat{y} = \mathbf{\widehat{w}}^T \mathbf{x}.\]</span>
+The parameters are learned by minimizing the cost function <span class="math inline">\(J(\mathbf{w})\)</span>,</p>
+<p><span class="math display">\[\widehat{\mathbf{w}} = \arg\min_\mathbf{w} J(\mathbf{w}).\]</span></p>
 </div>
-<div id="cost-function" class="section level2">
-<h2>Cost function</h2>
+<div id="cost-function-and-its-gradient" class="section level2">
+<h2>Cost function and its gradient</h2>
 <p>The cost function with the squared error loss is given by</p>
-<p><span class="math display">\[J(\mathbf{w}) = \frac{1}{n} \sum_{i=1}^{n}(\widehat{y_i} - y_i)^2.\]</span></p>
-<p>We will use the squared error loss function</p>
-<p><span class="math display">\[L(\widehat{y}, y) = (\widehat{y} - y)^2,\]</span></p>
-<p>and the cost function <span class="math inline">\(J\)</span> as the average loss <span class="math inline">\(L\)</span> evaluated on the training data,</p>
-<p><span class="math display">\[J(\mathbf{w}) = \frac{1}{n} \sum_{i=1}^{n}L(\widehat{y_i}, y_i).\]</span></p>
-<p>The parameters of the model are obtained by minimizing the cost function,</p>
-<p><span class="math display">\[\widehat{\mathbf{w}} = \arg\min_\mathbf{w} J(\mathbf{w}).\]</span>
-<span class="math inline">\(J(\mathbf{w})\)</span> is a convex, continuous and differentiable function. Now we need to calculate the gradient of the cost function.</p>
-</div>
-<div id="gradient" class="section level2">
-<h2>Gradient</h2>
-<p>We will our linear regression model has an intercept, i.e., <span class="math inline">\(x_0=1\)</span>. Then the gradient of <span class="math inline">\(J(\mathbf{w})\)</span> is</p>
-<p>$$
-J()=</p>
-<p>=</p>
-<p>$$</p>
+<p><span class="math display">\[J(\mathbf{w}) = \frac{1}{n} \sum_{i=1}^{n}(\widehat{y_i} - y_i)^2,\]</span></p>
+<p>where <span class="math inline">\(n\)</span> is the number of observations in the training data. If <span class="math inline">\(p=2\)</span> then</p>
+<p><span class="math display">\[J(\mathbf{w}) = \frac{1}{n} \sum_{i=1}^{n}(w_0 + w_1 x_{1i} + x_2 x_{2i} - y_i)^2,\]</span></p>
+<p>and the gradient using the chain rule of calculus is</p>
+<p><span class="math display">\[\nabla J(\mathbf{w})=
+\left[\begin{array}{c}
+\dfrac{\partial J (\mathbf{w})}{\partial w_0}\\
+\dfrac{\partial J (\mathbf{w})}{\partial w_1}\\
+\dfrac{\partial J (\mathbf{w})}{\partial w_2} 
+\end{array}\right]=
+\left[\begin{array}{c}
+2 \sum_{i=1}^{n}(w_0 + w_1 x_{1i} + x_2 x_{2i} - y_i) (-1)\\
+\\
+2 \sum_{i=1}^{n}(w_0 + w_1 x_{1i} + x_2 x_{2i} - y_i) (-x_{1i})\\
+\\
+2 \sum_{i=1}^{n}(w_0 + w_1 x_{1i} + x_2 x_{2i} - y_i) (-x_{2i})
+\end{array}\right]\]</span></p>
 </div>
 </div>
 <div id="implementation-in-python" class="section level1">
 <h1>Implementation in Python</h1>
-<div id="initialization-of-parameters-w0" class="section level2">
-<h2>Initialization of parameters <span class="math inline">\(w^{(0)}\)</span></h2>
-<p>Initialization can be done arbitrarily here because we are dealing with a convex loss function. For convex problems there is only one stationary point, which also is the global minimum.</p>
+<p>I chose an object-oriented approach because it keeps the environment clean and abstracts the unnecessary details away.</p>
+<p><strong><code>__init__</code> method</strong></p>
+<script src="https://gist.github.com/dmitrijsk/ab0db28bbc5ea2b78e4aaabdab48e6bb.js"></script>
+<p>Initial parameters <span class="math inline">\(w^{(0)}\)</span> are initialized as a zero vector. Initialization can be done arbitrarily here because we are dealing with a convex loss function. For convex problems there is only one stationary point, which also is the global minimum.</p>
 <p>Note: Sometimes we can save computation time by <em>warm-starting</em> the optimization procedure with a good initial guess. For example, iterations <span class="math inline">\(2..k\)</span> of a <span class="math inline">\(k\)</span>-fold cross-validation may use parameters corresponding to a minimum loss in the previous iterations.</p>
+<p>Other attributes are self-explanatory.</p>
+<p><strong><code>predict</code> method</strong></p>
+<p>A vectorized dot product. <span class="math inline">\(\mathbf{X}\)</span> is an <span class="math inline">\(n \times p\)</span> data array. <span class="math inline">\(\mathbf{w}\)</span> is broadcasted to form a dot product with each row of <span class="math inline">\(\mathbf{X}\)</span></p>
+<script src="https://gist.github.com/dmitrijsk/4537b80b06a17c11439952c28c64c5c6.js"></script>
+<p><strong><code>cost</code> method</strong></p>
+<p>Calculates the value of the cost function using current parameters.</p>
+<script src="https://gist.github.com/dmitrijsk/4b9ffdd2c529e5e6f49cbbabd45bc275.js"></script>
+<p><strong><code>grad</code> method</strong></p>
+<p>Calculates the gradient.</p>
+<p><code>d_intercept</code> is a partial derivative of the cost function w.r.t. the intercept. It is a scalar.</p>
+<p><code>d_x</code> is a partial derivative of the cost function w.r.t. to input variables. It is vectorized, so its dimensions depend on the number of parameters in the linear regression model. It is a scalar in case of just one input variable.</p>
+<script src="https://gist.github.com/dmitrijsk/e17bfae70b634675874d599390d1dffa.js"></script>
+<p><strong><code>fit</code> method</strong></p>
+<p>Implements the gradient descent algorithm. Line 5 calculates the gradient and line 6 updates the parameters.</p>
+<p>The value of parameters and cost at each iteration are saved for visualization purposes.</p>
+<p>The number of iterations is limited by <code>self.max_iterations</code>. An early stoppage occurs when the Euclidean norm of the difference between the gradient descent and least squares solutions passes the tolerance level. Alternatively, we could use the value of the cost function - stop if a decrease is less than some tolerance level.</p>
+<script src="https://gist.github.com/dmitrijsk/d0c2154a89ba5d7adec23aaf9861afee.js"></script>
 </div>
-<div id="learning-rate-alpha" class="section level2">
-<h2>Learning rate <span class="math inline">\(\alpha\)</span></h2>
+<div id="learning-rate-and-convergence" class="section level1">
+<h1>Learning rate and convergence</h1>
+<p>Dark art</p>
+<center>
+<img src="images/2-generated-data-and-fitted-line.png" style="width:70.0%" />
+</center>
+<div id="slow-convergence" class="section level2">
+<h2>Slow convergence</h2>
+<center>
+<img src="images/learning_rate_0.001.gif" style="width:70.0%" />
+</center>
+<center>
+<img src="images/4-surface_0.001.png" style="width:100.0%" />
+</center>
+</div>
+<div id="good-convergence" class="section level2">
+<h2>Good convergence</h2>
+<center>
+<img src="images/learning_rate_0.005.gif" style="width:70.0%" />
+</center>
+<center>
+<img src="images/4-surface_0.005.png" style="width:100.0%" />
+</center>
+</div>
+<div id="jumps" class="section level2">
+<h2>Jumps</h2>
+<center>
+<img src="images/learning_rate_0.01.gif" style="width:70.0%" />
+</center>
+<center>
+<img src="images/4-surface_0.01.png" style="width:100.0%" />
+</center>
+</div>
+<div id="divergence" class="section level2">
+<h2>Divergence</h2>
+<center>
+<img src="images/learning_rate_0.02.gif" style="width:70.0%" />
+</center>
+<center>
+<img src="images/4-surface_0.02.png" style="width:100.0%" />
+</center>
 </div>
 </div>

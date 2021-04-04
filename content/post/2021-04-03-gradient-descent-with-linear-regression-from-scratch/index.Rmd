@@ -10,7 +10,14 @@ categories:
 tags: []
 ---
 
-We want to minimize a convex, continuous and differentiable cost function $J(w)$. In this blog post we discuss the most popular "hill-climbing" algorithm, **gradient descent**, using linear regression as an example, and build it from scratch in Python.
+![](images/surface.png){width=100%}
+
+We want to minimize a convex, continuous and differentiable cost function $J(\mathbf{w})$. In this blog post we discuss the most popular "hill-climbing" algorithm, **gradient descent**, using linear regression, and build it from scratch in Python. A few highlights:
+
+* Linear regression is generalized to work with any number of predictors.
+* Implementation of the gradient descent uses an object oriented approach.
+* The process of parameter learning is illustrated using animated plots.
+* Impact of the learning rate on convergence (divergence) is illustrated.
 
 # Theoretical idea of the gradient descent
 
@@ -71,72 +78,146 @@ Now we need to define function that we would like to minimize with the gradient 
 
 ## Model
 
-Regression amounts to learning the relationships between some input variables $\mathbf{x} = [x_1, \dots, x_p]^T$ and a numerical output variable $\mathbf{y}$.
+<!-- Regression amounts to learning the relationships between some input variables $\mathbf{x} = [x_1, \dots, x_p]^T$ and a numerical output variable $\mathbf{y}$. -->
 
-The linear regression model assumes that the output variable $y$ can be described as an affine combination of the $p$ input variables $x_1, \dots, x_p$ plus a noise term $\epsilon$,
+The linear regression model assumes that the numerical output variable $y$ can be described as an affine combination of the $p$ input variables $x_1, \dots, x_p$ plus a noise term $\epsilon$,
 
 $$y = w_0 + w_1x_1 + \dots + w_px_p + \epsilon.$$
 The coefficients $\mathbf{w} = [w_0, \dots, w_p]^T$ are called weights or parameters of the model.
 
-Prepend $\mathbf{x}$ with a constant 1 to write the linear regression model compactly as 
+Prepend $\mathbf{x}$ with a constant 1 to express the linear regression model compactly as 
 
 $$y = \mathbf{w}^T \mathbf{x} + \epsilon.$$
 
-A predicted output variable $\widehat{y}$ for some input variables $\mathbf{x}$ using learned parameters $\mathbf{\widehat{w}}$ is obtained with 
+The predicted output variable $\widehat{y}$ for some input variables $\mathbf{x}$ using learned parameters $\mathbf{\widehat{w}}$ is obtained with 
 
 $$\widehat{y} = \mathbf{\widehat{w}}^T \mathbf{x}.$$
+The parameters are learned by minimizing the cost function $J(\mathbf{w})$,
 
-## Cost function
+$$\widehat{\mathbf{w}} = \arg\min_\mathbf{w} J(\mathbf{w}).$$
+
+
+## Cost function and its gradient
 
 The cost function with the squared error loss is given by 
 
-$$J(\mathbf{w}) = \frac{1}{n} \sum_{i=1}^{n}(\widehat{y_i} - y_i)^2.$$
+$$J(\mathbf{w}) = \frac{1}{n} \sum_{i=1}^{n}(\widehat{y_i} - y_i)^2,$$
 
+where $n$ is the number of observations in the training data. If $p=2$  then 
 
-We will use the squared error loss function 
+$$J(\mathbf{w}) = \frac{1}{n} \sum_{i=1}^{n}(w_0 + w_1 x_{1i} + x_2 x_{2i} - y_i)^2,$$
 
-$$L(\widehat{y}, y) = (\widehat{y} - y)^2,$$
+and the gradient using the chain rule of calculus is
 
-and the cost function $J$ as the average loss $L$ evaluated on the training data,
-
-$$J(\mathbf{w}) = \frac{1}{n} \sum_{i=1}^{n}L(\widehat{y_i}, y_i).$$
-
-The parameters of the model are obtained by minimizing the cost function,
-
-$$\widehat{\mathbf{w}} = \arg\min_\mathbf{w} J(\mathbf{w}).$$
-$J(\mathbf{w})$ is a convex, continuous and differentiable function. Now we need to calculate the gradient of the cost function.
-
-## Gradient
-
-We will our linear regression model has an intercept, i.e., $x_0=1$. Then the gradient of $J(\mathbf{w})$ is
-
-$$
-\nabla J(\mathbf{w})=
-
+$$\nabla J(\mathbf{w})=
 \left[\begin{array}{c}
-\dfrac{\partial J}{\partial w_0}(\mathbf{w})\\
-\dfrac{\partial J}{\partial w_1}(\mathbf{w})\\
-\vdots \\
-\dfrac{\partial J}{\partial w_p}(\mathbf{w}) 
+\dfrac{\partial J (\mathbf{w})}{\partial w_0}\\
+\dfrac{\partial J (\mathbf{w})}{\partial w_1}\\
+\dfrac{\partial J (\mathbf{w})}{\partial w_2} 
 \end{array}\right]=
-
 \left[\begin{array}{c}
-\dfrac{\partial J}{\partial w_0}(\mathbf{w})\\
-\dfrac{\partial J}{\partial w_1}(\mathbf{w})\\
-\vdots \\
-\dfrac{\partial J}{\partial w_p}(\mathbf{w}) 
-\end{array}\right]
-$$
-
-
+2 \sum_{i=1}^{n}(w_0 + w_1 x_{1i} + x_2 x_{2i} - y_i) (-1)\\
+\\
+2 \sum_{i=1}^{n}(w_0 + w_1 x_{1i} + x_2 x_{2i} - y_i) (-x_{1i})\\
+\\
+2 \sum_{i=1}^{n}(w_0 + w_1 x_{1i} + x_2 x_{2i} - y_i) (-x_{2i})
+\end{array}\right]$$
 
 
 # Implementation in Python
 
-## Initialization of parameters $w^{(0)}$
+I chose an object-oriented approach because it keeps the environment clean and abstracts the unnecessary details away.
 
-Initialization can be done arbitrarily here because we are dealing with a convex loss function. For convex problems there is only one stationary point, which also is the global minimum. 
+**`__init__` method**
+
+<script src="https://gist.github.com/dmitrijsk/ab0db28bbc5ea2b78e4aaabdab48e6bb.js"></script>
+
+Initial parameters $w^{(0)}$ are initialized as a zero vector. Initialization can be done arbitrarily here because we are dealing with a convex loss function. For convex problems there is only one stationary point, which also is the global minimum. 
 
 Note: Sometimes we can save computation time by *warm-starting* the optimization procedure with a good initial guess. For example, iterations $2..k$ of a $k$-fold cross-validation may use parameters corresponding to a minimum loss in the previous iterations.
 
-## Learning rate $\alpha$
+Other attributes are self-explanatory.
+
+**`predict` method**
+
+A vectorized dot product. $\mathbf{X}$ is an $n \times p$ data array. $\mathbf{w}$ is broadcasted to form a dot product with each row of $\mathbf{X}$
+
+<script src="https://gist.github.com/dmitrijsk/4537b80b06a17c11439952c28c64c5c6.js"></script>
+
+**`cost` method**
+
+Calculates the value of the cost function using current parameters.
+
+<script src="https://gist.github.com/dmitrijsk/4b9ffdd2c529e5e6f49cbbabd45bc275.js"></script>
+
+**`grad` method**
+
+Calculates the gradient. 
+
+`d_intercept` is a partial derivative of the cost function w.r.t. the intercept. It is a scalar.
+
+`d_x` is a partial derivative of the cost function w.r.t. to input variables. It is vectorized, so its dimensions depend on the number of parameters in the linear regression model. It is a scalar in case of just one input variable.
+
+<script src="https://gist.github.com/dmitrijsk/e17bfae70b634675874d599390d1dffa.js"></script>
+
+**`fit` method**
+
+Implements the gradient descent algorithm. Line 5 calculates the gradient and line 6 updates the parameters.
+
+The value of parameters and cost at each iteration are saved for visualization purposes. 
+
+The number of iterations is limited by `self.max_iterations`. An early stoppage occurs when the Euclidean norm of the difference between the gradient descent and least squares solutions passes the tolerance level. Alternatively, we could use the value of the cost function - stop if a decrease is less than some tolerance level.
+
+<script src="https://gist.github.com/dmitrijsk/d0c2154a89ba5d7adec23aaf9861afee.js"></script>
+
+# Learning rate and convergence
+
+Dark art
+
+<center>
+![](images/2-generated-data-and-fitted-line.png){width=70%}
+</center>
+
+
+## Slow convergence
+
+<center>
+![](images/learning_rate_0.001.gif){width=70%}
+</center>
+
+<center>
+![](images/4-surface_0.001.png){width=100%}
+</center>
+
+## Good convergence
+
+<center>
+![](images/learning_rate_0.005.gif){width=70%}
+</center>
+
+<center>
+![](images/4-surface_0.005.png){width=100%}
+</center>
+
+## Jumps
+
+<center>
+![](images/learning_rate_0.01.gif){width=70%}
+</center>
+
+<center>
+![](images/4-surface_0.01.png){width=100%}
+</center>
+
+## Divergence
+
+<center>
+![](images/learning_rate_0.02.gif){width=70%}
+</center>
+
+<center>
+![](images/4-surface_0.02.png){width=100%}
+</center>
+
+
+

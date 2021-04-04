@@ -181,43 +181,65 @@ Dark art
 
 ## Slow convergence
 
-<center>
-![](images/learning_rate_0.001.gif){width=70%}
-</center>
+Parameters converge slowly.
 
 <center>
 ![](images/4-surface_0.001.png){width=100%}
 </center>
 
-## Good convergence
+The fitted line slowly approaches an optimal position.
 
 <center>
-![](images/learning_rate_0.005.gif){width=70%}
+![](images/learning_rate_0.001.gif){width=70%}
 </center>
+
+
+## Good convergence
+
+Parameters converge quickly.
 
 <center>
 ![](images/4-surface_0.005.png){width=100%}
 </center>
 
-## Jumps
+The fitted line quickly approaches an optimal position.
 
 <center>
-![](images/learning_rate_0.01.gif){width=70%}
+![](images/learning_rate_0.005.gif){width=70%}
 </center>
+
+## Jumps
+
+Step is almost too large
+
+Changes in w are too large and result in jumps from one side of the surface to another. 
+
+An even higher learning rate would result in even larger step size. This may result in divergence as we see in the next section.
 
 <center>
 ![](images/4-surface_0.01.png){width=100%}
 </center>
 
-## Divergence
+The line jumps over its optimal position, but oscillations become smaller and eventually the algorithm converges.
 
 <center>
-![](images/learning_rate_0.02.gif){width=70%}
+![](images/learning_rate_0.01.gif){width=70%}
 </center>
+
+## Divergence
+
+Learning rate $\alpha=0.02$ turns out to be too high. With each step the gradient is even larger, which results in even larger steps. After each update the parameters jump to the other side of the surface further and further away from the minimum and the value of the cost function only grows. The parameters diverge very rapidly - compare the scale of $z$ axis on this and the previous plots.
 
 <center>
 ![](images/4-surface_0.02.png){width=100%}
 </center>
 
+<center>
+![](images/learning_rate_0.02.gif){width=70%}
+</center>
 
+The fitted line does not seem to move during the first 20 iterations due to a huge scale of the plot (1e+10). However, later we see that the line starts to swing and quickly approaches a vertical position where the cost becomes infinitely large.
 
+----
+
+Full code is available at my [GitHub repository]().

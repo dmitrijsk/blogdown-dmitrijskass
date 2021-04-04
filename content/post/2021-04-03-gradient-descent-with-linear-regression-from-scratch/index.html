@@ -32,7 +32,7 @@ TODO: Clean the references.
 <h2>Taylor expansion</h2>
 <p>Simplify the function you would like to minimize by using the first-order Taylor polynomial. Provided that the norm <span class="math inline">\(\lVert \mathbf{s} \rVert_2\)</span> is small (i.e., <span class="math inline">\(\mathbf{w}+\mathbf{s}\)</span> is very close to <span class="math inline">\(\mathbf{w}\)</span>), we can linearly approximate the function <span class="math inline">\(J(\mathbf{w} + \mathbf{s})\)</span> by its first derivative:</p>
 <p><span class="math display">\[J(\mathbf{w}+\mathbf{s}) \approx J(\mathbf{w}) + \nabla J(\mathbf{w})^T \mathbf{s},\]</span></p>
-<p>where <span class="math inline">\(\nabla J(\mathbf{w})\)</span> is the gradient of <span class="math inline">\(J\)</span>. This approximation is valid only when the step size <span class="math inline">\(\mathbf{s}\)</span> is small and we will return to this in the learning rate discussion<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>.</p>
+<p>where <span class="math inline">\(\nabla J(\mathbf{w})\)</span> is the gradient of <span class="math inline">\(J\)</span>. This approximation is valid only when the step size <span class="math inline">\(\mathbf{s}\)</span> is small<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>. We will return to this in the learning rate discussion.</p>
 <p>The gradient vector</p>
 <p><span class="math display">\[
 \nabla J(\mathbf{w})=\left[\begin{array}{c}
@@ -69,7 +69,7 @@ TODO: Add a surface plot with 3 arrows: in the direction of <span class="math in
 <li><strong>return</strong> <span class="math inline">\(\widehat{\mathbf{w}} \leftarrow \mathbf{w}^{(i-1)}\)</span></li>
 </ol>
 <p>Adapted from <a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a></p>
-<p>Now we need to define a function that we would like to minimize with the gradient descent. We will use linear regression with the squared loss.</p>
+<p>We will implement this algorithm with linear regression using the squared loss. Let’s now define the linear regression and optimization problems.</p>
 </div>
 </div>
 <div id="linear-regression" class="section level1">
@@ -93,7 +93,7 @@ The parameters are learned by minimizing the cost function <span class="math inl
 <p>The cost function with the squared error loss is given by</p>
 <p><span class="math display">\[J(\mathbf{w}) = \frac{1}{n} \sum_{i=1}^{n}(\widehat{y_i} - y_i)^2,\]</span></p>
 <p>where <span class="math inline">\(n\)</span> is the number of observations in the training data. It is a scalar-valued function. If <span class="math inline">\(p=2\)</span> then</p>
-<p><span class="math display">\[J(\mathbf{w}) = \frac{1}{n} \sum_{i=1}^{n}(w_0 + w_1 x_{1i} + x_2 x_{2i} - y_i)^2,\]</span></p>
+<p><span class="math display">\[J(\mathbf{w}) = \frac{1}{n} \sum_{i=1}^{n}(w_0 + w_1 x_{1i} + w_2 x_{2i} - y_i)^2,\]</span></p>
 <p>and the gradient using the chain rule of calculus is</p>
 <p><span class="math display">\[\nabla J(\mathbf{w})=
 \left[\begin{array}{c}
@@ -120,7 +120,8 @@ The parameters are learned by minimizing the cost function <span class="math inl
 <p><strong>Note:</strong> Sometimes we can save computation time by <em>warm-starting</em> the optimization procedure with a good initial guess. For example, iterations <span class="math inline">\(2..k\)</span> of a <span class="math inline">\(k\)</span>-fold cross-validation may use parameters corresponding to a minimum loss in the previous iterations.</p>
 <p>Other attributes are self-explanatory.</p>
 <p><strong><code>predict</code> method</strong></p>
-<p>Calculates a one-dimensional array <span class="math inline">\(\widehat{\mathbf{y}}\)</span> using a vectorized dot product. <span class="math inline">\(\mathbf{X}\)</span> is an <span class="math inline">\(n \times p\)</span> data array. <span class="math inline">\(\mathbf{w}\)</span> is broadcasted to form a dot product with each row of <span class="math inline">\(\mathbf{X}\)</span></p>
+<p>Calculates a vectorized version of <span class="math inline">\(\widehat{y} = \mathbf{\widehat{w}}^T \mathbf{x}\)</span>.</p>
+<p><span class="math inline">\(\mathbf{X}\)</span> is an <span class="math inline">\(n\)</span> (number of observations) by <span class="math inline">\(p+1\)</span> (number of predictors plus an intercept) array. <span class="math inline">\(\mathbf{w}\)</span> is broadcasted to form a dot product with each row of <span class="math inline">\(\mathbf{X}\)</span>. The output is a one-dimensional array.</p>
 <script src="https://gist.github.com/dmitrijsk/4537b80b06a17c11439952c28c64c5c6.js"></script>
 <p><strong><code>cost</code> method</strong></p>
 <p>Calculates the value of the cost function using the current parameters. It is a scalar.</p>
@@ -200,7 +201,7 @@ The parameters are learned by minimizing the cost function <span class="math inl
 <p>…</p>
 <hr>
 <p>I would appreciate any comments or suggestions. Please leave them below, no login required if you check “I’d rather post as a guest”.</p>
-<p>Referenes:</p>
+<p>References:</p>
 </div>
 </div>
 <div class="footnotes">

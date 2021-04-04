@@ -191,7 +191,7 @@ The number of iterations is limited by `self.max_iterations`. An early stoppage 
 
 *"Setting the learning rate $\alpha>0$ is a dark art. Only if it is sufficiently small will gradient descent converge"*[^5]. Below we take a look at how four different (tediously picked though trial and error) values of $\alpha$ impact the convergence and later we walk away from guessing.
 
-Let's generate $\mathbf{X}$ and $\mathbf{y}$ data for the linear regression and use gradient descent to fit a straight line. Full code is available at my [GitHub repository](), so I omit the majority of details. Generated data looks as follows:
+Let's generate $\mathbf{X}$ and $\mathbf{y}$ data for the linear regression and use gradient descent to fit a straight line. Full code is available at my [GitHub repository](https://github.com/dmitrijsk/blogdown-dmitrijskass/tree/gradient-descent-with-linear-regression-from-scratch/content/post/2021-04-03-gradient-descent-with-linear-regression-from-scratch/code), so I omit the majority of details. Generated data looks as follows:
 
 <center>
 ![](images/1-generated-data.png){width=70%}

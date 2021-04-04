@@ -1,0 +1,216 @@
+---
+title: Gradient descent with linear regression from scratch (Python)
+author: Dmitrijs Kass
+date: '2021-04-03'
+slug: gradient-descent-with-linear-regression-from-scratch
+categories:
+  - Python
+  - gradient descent
+  - linear regression
+tags: []
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<p style="font-family:&#39;Merriweather&#39;;color:blue;font-size:70%;">
+TODO: Match arguments and wording in the description of <code>sklearn.linear_model.LinearRegression</code>. <a href="https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html">Source</a>
+</p>
+<p style="font-family:&#39;Merriweather&#39;;color:blue;font-size:70%;">
+TODO: Clean the references.
+</p>
+<p><img src="images/surface.png" style="width:100.0%" /></p>
+<p>We want to minimize a convex, continuous and differentiable cost function <span class="math inline">\(J(\mathbf{w})\)</span>. In this blog post we discuss the most popular “hill-climbing” algorithm, <strong>gradient descent</strong>, using linear regression, and build it from scratch in Python. A few highlights:</p>
+<ul>
+<li>Code for linear regression and gradient descent is generalized to work with any first-order linear regression model, i.e., <span class="math inline">\(y=w_0+w_1x_1+\dots+w_px_p\)</span>.</li>
+<li>Gradient descent is implemented using an object-oriented approach.</li>
+<li>Impact of the learning rate on convergence (divergence) is illustrated.</li>
+</ul>
+<div id="theoretical-idea-of-the-gradient-descent" class="section level1">
+<h1>Theoretical idea of the gradient descent</h1>
+<div id="taylor-expansion" class="section level2">
+<h2>Taylor expansion</h2>
+<p>Simplify the function you would like to minimize by using the first-order Taylor polynomial. Provided that the norm <span class="math inline">\(\lVert \mathbf{s} \rVert_2\)</span> is small (i.e., <span class="math inline">\(\mathbf{w}+\mathbf{s}\)</span> is very close to <span class="math inline">\(\mathbf{w}\)</span>), we can linearly approximate the function <span class="math inline">\(J(\mathbf{w} + \mathbf{s})\)</span> by its first derivative:</p>
+<p><span class="math display">\[J(\mathbf{w}+\mathbf{s}) \approx J(\mathbf{w}) + \nabla J(\mathbf{w})^T \mathbf{s},\]</span></p>
+<p>where <span class="math inline">\(\nabla J(\mathbf{w})\)</span> is the gradient of <span class="math inline">\(J\)</span>. This approximation is valid only when the step size <span class="math inline">\(\mathbf{s}\)</span> is small and we will return to this in the learning rate discussion<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>.</p>
+<p>The gradient vector</p>
+<p><span class="math display">\[
+\nabla J(\mathbf{w})=\left[\begin{array}{c}
+\dfrac{\partial J (\mathbf{w})}{\partial w_0}\\
+\dfrac{\partial J (\mathbf{w})}{\partial w_1}\\
+\vdots \\
+\dfrac{\partial J (\mathbf{w})}{\partial w_p}
+\end{array}\right]
+\]</span></p>
+<p>gives the direction of steepest ascent on the surface of the function <span class="math inline">\(J\)</span>, and the rate of change in this direction is <span class="math inline">\(\lVert \nabla J(\mathbf{w}) \rVert\)</span>. <a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a></p>
+<p style="font-family:&#39;Merriweather&#39;;color:blue;font-size:70%;">
+TODO: Add a surface plot with 3 arrows: in the direction of <span class="math inline">\(w_0\)</span>, <span class="math inline">\(w_1\)</span> and the gradient vector. E.g., <a href="https://physics.stackexchange.com/questions/368634/direction-of-velocity-vector-in-3d-space">here</a>
+</p>
+</div>
+<div id="convergence" class="section level2">
+<h2>Convergence</h2>
+<p>Consequently, <span class="math inline">\(-\nabla J(\mathbf{w})\)</span> points in the direction of the steepest descent. Setting <span class="math inline">\(\mathbf{s} = -\alpha \nabla J(\mathbf{w})\)</span> for a <em>sufficiently small</em> <span class="math inline">\(\alpha&gt;0\)</span> guarantees to decrease the function<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>:</p>
+<p><span class="math inline">\(\underset{after\ one\ update}{\underbrace{J(\mathbf{w} + (-\alpha \nabla J(\mathbf{w}))}} \approx J(\mathbf{w}) - \underset{&gt;0}{\underbrace{\alpha\overset{&gt;0}{\overbrace{ \nabla J(\mathbf{w})^T \nabla J(\mathbf{w})}}}} &lt; \underset{before}{\underbrace{J(\mathbf{w})}}\)</span></p>
+<p>So the iterations of steepest descent are:</p>
+<p><span class="math display">\[\mathbf{w}^{(i+1)} \leftarrow \mathbf{w}^{(i)} - \alpha \nabla J(\mathbf{w}^{(i)}).\]</span></p>
+</div>
+<div id="algorithm" class="section level2">
+<h2>Algorithm</h2>
+<p><strong>Input:</strong> Objective function <span class="math inline">\(J(\mathbf{w})\)</span>, initial <span class="math inline">\(\mathbf{w}^{(0)}\)</span>, learning rate <span class="math inline">\(\alpha\)</span>, tolerance level <span class="math inline">\(\epsilon\)</span>.<br />
+<strong>Result:</strong> <span class="math inline">\(\widehat{\mathbf{w}}\)</span>.</p>
+<ol style="list-style-type: decimal">
+<li>Set <span class="math inline">\(i \leftarrow 0\)</span></li>
+<li><strong>while</strong> <span class="math inline">\(\lVert \mathbf{w}^{(i)} - \mathbf{w}^{(i-1)} \rVert &gt; \epsilon\)</span> <strong>do</strong>
+<ol start="3" style="list-style-type: decimal">
+<li>Update <span class="math inline">\(\mathbf{w}^{(i+1)} \leftarrow \mathbf{w}^{(i)} - \alpha \nabla J(\mathbf{w}^{(i)})\)</span></li>
+<li>Update <span class="math inline">\(i \leftarrow i + 1\)</span></li>
+</ol></li>
+<li><strong>end</strong></li>
+<li><strong>return</strong> <span class="math inline">\(\widehat{\mathbf{w}} \leftarrow \mathbf{w}^{(i-1)}\)</span></li>
+</ol>
+<p>Adapted from <a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a></p>
+<p>Now we need to define a function that we would like to minimize with the gradient descent. We will use linear regression with the squared loss.</p>
+</div>
+</div>
+<div id="linear-regression" class="section level1">
+<h1>Linear regression</h1>
+<div id="model" class="section level2">
+<h2>Model</h2>
+<!-- Regression amounts to learning the relationships between some input variables $\mathbf{x} = [x_1, \dots, x_p]^T$ and a numerical output variable $\mathbf{y}$. -->
+<p>The linear regression model assumes that the numerical output variable <span class="math inline">\(y\)</span> can be described as an affine combination of the <span class="math inline">\(p\)</span> input variables <span class="math inline">\(x_1, \dots, x_p\)</span> plus a noise term <span class="math inline">\(\epsilon\)</span>,</p>
+<p><span class="math display">\[y = w_0 + w_1x_1 + \dots + w_px_p + \epsilon.\]</span>
+The coefficients <span class="math inline">\(\mathbf{w} = [w_0, \dots, w_p]^T\)</span> are called parameters, weights or coefficients of the model.</p>
+<p>Prepend <span class="math inline">\(\mathbf{x}\)</span> with a constant 1 to express the linear regression model compactly as</p>
+<p><span class="math display">\[y = \mathbf{w}^T \mathbf{x} + \epsilon.\]</span></p>
+<p>The predicted output variable <span class="math inline">\(\widehat{y}\)</span> for some input variables <span class="math inline">\(\mathbf{x}\)</span> using learned parameters <span class="math inline">\(\mathbf{\widehat{w}}\)</span> is obtained with</p>
+<p><span class="math display">\[\widehat{y} = \mathbf{\widehat{w}}^T \mathbf{x}.\]</span>
+The parameters are learned by minimizing the cost function <span class="math inline">\(J(\mathbf{w})\)</span>,</p>
+<p><span class="math display">\[\widehat{\mathbf{w}} = \arg\min_\mathbf{w} J(\mathbf{w}).\]</span></p>
+<p>We solve this optimization problem with the gradient descent.</p>
+</div>
+<div id="cost-function-and-its-gradient" class="section level2">
+<h2>Cost function and its gradient</h2>
+<p>The cost function with the squared error loss is given by</p>
+<p><span class="math display">\[J(\mathbf{w}) = \frac{1}{n} \sum_{i=1}^{n}(\widehat{y_i} - y_i)^2,\]</span></p>
+<p>where <span class="math inline">\(n\)</span> is the number of observations in the training data. It is a scalar-valued function. If <span class="math inline">\(p=2\)</span> then</p>
+<p><span class="math display">\[J(\mathbf{w}) = \frac{1}{n} \sum_{i=1}^{n}(w_0 + w_1 x_{1i} + x_2 x_{2i} - y_i)^2,\]</span></p>
+<p>and the gradient using the chain rule of calculus is</p>
+<p><span class="math display">\[\nabla J(\mathbf{w})=
+\left[\begin{array}{c}
+\dfrac{\partial J (\mathbf{w})}{\partial w_0}\\
+\dfrac{\partial J (\mathbf{w})}{\partial w_1}\\
+\dfrac{\partial J (\mathbf{w})}{\partial w_2} 
+\end{array}\right]=
+\left[\begin{array}{c}
+2 \sum_{i=1}^{n}(w_0 + w_1 x_{1i} + x_2 x_{2i} - y_i) (-1)\\
+\\
+2 \sum_{i=1}^{n}(w_0 + w_1 x_{1i} + x_2 x_{2i} - y_i) (-x_{1i})\\
+\\
+2 \sum_{i=1}^{n}(w_0 + w_1 x_{1i} + x_2 x_{2i} - y_i) (-x_{2i})
+\end{array}\right]\]</span></p>
+<p><strong>Note:</strong> When I first encountered the gradient descent, I could not understand how the gradient can be calculated from discrete data points. <em>“Derivatives require continuity, but I am given just a few data points”</em>, I thought. But this is a wrong way to think about the gradient. The gradient is calculated using the function (in our case, <span class="math inline">\(J(\mathbf{w})\)</span>) and has nothing to do with the actual data at this stage. Notice how we calculated the gradient above and we did not care about the data points yet. Data points are used <em>to evaluate</em> the gradient at <em>a specific</em> point (in our case, at <span class="math inline">\(\mathbf{w^{(i)}}\)</span> in each iteration <span class="math inline">\(i\)</span> of the gradient descent algorithm).</p>
+</div>
+</div>
+<div id="implementation-in-python" class="section level1">
+<h1>Implementation in Python</h1>
+<p>I chose an object-oriented approach because it keeps the environment clean and abstracts the unnecessary details away.</p>
+<p><strong><code>__init__</code> method</strong></p>
+<script src="https://gist.github.com/dmitrijsk/ab0db28bbc5ea2b78e4aaabdab48e6bb.js"></script>
+<p>Initial parameters <code>self.w</code> (<span class="math inline">\(w^{(0)}\)</span>) are initialized as a zero vector. Initialization can be done arbitrarily here because we are dealing with a convex loss function. For convex problems there is only one stationary point, which also is the global minimum.</p>
+<p><strong>Note:</strong> Sometimes we can save computation time by <em>warm-starting</em> the optimization procedure with a good initial guess. For example, iterations <span class="math inline">\(2..k\)</span> of a <span class="math inline">\(k\)</span>-fold cross-validation may use parameters corresponding to a minimum loss in the previous iterations.</p>
+<p>Other attributes are self-explanatory.</p>
+<p><strong><code>predict</code> method</strong></p>
+<p>Calculates a one-dimensional array <span class="math inline">\(\widehat{\mathbf{y}}\)</span> using a vectorized dot product. <span class="math inline">\(\mathbf{X}\)</span> is an <span class="math inline">\(n \times p\)</span> data array. <span class="math inline">\(\mathbf{w}\)</span> is broadcasted to form a dot product with each row of <span class="math inline">\(\mathbf{X}\)</span></p>
+<script src="https://gist.github.com/dmitrijsk/4537b80b06a17c11439952c28c64c5c6.js"></script>
+<p><strong><code>cost</code> method</strong></p>
+<p>Calculates the value of the cost function using the current parameters. It is a scalar.</p>
+<script src="https://gist.github.com/dmitrijsk/4b9ffdd2c529e5e6f49cbbabd45bc275.js"></script>
+<p><strong><code>grad</code> method</strong></p>
+<p>Calculates the gradient, a one-dimensional array.</p>
+<p><code>d_intercept</code> is a partial derivative of the cost function w.r.t. the intercept (<span class="math inline">\(w_0\)</span>). It is a scalar.</p>
+<p><code>d_x</code> is a partial derivative of the cost function w.r.t. to input variables (<span class="math inline">\(w_1, \dots, w_p\)</span>). It is vectorized, so its dimensions depend on the number of parameters in the linear regression model. It is a scalar if <span class="math inline">\(p=1\)</span> and a one-dimensional array otherwise.</p>
+<script src="https://gist.github.com/dmitrijsk/e17bfae70b634675874d599390d1dffa.js"></script>
+<p><strong><code>fit</code> method</strong></p>
+<p>Implements the gradient descent algorithm. Line 5 calculates the gradient and line 6 updates the parameters.</p>
+<p>The value of parameters and cost at each iteration are saved in lines 7 and 9 for visualization purposes.</p>
+<p>The number of iterations is limited by <code>self.max_iterations</code>. An early stoppage in lines 12-13 occurs when the Euclidean norm of the difference between the gradient descent solution and least squares solution passes the tolerance level. Alternatively, we could use the last two values of the cost function - stop if a decrease is less than some tolerance level.</p>
+<script src="https://gist.github.com/dmitrijsk/d0c2154a89ba5d7adec23aaf9861afee.js"></script>
+</div>
+<div id="learning-rate-and-convergence" class="section level1">
+<h1>Learning rate and convergence</h1>
+<p><em>“Setting the learning rate <span class="math inline">\(\alpha&gt;0\)</span> is a dark art. Only if it is sufficiently small will gradient descent converge”</em><a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a>. Below we take a look at how four different (tediously picked though trial and error) values of <span class="math inline">\(\alpha\)</span> impact the convergence and later we walk away from guessing.</p>
+<p>Let’s generate <span class="math inline">\(\mathbf{X}\)</span> and <span class="math inline">\(\mathbf{y}\)</span> data for the linear regression and use gradient descent to fit a straight line. Full code is available at my <a href="https://github.com/dmitrijsk/blogdown-dmitrijskass/tree/gradient-descent-with-linear-regression-from-scratch/content/post/2021-04-03-gradient-descent-with-linear-regression-from-scratch/code">GitHub repository</a>, so I omit the majority of details. Generated data looks as follows:</p>
+<center>
+<img src="images/1-generated-data.png" style="width:70.0%" />
+</center>
+<p>We fit the line using the gradient descent as follows:</p>
+<script src="https://gist.github.com/dmitrijsk/af03fc2696cbbaebec56cca10a1a7439.js"></script>
+<div id="slow-convergence" class="section level2">
+<h2>Slow convergence</h2>
+<p>With learning rate <span class="math inline">\(\alpha=0.001\)</span> the algorithm slowly converges in 1001 iterations. The surface plot below is the surface of the cost function <span class="math inline">\(J(\mathbf{w})\)</span>. Red dots are updated parameters from initial <span class="math inline">\(\mathbf{w}^{(0)} = [0,0]\)</span> to optimal <span class="math inline">\(\mathbf{w}^{(1001)} = [0.24, 0.84]\)</span>.</p>
+<center>
+<img src="images/4-surface_0.001.png" style="width:100.0%" />
+</center>
+<p>Animation below shows how the line is slowly fitted though iterations 1 to 30.</p>
+<center>
+<img src="images/learning_rate_0.001.gif" style="width:70.0%" />
+</center>
+</div>
+<div id="good-convergence" class="section level2">
+<h2>Good convergence</h2>
+<p>Learning rate <span class="math inline">\(\alpha=0.005\)</span> seems to be a better guess and the algorithm converges in 196 iterations. After the first three steps the parameters are fairly close to the optimal solution.</p>
+<center>
+<img src="images/4-surface_0.005.png" style="width:100.0%" />
+</center>
+<p>The animation below illustrates the last statement - after the first three iterations the line barely moves.</p>
+<center>
+<img src="images/learning_rate_0.005.gif" style="width:70.0%" />
+</center>
+</div>
+<div id="jumps" class="section level2">
+<h2>Jumps</h2>
+<p>When the learning rate is large (but not too large yet), convergence happens in jumps. The change in <span class="math inline">\(\mathbf{w}\)</span> is large enough to take the updated parameters to the other side of the surface, surpassing the minimum point. With learning rate <span class="math inline">\(\alpha=0.01\)</span> the convergence shows this jumping behavior. Nevertheless, the algorithm converges because the magnitude of the gradient becomes smaller after each iteration. Convergence takes 95 iterations.</p>
+<center>
+<img src="images/4-surface_0.01.png" style="width:100.0%" />
+</center>
+<p>Animation below illustrates the jumping behavior. With time, oscillations become smaller and eventually the algorithm converges.</p>
+<center>
+<img src="images/learning_rate_0.01.gif" style="width:70.0%" />
+</center>
+</div>
+<div id="divergence" class="section level2">
+<h2>Divergence</h2>
+<p>Learning rate <span class="math inline">\(\alpha=0.02\)</span> turns out to be too high. The magnitude of the gradient grows after the first iteration, which proportionally (because <span class="math inline">\(\alpha\)</span> is fixed) increases the step size for the next iteration. In this fashion, parameters <span class="math inline">\(\mathbf{w}^{(i)}\)</span> spiral away from the minimum very rapidly - compare the scale of <span class="math inline">\(z\)</span> axis on the previous plot and the one below with only four iterations.</p>
+<center>
+<img src="images/4-surface_0.02.png" style="width:100.0%" />
+</center>
+<p>The fitted line does not seem to move during the first 20 iterations due to a huge scale of the plot (1e+10). However, later we see that the line starts to swing wildly and quickly approaches a vertical position where the cost becomes infinitely large.</p>
+<center>
+<img src="images/learning_rate_0.02.gif" style="width:70.0%" />
+</center>
+</div>
+</div>
+<div id="adaptive-learning-rate" class="section level1">
+<h1>Adaptive learning rate</h1>
+<p>A safe (but sometimes slow) choice is to set <span class="math inline">\(\alpha = \frac{i_0}{i}\)</span>, where <span class="math inline">\(i_0\)</span> is any initial positive value and <span class="math inline">\(i\)</span> is the iteration counter. This guarantees that it will eventually become small enough to converge.<a href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a> Updates of <span class="math inline">\(\alpha\)</span> may be implemented with this line:</p>
+<script src="https://gist.github.com/dmitrijsk/ee1be266b85afd31273f8ee8317568b6.js"></script>
+<p>With the same generated data and <span class="math inline">\(i_0=1\)</span> the algorithm converged in 278,951 iterations (slow indeed).</p>
+<div id="adagrad" class="section level2">
+<h2>Adagrad</h2>
+<p>…</p>
+<hr>
+<p>I would appreciate any comments or suggestions. Please leave them below, no login required if you check “I’d rather post as a guest”.</p>
+<p>Referenes:</p>
+</div>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="https://www.cs.cornell.edu/courses/cs4780/2018fa/lectures/lecturenote07.html">Gradient Descent (and Beyond)</a><a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p><a href="https://people.math.umass.edu/~havens/Partials.pdf">Multivariate functions and partial derivatives. Section 3.2. The Gradient</a><a href="#fnref2" class="footnote-back">↩︎</a></p></li>
+<li id="fn3"><p><a href="https://www.cs.cornell.edu/courses/cs4780/2018fa/lectures/lecturenote07.html">Gradient Descent (and Beyond)</a><a href="#fnref3" class="footnote-back">↩︎</a></p></li>
+<li id="fn4"><p><a href="http://smlbook.org/">Supervised Machine Learning</a>, Chapter 5 “Learning parametric models”.<a href="#fnref4" class="footnote-back">↩︎</a></p></li>
+<li id="fn5"><p><a href="https://www.cs.cornell.edu/courses/cs4780/2018fa/lectures/lecturenote07.html">Gradient Descent (and Beyond)</a><a href="#fnref5" class="footnote-back">↩︎</a></p></li>
+<li id="fn6"><p><a href="https://www.cs.cornell.edu/courses/cs4780/2018fa/lectures/lecturenote07.html">Gradient Descent (and Beyond)</a><a href="#fnref6" class="footnote-back">↩︎</a></p></li>
+</ol>
+</div>

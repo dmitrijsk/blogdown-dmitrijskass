@@ -26,6 +26,7 @@ We want to minimize a convex, continuous and differentiable cost function $J(\ma
 * Code for linear regression and gradient descent is generalized to work with any first-order linear regression model, i.e., $y=w_0+w_1x_1+\dots+w_px_p$.
 * Gradient descent is implemented using an object-oriented approach.
 * Impact of the learning rate on convergence (divergence) is illustrated.
+* In the end, Adagrad is used to walk away for the dark art of guessing learning rates.
 
 # Theoretical idea of the gradient descent
 
@@ -181,11 +182,11 @@ Calculates the gradient, a one-dimensional array.
 
 **`fit` method**
 
-Implements the gradient descent algorithm. Line 5 calculates the gradient and line 6 updates the parameters.
+Implements the gradient descent algorithm. Line 6 calculates the gradient and line 7 updates the parameters.
 
-The value of parameters and cost at each iteration are saved in lines 7 and 9 for visualization purposes. 
+The value of parameters and cost at each iteration are saved in lines 8 and 11 for visualization purposes. 
 
-The number of iterations is limited by `self.max_iterations`. An early stoppage in lines 12-13 occurs when the Euclidean norm of the difference between the gradient descent solution and least squares solution passes the tolerance level. Alternatively, we could use the last two values of the cost function - stop if a decrease is less than some tolerance level.
+The number of iterations is limited by `self.max_iterations`. An early stoppage in lines 14-15 occurs when the Euclidean norm of the difference between the gradient descent solution and least squares solution passes the tolerance level. Alternatively, we could use the last two values of the cost function - stop if a decrease is less than some tolerance level.
 
 <script src="https://gist.github.com/dmitrijsk/d0c2154a89ba5d7adec23aaf9861afee.js"></script>
 
@@ -267,19 +268,53 @@ The fitted line does not seem to move during the first 20 iterations due to a hu
 ![](images/learning_rate_0.02.gif){width=70%}
 </center>
 
+<br>
 
-# Adaptive learning rate
+----
 
-A safe (but sometimes slow) choice is to set $\alpha = \frac{i_0}{i}$, where $i_0$ is any initial positive value and $i$ is the iteration counter. This guarantees that it will eventually become small enough to converge.[^6] Updates of $\alpha$ may be implemented with this line in the main loop of the algorithm:
+<br>
 
-<script src="https://gist.github.com/dmitrijsk/ee1be266b85afd31273f8ee8317568b6.js"></script>
+We would like to eliminate this dark art and stop guessing the right value for $\alpha$. A safe (but sometimes slow) choice is to set $\alpha = \frac{i_0}{i}$, where $i_0$ is any initial positive value and $i$ is the iteration counter. This guarantees that it will eventually become small enough to converge.[^6] With the same generated data and $i_0=1$ the algorithm converged in 278,951 iterations (slow indeed).
 
-With the same generated data and $i_0=1$ the algorithm converged in 278,951 iterations (slow indeed).
 
-## Adagrad
+# Adagrad - No More Guessing
 
-...
+When predictors have different scales (e.g., milligrams and tons), the gradient will mostly point in the direction of the predictor on the larger scale. As a result, the algorithm may take a long time to converge. [Adagrad](https://jmlr.org/papers/v12/duchi11a.html) (Duchi et al., 2011) sets the step size adaptively for each predictor separately. It keeps a running average of the squared gradient magnitude and sets a small step size for predictors that have large gradients, and a large step size for predictors with small gradients[^7].
 
+## Implementation
+
+**`__init__` method**
+
+Add the $G$ variable to keep a running average of the squared gradient magnitude.
+
+<script src="https://gist.github.com/dmitrijsk/b355159ede76bc8086e24e18bb96d2ca.js"></script>
+
+**`adagrad` method**
+
+Implements the adjustment for the gradient.
+
+<script src="https://gist.github.com/dmitrijsk/d7aef32138a01d6145ac456ca8f309de.js"></script>
+
+**`fit` method**
+
+Add line 7 to the existing `fit` method. The end result looks as follows:
+
+<script src="https://gist.github.com/dmitrijsk/2a54c374a94912c38ccce304774d5d58.js"></script>
+
+
+## Convergence
+
+With the same generated data and $\alpha = 1$ the algorithm converged in just 7 iterations. With $\alpha=100$ it converged in 10 iterations, so the learning rate $\alpha$ is not important any more.
+
+<center>
+![](images/4-surface_1.png){width=100%}
+</center>
+
+Animation below show all 7 iterations it took for the Adagrad to converge. Amazing.
+
+<center>
+![](images/learning_rate_1.gif){width=70%}
+</center>
 
 
 <hr>
@@ -295,3 +330,4 @@ References:
 [^4]: [Supervised Machine Learning](http://smlbook.org/), Chapter 5 "Learning parametric models".
 [^5]: [Gradient Descent (and Beyond)](https://www.cs.cornell.edu/courses/cs4780/2018fa/lectures/lecturenote07.html)
 [^6]: [Gradient Descent (and Beyond)](https://www.cs.cornell.edu/courses/cs4780/2018fa/lectures/lecturenote07.html)
+[^7]: [Gradient Descent (and Beyond)](https://www.cs.cornell.edu/courses/cs4780/2018fa/lectures/lecturenote07.html)

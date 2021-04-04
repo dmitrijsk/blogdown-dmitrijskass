@@ -35,7 +35,7 @@ Simplify the function you would like to minimize by using the first-order  Taylo
 
 $$J(\mathbf{w}+\mathbf{s}) \approx J(\mathbf{w}) + \nabla J(\mathbf{w})^T \mathbf{s},$$
 
-where $\nabla J(\mathbf{w})$ is the gradient of $J$. This approximation is valid only when the step size $\mathbf{s}$ is small and we will return to this in the learning rate discussion[^1].
+where $\nabla J(\mathbf{w})$ is the gradient of $J$. This approximation is valid only when the step size $\mathbf{s}$ is small[^1]. We will return to this in the learning rate discussion.
 
 The gradient vector 
 
@@ -83,7 +83,7 @@ $$\mathbf{w}^{(i+1)} \leftarrow \mathbf{w}^{(i)} - \alpha \nabla J(\mathbf{w}^{(
 
 Adapted from [^4]
 
-Now we need to define a function that we would like to minimize with the gradient descent. We will use linear regression with the squared loss.
+We will implement this algorithm with linear regression using the squared loss. Let's now define the linear regression and optimization problems.
 
 
 
@@ -120,7 +120,7 @@ $$J(\mathbf{w}) = \frac{1}{n} \sum_{i=1}^{n}(\widehat{y_i} - y_i)^2,$$
 
 where $n$ is the number of observations in the training data. It is a scalar-valued function. If $p=2$  then 
 
-$$J(\mathbf{w}) = \frac{1}{n} \sum_{i=1}^{n}(w_0 + w_1 x_{1i} + x_2 x_{2i} - y_i)^2,$$
+$$J(\mathbf{w}) = \frac{1}{n} \sum_{i=1}^{n}(w_0 + w_1 x_{1i} + w_2 x_{2i} - y_i)^2,$$
 
 and the gradient using the chain rule of calculus is
 
@@ -157,7 +157,9 @@ Other attributes are self-explanatory.
 
 **`predict` method**
 
-Calculates a one-dimensional array $\widehat{\mathbf{y}}$ using a vectorized dot product. $\mathbf{X}$ is an $n \times p$ data array. $\mathbf{w}$ is broadcasted to form a dot product with each row of $\mathbf{X}$
+Calculates a vectorized version of $\widehat{y} = \mathbf{\widehat{w}}^T \mathbf{x}$. 
+
+$\mathbf{X}$ is an $n$ (number of observations) by $p+1$ (number of predictors plus an intercept) array. $\mathbf{w}$ is broadcasted to form a dot product with each row of $\mathbf{X}$. The output is a one-dimensional array.
 
 <script src="https://gist.github.com/dmitrijsk/4537b80b06a17c11439952c28c64c5c6.js"></script>
 
@@ -239,6 +241,12 @@ When the learning rate is large (but not too large yet), convergence happens in 
 ![](images/4-surface_0.01.png){width=100%}
 </center>
 
+**Note:** This surface plot also reveals that the gradient descent algorithm does not really slide down the surface. In fact, it is a step-wise movement:
+
+* Start at $[ w_0^{(0)}, w_1^{(0)},J(w_0^{(0)}, w_1^{(0)}) ]$, which is $[0, 0, 13.5]$.
+* After the first update of the parameters, imagine the red dot moving in the $XY$ plane to $[ w_0^{(1)}, w_1^{(1)},J(w_0^{(0)}, w_1^{(0)}) ]$, which is $[0.05, 1.4, 13.5]$.
+* Then the cost is recalculated using $[ w_0^{(1)}, w_1^{(1)}]$ and the red dot descends to $[ w_0^{(1)}, w_1^{(1)},J(w_0^{(1)}, w_1^{(1)}) ]$, which is $[0.05, 1.4, 6.3]$. But it is not guaranteed to descent. If the step size in $XY$ plane was too large, the red dot would actually ascend and the algorithm would not converge. 
+
 Animation below illustrates the jumping behavior. With time, oscillations become smaller and eventually the algorithm converges.
 
 <center>
@@ -262,7 +270,7 @@ The fitted line does not seem to move during the first 20 iterations due to a hu
 
 # Adaptive learning rate
 
-A safe (but sometimes slow) choice is to set $\alpha = \frac{i_0}{i}$, where $i_0$ is any initial positive value and $i$ is the iteration counter. This guarantees that it will eventually become small enough to converge.[^6] Updates of $\alpha$ may be implemented with this line:
+A safe (but sometimes slow) choice is to set $\alpha = \frac{i_0}{i}$, where $i_0$ is any initial positive value and $i$ is the iteration counter. This guarantees that it will eventually become small enough to converge.[^6] Updates of $\alpha$ may be implemented with this line in the main loop of the algorithm:
 
 <script src="https://gist.github.com/dmitrijsk/ee1be266b85afd31273f8ee8317568b6.js"></script>
 
@@ -279,7 +287,7 @@ With the same generated data and $i_0=1$ the algorithm converged in 278,951 iter
 I would appreciate any comments or suggestions. Please leave them below, no login required if you check "I'd rather post as a guest".
 
 
-Referenes:
+References:
 
 [^1]: [Gradient Descent (and Beyond)](https://www.cs.cornell.edu/courses/cs4780/2018fa/lectures/lecturenote07.html)
 [^2]: [Multivariate functions and partial derivatives. Section 3.2. The Gradient](https://people.math.umass.edu/~havens/Partials.pdf)

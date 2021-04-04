@@ -174,6 +174,12 @@ The parameters are learned by minimizing the cost function <span class="math inl
 <center>
 <img src="images/4-surface_0.01.png" style="width:100.0%" />
 </center>
+<p><strong>Note:</strong> This surface plot also reveals that the gradient descent algorithm does not really slide down the surface. In fact, it is a step-wise movement:</p>
+<ul>
+<li>Start at <span class="math inline">\([ w_0^{(0)}, w_1^{(0)},J(w_0^{(0)}, w_1^{(0)}) ]\)</span>, which is <span class="math inline">\([0, 0, 13.5]\)</span>.</li>
+<li>After the first update of the parameters, imagine the red dot moving in the <span class="math inline">\(XY\)</span> plane to <span class="math inline">\([ w_0^{(1)}, w_1^{(1)},J(w_0^{(0)}, w_1^{(0)}) ]\)</span>, which is <span class="math inline">\([0.05, 1.4, 13.5]\)</span>.</li>
+<li>Then the cost is recalculated using <span class="math inline">\([ w_0^{(1)}, w_1^{(1)}]\)</span> and the red dot descends to <span class="math inline">\([ w_0^{(1)}, w_1^{(1)},J(w_0^{(1)}, w_1^{(1)}) ]\)</span>, which is <span class="math inline">\([0.05, 1.4, 6.3]\)</span>. But it is not guaranteed to descent. If the step size in <span class="math inline">\(XY\)</span> plane was too large, the red dot would actually ascend and the algorithm would not converge.</li>
+</ul>
 <p>Animation below illustrates the jumping behavior. With time, oscillations become smaller and eventually the algorithm converges.</p>
 <center>
 <img src="images/learning_rate_0.01.gif" style="width:70.0%" />
@@ -193,7 +199,7 @@ The parameters are learned by minimizing the cost function <span class="math inl
 </div>
 <div id="adaptive-learning-rate" class="section level1">
 <h1>Adaptive learning rate</h1>
-<p>A safe (but sometimes slow) choice is to set <span class="math inline">\(\alpha = \frac{i_0}{i}\)</span>, where <span class="math inline">\(i_0\)</span> is any initial positive value and <span class="math inline">\(i\)</span> is the iteration counter. This guarantees that it will eventually become small enough to converge.<a href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a> Updates of <span class="math inline">\(\alpha\)</span> may be implemented with this line:</p>
+<p>A safe (but sometimes slow) choice is to set <span class="math inline">\(\alpha = \frac{i_0}{i}\)</span>, where <span class="math inline">\(i_0\)</span> is any initial positive value and <span class="math inline">\(i\)</span> is the iteration counter. This guarantees that it will eventually become small enough to converge.<a href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a> Updates of <span class="math inline">\(\alpha\)</span> may be implemented with this line in the main loop of the algorithm:</p>
 <script src="https://gist.github.com/dmitrijsk/ee1be266b85afd31273f8ee8317568b6.js"></script>
 <p>With the same generated data and <span class="math inline">\(i_0=1\)</span> the algorithm converged in 278,951 iterations (slow indeed).</p>
 <div id="adagrad" class="section level2">

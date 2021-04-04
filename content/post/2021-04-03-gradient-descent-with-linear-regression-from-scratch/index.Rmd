@@ -241,6 +241,12 @@ When the learning rate is large (but not too large yet), convergence happens in 
 ![](images/4-surface_0.01.png){width=100%}
 </center>
 
+**Note:** This surface plot also reveals that the gradient descent algorithm does not really slide down the surface. In fact, it is a step-wise movement:
+
+* Start at $[ w_0^{(0)}, w_1^{(0)},J(w_0^{(0)}, w_1^{(0)}) ]$, which is $[0, 0, 13.5]$.
+* After the first update of the parameters, imagine the red dot moving in the $XY$ plane to $[ w_0^{(1)}, w_1^{(1)},J(w_0^{(0)}, w_1^{(0)}) ]$, which is $[0.05, 1.4, 13.5]$.
+* Then the cost is recalculated using $[ w_0^{(1)}, w_1^{(1)}]$ and the red dot descends to $[ w_0^{(1)}, w_1^{(1)},J(w_0^{(1)}, w_1^{(1)}) ]$, which is $[0.05, 1.4, 6.3]$. But it is not guaranteed to descent. If the step size in $XY$ plane was too large, the red dot would actually ascend and the algorithm would not converge. 
+
 Animation below illustrates the jumping behavior. With time, oscillations become smaller and eventually the algorithm converges.
 
 <center>
@@ -264,7 +270,7 @@ The fitted line does not seem to move during the first 20 iterations due to a hu
 
 # Adaptive learning rate
 
-A safe (but sometimes slow) choice is to set $\alpha = \frac{i_0}{i}$, where $i_0$ is any initial positive value and $i$ is the iteration counter. This guarantees that it will eventually become small enough to converge.[^6] Updates of $\alpha$ may be implemented with this line:
+A safe (but sometimes slow) choice is to set $\alpha = \frac{i_0}{i}$, where $i_0$ is any initial positive value and $i$ is the iteration counter. This guarantees that it will eventually become small enough to converge.[^6] Updates of $\alpha$ may be implemented with this line in the main loop of the algorithm:
 
 <script src="https://gist.github.com/dmitrijsk/ee1be266b85afd31273f8ee8317568b6.js"></script>
 

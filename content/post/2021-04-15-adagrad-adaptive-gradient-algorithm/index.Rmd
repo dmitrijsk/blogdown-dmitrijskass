@@ -1,0 +1,65 @@
+---
+title: Adaptive gradient algorithm (AdaGrad) from scratch in Python
+author: Dmitrijs Kass
+date: '2021-04-15'
+slug: adagrad-adaptive-gradient-algorithm
+categories:
+  - gradient descent
+  - Python
+tags: []
+---
+
+# Theoretical idea of AdaGrad
+
+
+When predictors have different scales (e.g., milligrams and tons), the gradient will mostly point in the direction of the predictor on the larger scale. As a result, the algorithm may take a long time to converge. [AdaGrad](https://jmlr.org/papers/v12/duchi11a.html) (Duchi et al., 2011) sets the step size adaptively for each predictor separately. It keeps a running average of the squared gradient magnitude and sets a small step size for predictors that have large gradients, and a large step size for predictors with small gradients[^1].
+
+# Algorithm
+
+**Input:** Objective function $J(\mathbf{w})$, initial $\mathbf{w}^{(0)}$, learning rate $\alpha$, tolerance level $\epsilon$. \
+**Result:** $\widehat{\mathbf{w}}$. 
+
+1. Set $i \leftarrow 0$
+2. **while** $\lVert \mathbf{w}^{(i)} - \mathbf{w}^{(i-1)} \rVert > \epsilon$  **do**
+    3. Update $\mathbf{w}^{(i+1)} \leftarrow \mathbf{w}^{(i)} - \alpha \nabla J(\mathbf{w}^{(i)})$
+    4. Update $i \leftarrow i + 1$
+5. **end**
+6. **return** $\widehat{\mathbf{w}} \leftarrow \mathbf{w}^{(i-1)}$
+
+Adapted from [^4]
+
+We will implement this algorithm with linear regression using the squared loss. Let's now define the linear regression and optimization problems.
+
+# Implementation in Python
+
+Implementation is almost the same as in the previous post [Gradient descent with linear regression from scratch in Python](/2021/04/03/gradient-descent-with-linear-regression-from-scratch/). We only replace the `grad` method with `adagrad` and use it in the `fit` method. 
+
+###`adagrad`
+
+Implements the adjustment for the gradient.
+
+
+
+
+## Convergence
+
+With the same generated data and $\alpha = 1$ the algorithm converged in just 7 iterations. With $\alpha=100$ it converged in 10 iterations, so the learning rate $\alpha$ is not important any more.
+
+<center>
+![](images/4-surface_1.png){width=100%}
+</center>
+
+Animation below show all 7 iterations it took for the AdaGrad to converge. Amazing.
+
+<center>
+![](images/learning_rate_1.gif){width=70%}
+</center>
+
+<hr>
+
+I would appreciate any comments or suggestions. Please leave them below, no login required if you check "I'd rather post as a guest".
+
+
+References:
+
+[^1]: [Gradient Descent (and Beyond)](https://www.cs.cornell.edu/courses/cs4780/2018fa/lectures/lecturenote07.html)

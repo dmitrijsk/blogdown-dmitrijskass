@@ -1,0 +1,61 @@
+---
+title: Adaptive gradient algorithm (AdaGrad) from scratch in Python
+author: Dmitrijs Kass
+date: '2021-04-15'
+slug: adagrad-adaptive-gradient-algorithm
+categories:
+  - gradient descent
+  - Python
+tags: []
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<div id="theoretical-idea-of-adagrad" class="section level1">
+<h1>Theoretical idea of AdaGrad</h1>
+<p>When predictors have different scales (e.g., milligrams and tons), the gradient will mostly point in the direction of the predictor on the larger scale. As a result, the algorithm may take a long time to converge. <a href="https://jmlr.org/papers/v12/duchi11a.html">AdaGrad</a> (Duchi et al., 2011) sets the step size adaptively for each predictor separately. It keeps a running average of the squared gradient magnitude and sets a small step size for predictors that have large gradients, and a large step size for predictors with small gradients<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>.</p>
+</div>
+<div id="algorithm" class="section level1">
+<h1>Algorithm</h1>
+<p><strong>Input:</strong> Objective function <span class="math inline">\(J(\mathbf{w})\)</span>, initial <span class="math inline">\(\mathbf{w}^{(0)}\)</span>, learning rate <span class="math inline">\(\alpha\)</span>, tolerance level <span class="math inline">\(\epsilon\)</span>.<br />
+<strong>Result:</strong> <span class="math inline">\(\widehat{\mathbf{w}}\)</span>.</p>
+<ol style="list-style-type: decimal">
+<li>Set <span class="math inline">\(i \leftarrow 0\)</span></li>
+<li><strong>while</strong> <span class="math inline">\(\lVert \mathbf{w}^{(i)} - \mathbf{w}^{(i-1)} \rVert &gt; \epsilon\)</span> <strong>do</strong>
+<ol start="3" style="list-style-type: decimal">
+<li>Update <span class="math inline">\(\mathbf{w}^{(i+1)} \leftarrow \mathbf{w}^{(i)} - \alpha \nabla J(\mathbf{w}^{(i)})\)</span></li>
+<li>Update <span class="math inline">\(i \leftarrow i + 1\)</span></li>
+</ol></li>
+<li><strong>end</strong></li>
+<li><strong>return</strong> <span class="math inline">\(\widehat{\mathbf{w}} \leftarrow \mathbf{w}^{(i-1)}\)</span></li>
+</ol>
+<p>Adapted from [^4]</p>
+<p>We will implement this algorithm with linear regression using the squared loss. Let’s now define the linear regression and optimization problems.</p>
+</div>
+<div id="implementation-in-python" class="section level1">
+<h1>Implementation in Python</h1>
+<p>Implementation is almost the same as in the previous post <a href="/2021/04/03/gradient-descent-with-linear-regression-from-scratch/">Gradient descent with linear regression from scratch in Python</a>. We only replace the <code>grad</code> method with <code>adagrad</code> and use it in the <code>fit</code> method.</p>
+<p>###<code>adagrad</code></p>
+<p>Implements the adjustment for the gradient.</p>
+<div id="convergence" class="section level2">
+<h2>Convergence</h2>
+<p>With the same generated data and <span class="math inline">\(\alpha = 1\)</span> the algorithm converged in just 7 iterations. With <span class="math inline">\(\alpha=100\)</span> it converged in 10 iterations, so the learning rate <span class="math inline">\(\alpha\)</span> is not important any more.</p>
+<center>
+<img src="images/4-surface_1.png" style="width:100.0%" />
+</center>
+<p>Animation below show all 7 iterations it took for the AdaGrad to converge. Amazing.</p>
+<center>
+<img src="images/learning_rate_1.gif" style="width:70.0%" />
+</center>
+<hr>
+<p>I would appreciate any comments or suggestions. Please leave them below, no login required if you check “I’d rather post as a guest”.</p>
+<p>References:</p>
+</div>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="https://www.cs.cornell.edu/courses/cs4780/2018fa/lectures/lecturenote07.html">Gradient Descent (and Beyond)</a><a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+</ol>
+</div>

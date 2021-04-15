@@ -5,7 +5,8 @@ Learning rate:
     Divergence: 0.02
 """
 
-path = "c:/Users/dmitr/Documents/git/blogdown-dmitrijskass/content/post/2021-04-03-gradient-descent-with-linear-regression-from-scratch/images/"
+# path = "c:/Users/dmitr/Documents/git/blogdown-dmitrijskass/content/post/2021-04-03-gradient-descent-with-linear-regression-from-scratch/images/"
+path = "./"
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -13,7 +14,7 @@ import viz_fun as viz           # User functions for visualization.
 
 
 class GradientDescentLinearRegression:
-    def __init__(self, X, y, learning_rate=0.01, max_iterations=10000, tolerance=1e-5):
+    def __init__(self, X, y, learning_rate=0.1, max_iterations=1000, eps=1e-5):
         self.X = X
         self.y = y
         
@@ -24,7 +25,9 @@ class GradientDescentLinearRegression:
         self.learning_rate = learning_rate   # Learning rate, alpha.
         self.max_iterations = max_iterations # Max iterations.
         self.iterations = 0                  # Actually performed iterartions.
-        self.tolerance = tolerance           # Tolerance, epsilon.
+        self.eps = eps                       # Epsilon.
+        
+        self.G = np.zeros(X.shape[1])       # For Adagrad to keep a running average of the squared gradient magnitude.
     
     def predict(self, X):
         return np.dot(X, self.w.T)
@@ -41,24 +44,38 @@ class GradientDescentLinearRegression:
         g = np.append(np.array(d_intercept), d_x)                    # Gradient.
         return g
 
-    def fit(self):        
+    def adagrad(self, g):
+        self.G += g**2
+        adjusted_g = g / (np.sqrt(self.G)  + self.eps)
+        return adjusted_g
+        
+    def fit(self):
         w_lstsq = np.linalg.lstsq(self.X, self.y, rcond = None)[0] # OLS solution.
         
         for iter in range(self.max_iterations):
             
-            # self.learning_rate = 1 / (iter + 1)                    # Adaptive alpha.
+            print(f"Iteration: {iter}")
+            
             g = self.grad()                                        # Calculate the gradient.
+            g = self.adagrad(g)                                    # Adagrad.
+            print(f"Gradient: {g}")
+            
             self.w = self.w - self.learning_rate * g               # Update parameters.
+            print(f"Parameters: {self.w}")
             self.w_hist.append(self.w)                             # Save to history.
+            
             J = self.cost()                                        # Calculate the cost.
+            print(f"Cost: {J}")
             self.cost_hist.append(J)                               # Save to history.
             
             # Stop if close to the OLS solution.
-            if np.linalg.norm(self.w - w_lstsq) < self.tolerance:
+            if np.linalg.norm(self.w - w_lstsq) < self.eps:
                 break
         self.iterations = iter
 
-
+# Simple alternative to adaptive alpha is 
+# self.learning_rate = 1 / (iter + self.eps)
+            
 def generate_data(n_predictors = 1, n_observations = 5, location = 1, scale = 3):
     """Generate data for the linear regression"""
     

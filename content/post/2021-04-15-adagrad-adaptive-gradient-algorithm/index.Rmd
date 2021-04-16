@@ -1,0 +1,100 @@
+---
+title: Adaptive gradient (AdaGrad) from scratch in Python
+author: Dmitrijs Kass
+date: '2021-04-15'
+slug: adagrad-adaptive-gradient-algorithm
+categories:
+  - gradient descent
+  - Python
+tags: []
+---
+
+One of the problems of the standard gradient descent is a difficulty of choosing a suitable learning rate. Another problem is that it treats all features as equal. But they are not![^stanford-lecture]. AdaGrad[^adagrad] is one of the gradient-based optimization algorithms that aim to solve both of these problems.
+
+AdaGrad adapts the learning rate individually to each model parameter. Setting different learning rates for different features is particularly important if they vary in frequency (e.g., common and rare words in word embeddings). Frequently occurring features receive very low learning rates (and small updates) and infrequent features high learning rates (and large updates). The intuition is that each time an infrequent feature is seen, the learner should "take notice". It does so by associating them with relatively larger learning rates during optimization. The same holds for features of different scale (e.g., milligrams and tons).
+
+# Theoretical idea of AdaGrad
+
+At every iteration $i$, the learner receives the gradient $\mathbf{g}^{(i)}$ vector. Standard gradient descent algorithm then multiplies it by the learning rate $\alpha$ and moves the model parameters in the opposite direction, i.e., $-\alpha\mathbf{g}^{(i)}$. AdaGrad dynamically incorporate knowledge of the geometry of the data observed in earlier iterations to perform more informative gradient-based learning. The outer product matrix $\mathbf{G}^{(i)}$ keeps records of the computed historical gradients from the beginning until the current iteration:
+
+$$\mathbf{G}^{(i)} = \sum_{t = 0}^{i} \mathbf{g}^{(t)} (\mathbf{g}^{(t)})^T.$$
+
+The parameter update rule is 
+
+$$\mathbf{w}^{(i)} \leftarrow \mathbf{w}^{(i-1)}-\eta\left(\mathbf{G}^{(i)}\right)^{-1/2} \mathbf{g}^{(i)},$$
+
+where $\eta$ is an arbitrary constant. According to [Duchi et al.](https://www.jmlr.org/papers/volume12/duchi11a/duchi11a.pdf), the above algorithm is computationally impractical in high dimensions since it requires computation of the root of the full matrix $\mathbf{G}^{(i)}$. Therefore, the diagonal matrix $\text{diag}(\mathbf{G}^{(i)})$ is used instead. Both the inverse and root of it can be computed in linear time.
+
+$\epsilon$ is added to the diagonal entries of $\text{diag}(\mathbf{G}^{(i)})$ to avoid division by zero. The update rule then becomes
+
+$$\mathbf{w}^{(i)} \leftarrow \mathbf{w}^{(i-1)}-\eta\left(\text{diag}\left(\mathbf{G}^{(i)}\right) + \epsilon\cdot\mathbf{I}\right)^{-1/2} \mathbf{g}^{(i)}.$$
+
+This is one way the update rule is often written, e.g., [here (page 13)](https://arxiv.org/pdf/1903.03614.pdf), [here (slide 83)](https://home.ttic.edu/~shubhendu/Pages/Files/Lecture6_pauses.pdf) and [here](https://ruder.io/optimizing-gradient-descent/index.html#adagrad). In practice, e.g., [here](https://cs231n.github.io/neural-networks-3/#ada), [here](https://www.cs.cornell.edu/courses/cs4780/2018fa/lectures/lecturenote07.html) and [here](http://d2l.ai/chapter_optimization/adagrad.html#the-algorithm), a mathematically equivalent form is used:
+
+$$\mathbf{G}^{(i)} = \mathbf{G}^{(i-1)} + \mathbf{g}^{(i)} \cdot \mathbf{g}^{(i)},$$
+
+where $\mathbf{G}^{(i)}$, sometimes called cache, is a vector of the same length as $\mathbf{g}^{(i)}$ and gradient is squared element-wise. Then the update rule is 
+
+$$\mathbf{w}^{(i)} \leftarrow \mathbf{w}^{(i-1)}-\frac{\eta}{\sqrt{\mathbf{G}^{(i)} + \epsilon}} \cdot \mathbf{g}^{(i)},$$
+
+where the learning rate and the gradient are multiplied element-wise. This mathematical transformation is nicely shown [here](https://medium.com/konvergen/an-introduction-to-adagrad-f130ae871827). In essence, the learning rate in AdaGrad keeps a running average of the squared gradient magnitude.
+
+If the elements of $\mathbf{G}^{(i)}$ are different then the learning rate for each feature will also be different. In addition, since $\mathbf{G}^{(i)}$ will be updated in each iteration, the learning rate for the same feature in different iterations will be different as well, which is the reason why the algorithm is called the adaptive gradient method.
+
+
+# Algorithm
+
+|   **Input:** Cost function $J(\mathbf{w})$, initial $\mathbf{w}^{(0)}$, initial $\mathbf{G}^{(0)}$, constants $\eta$ and $\epsilon$.
+|   **Result:** $\widehat{\mathbf{w}}$.
+| $\texttt{1}$ Set $i \leftarrow 0$
+| $\texttt{2}$ **while** $\lVert \mathbf{w}^{(i)} - \mathbf{w}^{(i-1)} \rVert > \epsilon$  **do**
+| $\texttt{3}$ $\text{    }$ Compute gradient vector $\mathbf{g}^{(i)} = \nabla J(\mathbf{w}^{(i)})$
+| $\texttt{4}$ $\text{    }$ Update cache $\mathbf{G}^{(i+1)} \leftarrow \mathbf{G}^{(i)} + \mathbf{g}^{(i)} \cdot \mathbf{g}^{(i)}$
+| $\texttt{5}$ $\text{    }$ Update parameters $\mathbf{w}^{(i+1)} \leftarrow \mathbf{w}^{(i)}-\frac{\eta}{\sqrt{\mathbf{G}^{(i+1)} + \epsilon}} \mathbf{g}^{(i)}$
+| $\texttt{6}$ $\text{    }$ Update $i \leftarrow i + 1$
+| $\texttt{7}$ **end**
+| $\texttt{8}$ **return** $\widehat{\mathbf{w}} \leftarrow \mathbf{w}^{(i-1)}$
+
+
+
+# Implementation in Python
+
+Full code is available at my [GitHub repository](https://github.com/dmitrijsk/blogdown-dmitrijskass/tree/gradient-descent-with-linear-regression-from-scratch/content/post/2021-04-03-gradient-descent-with-linear-regression-from-scratch/code). Only a few changes need to be implemented in the gradient descent code with linear regression from [the previous post](/2021/04/03/gradient-descent-with-linear-regression-from-scratch/). Cache is initialized as a zero vector in line 56 and updated in line 63. The step size is calculated in lines 64-65. $\eta$ is usually set at 0.01[^ruder] and $\epsilon$ is a small number, e.g., 1e-6.
+
+<script src="https://gist.github.com/dmitrijsk/e39fc06f223f00fc3f4afbe29a5aaa1f.js"></script>
+
+
+# Convergence
+
+To test convergence we use a toy dataset from [the previous post](/2021/04/03/gradient-descent-with-linear-regression-from-scratch/):
+
+<center>
+![](images/1-generated-data.png){width=70%}
+</center>
+
+With $\eta=0.01$ and $\epsilon=1e-6$ the algorithm converges in 10,579 iterations. However, the beauty of AdaGrad is that it eliminates the need to manually tune the learning rate. With $\eta=1$ it converges in 11 iterations (illustrated below) and with an extremely high $\eta=10$ is still converges in 12 iterations.
+
+<center>
+![](images/4-surface_1.png){width=100%}
+</center>
+
+Animation below show all 11 iterations AdaGrad needs to converge on the toy dataset with $\eta=1$.
+
+<center>
+![](images/learning_rate_1.gif){width=70%}
+</center>
+
+The weakness of AdaGrad is an aggressive monotonic growth of the denominator as squared gradients get accumulated. After a certain number of iterations the learning rate becomes infinitesimally small, at which point the algorithm essentially stops making steps in the direction of the minimum. ADADELTA[^adadelta] is an extension of AdaGrad that seeks to reduce its aggressive, monotonically decreasing learning rate.
+
+
+<hr>
+
+I would appreciate any comments or suggestions. Please leave them below, no login required if you check "I'd rather post as a guest".
+
+
+
+[^stanford-lecture]: Duchi, J., Hazan, E., & Singer, Y. Adaptive Subgradient Methods for Online Learning and Stochastic Optimization. *International Symposium on Mathematical Programming 2012*. Available at: https://web.stanford.edu/~jduchi/projects/DuchiHaSi12_ismp.pdf
+[^adagrad]: Duchi, J., Hazan, E., & Singer, Y. (2011). Adaptive subgradient methods for online learning and stochastic optimization. *Journal of machine learning research, 12(7).* Available at: http://jmlr.org/papers/v12/duchi11a.html
+[^ruder]: Ruder, S. (2016, January 19). An overview of gradient descent optimization algorithms. Sebastian Ruder blog.  Available at: https://ruder.io/optimizing-gradient-descent/index.html#adagrad
+[^adadelta]: Zeiler, M. D. (2012). ADADELTA: an adaptive learning rate method. *arXiv preprint arXiv:1212.5701.* Available at: https://arxiv.org/abs/1212.5701
+

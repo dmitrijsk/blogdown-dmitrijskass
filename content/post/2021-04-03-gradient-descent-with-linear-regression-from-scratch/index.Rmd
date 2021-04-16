@@ -1,5 +1,5 @@
 ---
-title: Gradient descent with linear regression from scratch (Python)
+title: Gradient descent with linear regression from scratch in Python
 author: Dmitrijs Kass
 date: '2021-04-03'
 slug: gradient-descent-with-linear-regression-from-scratch
@@ -10,15 +10,6 @@ categories:
 tags: []
 ---
 
-<p style="font-family:'Merriweather';color:blue;font-size:70%;">
-TODO: Match arguments and wording in the description of `sklearn.linear_model.LinearRegression`. [Source](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html)
-</p>
-
-<p style="font-family:'Merriweather';color:blue;font-size:70%;">
-TODO: Clean the references.
-</p>
-
-
 ![](images/surface.png){width=100%}
 
 We want to minimize a convex, continuous and differentiable cost function $J(\mathbf{w})$. In this blog post we discuss the most popular "hill-climbing" algorithm, **gradient descent**, using linear regression, and build it from scratch in Python. A few highlights:
@@ -26,7 +17,7 @@ We want to minimize a convex, continuous and differentiable cost function $J(\ma
 * Code for linear regression and gradient descent is generalized to work with any first-order linear regression model, i.e., $y=w_0+w_1x_1+\dots+w_px_p$.
 * Gradient descent is implemented using an object-oriented approach.
 * Impact of the learning rate on convergence (divergence) is illustrated.
-* In the end, Adagrad is used to walk away for the dark art of guessing learning rates.
+
 
 # Theoretical idea of the gradient descent
 
@@ -36,7 +27,9 @@ Simplify the function you would like to minimize by using the first-order  Taylo
 
 $$J(\mathbf{w}+\mathbf{s}) \approx J(\mathbf{w}) + \nabla J(\mathbf{w})^T \mathbf{s},$$
 
-where $\nabla J(\mathbf{w})$ is the gradient of $J$. This approximation is valid only when the step size $\mathbf{s}$ is small[^1]. We will return to this in the learning rate discussion.
+where $\nabla J(\mathbf{w})$ is the gradient of $J$. This approximation is valid only when the step size $\mathbf{s}$ is small[^gradient-descent-and-beyond]. We will return to this in the learning rate discussion.
+
+## Gradient
 
 The gradient vector 
 
@@ -49,17 +42,17 @@ $$
 \end{array}\right]
 $$
 
-gives the direction of steepest ascent on the surface of the function $J$, and the rate of change in this direction is $\lVert \nabla J(\mathbf{w}) \rVert$. [^2]
+gives the direction of steepest ascent on the surface of the function $J$, and the rate of change in this direction is $\lVert \nabla J(\mathbf{w}) \rVert$. [^partials]
 
 
-<p style="font-family:'Merriweather';color:blue;font-size:70%;">
-TODO: Add a surface plot with 3 arrows: in the direction of $w_0$, $w_1$ and the gradient vector. E.g., [here](https://physics.stackexchange.com/questions/368634/direction-of-velocity-vector-in-3d-space)
-</p>
+<!-- <p style="font-family:'Merriweather';color:blue;font-size:70%;"> -->
+<!-- TODO: Add a surface plot with 3 arrows: in the direction of $w_0$, $w_1$ and the gradient vector. E.g., [here](https://physics.stackexchange.com/questions/368634/direction-of-velocity-vector-in-3d-space) -->
+<!-- </p> -->
 
 
 ## Convergence
 
-Consequently, $-\nabla J(\mathbf{w})$ points in the direction of the steepest descent. Setting $\mathbf{s} = -\alpha \nabla J(\mathbf{w})$ for a *sufficiently small* $\alpha>0$ guarantees to decrease the function[^3]:
+Consequently, $-\nabla J(\mathbf{w})$ points in the direction of the steepest descent. Setting $\mathbf{s} = -\alpha \nabla J(\mathbf{w})$ for a *sufficiently small* $\alpha>0$ guarantees to decrease the function[^see-one]:
 
 $\underset{after\ one\ update}{\underbrace{J(\mathbf{w} + (-\alpha \nabla J(\mathbf{w}))}} \approx J(\mathbf{w}) - \underset{>0}{\underbrace{\alpha\overset{>0}{\overbrace{ \nabla J(\mathbf{w})^T \nabla J(\mathbf{w})}}}} < \underset{before}{\underbrace{J(\mathbf{w})}}$
 
@@ -82,7 +75,7 @@ $$\mathbf{w}^{(i+1)} \leftarrow \mathbf{w}^{(i)} - \alpha \nabla J(\mathbf{w}^{(
 5. **end**
 6. **return** $\widehat{\mathbf{w}} \leftarrow \mathbf{w}^{(i-1)}$
 
-Adapted from [^4]
+Adapted from [^sml]
 
 We will implement this algorithm with linear regression using the squared loss. Let's now define the linear regression and optimization problems.
 
@@ -119,7 +112,7 @@ The cost function with the squared error loss is given by
 
 $$J(\mathbf{w}) = \frac{1}{n} \sum_{i=1}^{n}(\widehat{y_i} - y_i)^2,$$
 
-where $n$ is the number of observations in the training data. It is a scalar-valued function. If $p=2$  then 
+where $n$ is the number of samples in the training data. It is a scalar-valued function. If $p=2$  then 
 
 $$J(\mathbf{w}) = \frac{1}{n} \sum_{i=1}^{n}(w_0 + w_1 x_{1i} + w_2 x_{2i} - y_i)^2,$$
 
@@ -139,75 +132,47 @@ $$\nabla J(\mathbf{w})=
 2 \sum_{i=1}^{n}(w_0 + w_1 x_{1i} + x_2 x_{2i} - y_i) (-x_{2i})
 \end{array}\right]$$
 
-**Note:** When I first encountered the gradient descent, I could not understand how the gradient can be calculated from discrete data points. *"Derivatives require continuity, but I am given just a few data points"*, I thought. But this is a wrong way to think about the gradient. The gradient is calculated using the function (in our case, $J(\mathbf{w})$) and has nothing to do with the actual data at this stage. Notice how we calculated the gradient above and we did not care about the data points yet. Data points are used *to evaluate* the gradient at *a specific* point (in our case, at $\mathbf{w^{(i)}}$ in each iteration $i$ of the gradient descent algorithm).
-
+<div style="padding:10px;background-color:#EBEBEB;line-height:1.3;">
+**Note:** When I first encountered the gradient descent, I could not understand how the gradient can be calculated from discrete data points. *"Derivatives require continuity, but I am given just a few data points"*, I thought. But this is a wrong way to think about the gradient. The gradient is calculated using a given function (in our case, $J(\mathbf{w})$) and has nothing to do with the actual data at this stage. Notice how we calculated the gradient above and we did not care about the data points yet. Data points are used *to evaluate* the gradient at *a specific* point (in our case, at $\mathbf{w^{(i)}}$ in each iteration $i$ of the gradient descent algorithm).
+</div>
 
 # Implementation in Python
 
-I chose an object-oriented approach because it keeps the environment clean and abstracts the unnecessary details away.
+<script src="https://gist.github.com/dmitrijsk/56cd0192432d76a2d1ca6a5d34361654.js"></script>
 
-**`__init__` method**
+### `grad`
 
-<script src="https://gist.github.com/dmitrijsk/ab0db28bbc5ea2b78e4aaabdab48e6bb.js"></script>
+Returns the gradient vector. `d_intercept` is a partial derivative of the cost function w.r.t. the intercept $w_0$. `d_x` is a partial derivative of the cost function w.r.t. to input variables ($w_1, \dots, w_p$).
 
-Initial parameters `self.w` ($w^{(0)}$) are initialized as a zero vector. Initialization can be done arbitrarily here because we are dealing with a convex loss function. For convex problems there is only one stationary point, which also is the global minimum. 
+### `fit`
 
+Line 55 initializes initial parameters $\mathbf{w^{(0)}}$ as a zero vector. Initialization can be done arbitrarily here because we are dealing with a convex loss function. For convex problems there is only one stationary point, which also is the global minimum.
+
+<div style="padding:10px;background-color:#EBEBEB;line-height:1.3;">
 **Note:** Sometimes we can save computation time by *warm-starting* the optimization procedure with a good initial guess. For example, iterations $2..k$ of a $k$-fold cross-validation may use parameters corresponding to a minimum loss in the previous iterations.
+</div>
 
-Other attributes are self-explanatory.
+Lines 59-73 implement the gradient descent algorithm. Line 61 calculates the gradient, line 63 updates the parameters, line 66 calculates the value of the cost function. An early stoppage occurs when the Euclidean norm of the difference in parameters in the last two iterations becomes less than the tolerance level.
 
-**`predict` method**
 
-Calculates a vectorized version of $\widehat{y} = \mathbf{\widehat{w}}^T \mathbf{x}$. 
 
-$\mathbf{X}$ is an $n$ (number of observations) by $p+1$ (number of predictors plus an intercept) array. $\mathbf{w}$ is broadcasted to form a dot product with each row of $\mathbf{X}$. The output is a one-dimensional array.
-
-<script src="https://gist.github.com/dmitrijsk/4537b80b06a17c11439952c28c64c5c6.js"></script>
-
-**`cost` method**
-
-Calculates the value of the cost function using the current parameters. It is a scalar.
-
-<script src="https://gist.github.com/dmitrijsk/4b9ffdd2c529e5e6f49cbbabd45bc275.js"></script>
-
-**`grad` method**
-
-Calculates the gradient, a one-dimensional array.
-
-`d_intercept` is a partial derivative of the cost function w.r.t. the intercept ($w_0$). It is a scalar.
-
-`d_x` is a partial derivative of the cost function w.r.t. to input variables ($w_1, \dots, w_p$). It is vectorized, so its dimensions depend on the number of parameters in the linear regression model. It is a scalar if $p=1$ and a one-dimensional array otherwise.
-
-<script src="https://gist.github.com/dmitrijsk/e17bfae70b634675874d599390d1dffa.js"></script>
-
-**`fit` method**
-
-Implements the gradient descent algorithm. Line 6 calculates the gradient and line 7 updates the parameters.
-
-The value of parameters and cost at each iteration are saved in lines 8 and 11 for visualization purposes. 
-
-The number of iterations is limited by `self.max_iterations`. An early stoppage in lines 14-15 occurs when the Euclidean norm of the difference between the gradient descent solution and least squares solution passes the tolerance level. Alternatively, we could use the last two values of the cost function - stop if a decrease is less than some tolerance level.
-
-<script src="https://gist.github.com/dmitrijsk/d0c2154a89ba5d7adec23aaf9861afee.js"></script>
 
 # Learning rate and convergence
 
-*"Setting the learning rate $\alpha>0$ is a dark art. Only if it is sufficiently small will gradient descent converge"*[^5]. Below we take a look at how four different (tediously picked though trial and error) values of $\alpha$ impact the convergence and later we walk away from guessing.
+"Setting the learning rate $\alpha>0$ is a dark art. Only if it is sufficiently small will gradient descent converge"[^see-one]. Below we take a look at how a choice of $\alpha$ impacts convergence.
 
-Let's generate $\mathbf{X}$ and $\mathbf{y}$ data for the linear regression and use gradient descent to fit a straight line. Full code is available at my [GitHub repository](https://github.com/dmitrijsk/blogdown-dmitrijskass/tree/gradient-descent-with-linear-regression-from-scratch/content/post/2021-04-03-gradient-descent-with-linear-regression-from-scratch/code), so I omit the majority of details. Generated data looks as follows:
+Let's generate $\mathbf{X}$ and $\mathbf{y}$ data for the linear regression and use gradient descent to fit a straight line. Full code is available at my [GitHub repository](https://github.com/dmitrijsk/blogdown-dmitrijskass/tree/gradient-descent-with-linear-regression-from-scratch/content/post/2021-04-03-gradient-descent-with-linear-regression-from-scratch/code). Generated data looks as follows:
 
 <center>
 ![](images/1-generated-data.png){width=70%}
 </center>
 
-We fit the line using the gradient descent as follows:
-
-<script src="https://gist.github.com/dmitrijsk/af03fc2696cbbaebec56cca10a1a7439.js"></script>
+We fit the line using the gradient descent with `GradientDescentLinearRegression().fit(X, y)`.
 
 
 ## Slow convergence
 
-With learning rate $\alpha=0.001$ the algorithm slowly converges in 1001 iterations. The surface plot below is the surface of the cost function $J(\mathbf{w})$. Red dots are updated parameters from initial $\mathbf{w}^{(0)} = [0,0]$ to optimal $\mathbf{w}^{(1001)} = [0.24, 0.84]$.
+With learning rate $\alpha=0.001$ the algorithm slowly converges in 772 iterations. The surface plot below is the surface of the cost function $J(\mathbf{w})$. Red dots are updated parameters from initial $\mathbf{w}^{(0)} = [0,0]$ to optimal $\mathbf{w}^{(1001)} = [0.24, 0.84]$.
 
 <center>
 ![](images/4-surface_0.001.png){width=100%}
@@ -222,7 +187,7 @@ Animation below shows how the line is slowly fitted though iterations 1 to 30.
 
 ## Good convergence
 
-Learning rate $\alpha=0.005$ seems to be a better guess and the algorithm converges in 196 iterations. After the first three steps the parameters are fairly close to the optimal solution.
+Learning rate $\alpha=0.005$ seems to be a better guess and the algorithm converges in 184 iterations. After the first three steps the parameters are fairly close to the optimal solution.
 
 <center>
 ![](images/4-surface_0.005.png){width=100%}
@@ -236,17 +201,17 @@ The animation below illustrates the last statement - after the first three itera
 
 ## Jumps
 
-When the learning rate is large (but not too large yet), convergence happens in jumps. The change in $\mathbf{w}$ is large enough to take the updated parameters to the other side of the surface, surpassing the minimum point. With learning rate $\alpha=0.01$ the convergence shows this jumping behavior. Nevertheless, the algorithm converges because the magnitude of the gradient becomes smaller after each iteration. Convergence takes 95 iterations.
+When the learning rate is large (but not too large yet), convergence happens in jumps. The change in $\mathbf{w}$ is large enough to take the updated parameters to the other side of the surface, surpassing the minimum point. With learning rate $\alpha=0.01$ the convergence shows this jumping behavior. Nevertheless, the algorithm converges because the magnitude of the gradient becomes smaller after each iteration. Convergence takes 97 iterations.
 
 <center>
 ![](images/4-surface_0.01.png){width=100%}
 </center>
 
-**Note:** This surface plot also reveals that the gradient descent algorithm does not really slide down the surface. In fact, it is a step-wise movement:
+This surface plot also reveals that the gradient descent algorithm does not really slide down the surface. In fact, it is a step-wise movement:
 
 * Start at $[ w_0^{(0)}, w_1^{(0)},J(w_0^{(0)}, w_1^{(0)}) ]$, which is $[0, 0, 13.5]$.
 * After the first update of the parameters, imagine the red dot moving in the $XY$ plane to $[ w_0^{(1)}, w_1^{(1)},J(w_0^{(0)}, w_1^{(0)}) ]$, which is $[0.05, 1.4, 13.5]$.
-* Then the cost is recalculated using $[ w_0^{(1)}, w_1^{(1)}]$ and the red dot descends to $[ w_0^{(1)}, w_1^{(1)},J(w_0^{(1)}, w_1^{(1)}) ]$, which is $[0.05, 1.4, 6.3]$. But it is not guaranteed to descent. If the step size in $XY$ plane was too large, the red dot would actually ascend and the algorithm would not converge. 
+* Then the cost is recalculated using $[ w_0^{(1)}, w_1^{(1)}]$ and the red dot descends to $[ w_0^{(1)}, w_1^{(1)},J(w_0^{(1)}, w_1^{(1)}) ]$, which is $[0.05, 1.4, 6.3]$. But it is not guaranteed to descent. If the step size in $XY$ plane was too large, the red dot would actually ascend and the algorithm would diverge. 
 
 Animation below illustrates the jumping behavior. With time, oscillations become smaller and eventually the algorithm converges.
 
@@ -256,78 +221,31 @@ Animation below illustrates the jumping behavior. With time, oscillations become
 
 ## Divergence
 
-Learning rate $\alpha=0.02$ turns out to be too high. The magnitude of the gradient grows after the first iteration, which proportionally (because $\alpha$ is fixed) increases the step size for the next iteration. In this fashion, parameters $\mathbf{w}^{(i)}$ spiral away from the minimum very rapidly - compare the scale of $z$ axis on the previous plot and the one below with only four iterations.
+Learning rate $\alpha=0.02$ turns out to be too high. The magnitude of the gradient grows after the first iteration, which increases the step size for the next iteration. In this fashion, parameters $\mathbf{w}^{(i)}$ spiral away from the minimum very rapidly - compare the scale of $z$ axis on the previous plot and the one below with only four iterations.
 
 <center>
 ![](images/4-surface_0.02.png){width=100%}
 </center>
 
-The fitted line does not seem to move during the first 20 iterations due to a huge scale of the plot (1e+10). However, later we see that the line starts to swing wildly and quickly approaches a vertical position where the cost becomes infinitely large.
+The fitted line does not seem to move during the first 20 iterations due to a huge scale of the plot (1e+10). However, later we see that the line starts to swing wildly and quickly approaches a vertical where the cost becomes infinitely large.
 
 <center>
 ![](images/learning_rate_0.02.gif){width=70%}
 </center>
 
-<br>
-
-----
 
 <br>
 
-We would like to eliminate this dark art and stop guessing the right value for $\alpha$. A safe (but sometimes slow) choice is to set $\alpha = \frac{i_0}{i}$, where $i_0$ is any initial positive value and $i$ is the iteration counter. This guarantees that it will eventually become small enough to converge.[^6] With the same generated data and $i_0=1$ the algorithm converged in 278,951 iterations (slow indeed).
+We would like to get rid of the dark art of guessing learning rates. A safe (but sometimes slow) choice is to set $\alpha = \frac{i_0}{i}$, where $i_0$ is any initial positive value and $i$ is the iteration counter. This guarantees that it will eventually become small enough to converge[^see-one]. With the same generated data and $i_0=1$ the algorithm converged in 278,951 iterations (slow indeed).
 
-
-# Adagrad - No More Guessing
-
-When predictors have different scales (e.g., milligrams and tons), the gradient will mostly point in the direction of the predictor on the larger scale. As a result, the algorithm may take a long time to converge. [Adagrad](https://jmlr.org/papers/v12/duchi11a.html) (Duchi et al., 2011) sets the step size adaptively for each predictor separately. It keeps a running average of the squared gradient magnitude and sets a small step size for predictors that have large gradients, and a large step size for predictors with small gradients[^7].
-
-## Implementation
-
-**`__init__` method**
-
-Add the $G$ variable to keep a running average of the squared gradient magnitude.
-
-<script src="https://gist.github.com/dmitrijsk/b355159ede76bc8086e24e18bb96d2ca.js"></script>
-
-**`adagrad` method**
-
-Implements the adjustment for the gradient.
-
-<script src="https://gist.github.com/dmitrijsk/d7aef32138a01d6145ac456ca8f309de.js"></script>
-
-**`fit` method**
-
-Add line 7 to the existing `fit` method. The end result looks as follows:
-
-<script src="https://gist.github.com/dmitrijsk/2a54c374a94912c38ccce304774d5d58.js"></script>
-
-
-## Convergence
-
-With the same generated data and $\alpha = 1$ the algorithm converged in just 7 iterations. With $\alpha=100$ it converged in 10 iterations, so the learning rate $\alpha$ is not important any more.
-
-<center>
-![](images/4-surface_1.png){width=100%}
-</center>
-
-Animation below show all 7 iterations it took for the Adagrad to converge. Amazing.
-
-<center>
-![](images/learning_rate_1.gif){width=70%}
-</center>
+In the [next post](/2021/04/15/adagrad-adaptive-gradient-algorithm/) we will look at the adaptive gradient algorithm AdaGrad, which performs more informative gradient-based learning by adapting the learning for each predictor individually and does not require guessing $\alpha$.
 
 
 <hr>
 
 I would appreciate any comments or suggestions. Please leave them below, no login required if you check "I'd rather post as a guest".
 
-
-References:
-
-[^1]: [Gradient Descent (and Beyond)](https://www.cs.cornell.edu/courses/cs4780/2018fa/lectures/lecturenote07.html)
-[^2]: [Multivariate functions and partial derivatives. Section 3.2. The Gradient](https://people.math.umass.edu/~havens/Partials.pdf)
-[^3]: [Gradient Descent (and Beyond)](https://www.cs.cornell.edu/courses/cs4780/2018fa/lectures/lecturenote07.html)
-[^4]: [Supervised Machine Learning](http://smlbook.org/), Chapter 5 "Learning parametric models".
-[^5]: [Gradient Descent (and Beyond)](https://www.cs.cornell.edu/courses/cs4780/2018fa/lectures/lecturenote07.html)
-[^6]: [Gradient Descent (and Beyond)](https://www.cs.cornell.edu/courses/cs4780/2018fa/lectures/lecturenote07.html)
-[^7]: [Gradient Descent (and Beyond)](https://www.cs.cornell.edu/courses/cs4780/2018fa/lectures/lecturenote07.html)
+[^see-one]: See 1.
+[^gradient-descent-and-beyond]: "Gradient Descent (and Beyond)". Lecture notes for the "Machine Learning for Intelligent Systems" course at Cornell University. [Link](https://www.cs.cornell.edu/courses/cs4780/2018fa/lectures/lecturenote07.html)
+[^partials]: Havens, A. Multivariate functions and partial derivatives. [Link](https://people.math.umass.edu/~havens/Partials.pdf)
+[^sml]: Lindholm, A., Wahlström, N., Lindsten, F., & Schön, T. B. (2020). Machine Learning - A First Course for Engineers and Scientists. Chapter 5 "Learning parametric models". *Unpublished*. [Link](http://smlbook.org/)

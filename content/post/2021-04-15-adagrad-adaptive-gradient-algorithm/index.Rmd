@@ -59,7 +59,7 @@ If the elements of $\mathbf{G}^{(i)}$ are different then the learning rate for e
 
 # Implementation in Python
 
-Only a few changes need to be implemented in the gradient descent code with linear regression from [the previous post](/2021/04/03/gradient-descent-with-linear-regression-from-scratch/). Cache is initialized as a zero vector in line 56 and updated in line 63. The step size is calculated in lines 64-65. $\eta$ is usually set at 0.01[^ruder] and $\epsilon$ is a small number, e.g., 1e-6.
+Full code is available at my [GitHub repository](https://github.com/dmitrijsk/blogdown-dmitrijskass/tree/gradient-descent-with-linear-regression-from-scratch/content/post/2021-04-03-gradient-descent-with-linear-regression-from-scratch/code). Only a few changes need to be implemented in the gradient descent code with linear regression from [the previous post](/2021/04/03/gradient-descent-with-linear-regression-from-scratch/). Cache is initialized as a zero vector in line 56 and updated in line 63. The step size is calculated in lines 64-65. $\eta$ is usually set at 0.01[^ruder] and $\epsilon$ is a small number, e.g., 1e-6.
 
 <script src="https://gist.github.com/dmitrijsk/e39fc06f223f00fc3f4afbe29a5aaa1f.js"></script>
 
@@ -72,7 +72,7 @@ To test convergence we use a toy dataset from [the previous post](/2021/04/03/gr
 ![](images/1-generated-data.png){width=70%}
 </center>
 
-With $\eta=0.01$ and $\epsilon=1e-6$ the algorithm converges in 10,578 iterations. However, the beauty of AdaGrad is that it eliminates the need to manually tune the learning rate. With $\eta=1$ it converges in 11 iterations (illustrated below) and with an extremely high $\eta=10$ is still converges in 12 iterations.
+With $\eta=0.01$ and $\epsilon=1e-6$ the algorithm converges in 10,579 iterations. However, the beauty of AdaGrad is that it eliminates the need to manually tune the learning rate. With $\eta=1$ it converges in 11 iterations (illustrated below) and with an extremely high $\eta=10$ is still converges in 12 iterations.
 
 <center>
 ![](images/4-surface_1.png){width=100%}
@@ -93,8 +93,8 @@ I would appreciate any comments or suggestions. Please leave them below, no logi
 
 
 
-[^adagrad]: Duchi, J., Hazan, E., & Singer, Y. (2011). Adaptive Subgradient Methods for Online Learning and Stochastic Optimization. Journal of Machine Learning Research, 12, 2121–2159. Available at: http://jmlr.org/papers/v12/duchi11a.html
-[^gd-and-beyond]: [Gradient Descent (and Beyond)](https://www.cs.cornell.edu/courses/cs4780/2018fa/lectures/lecturenote07.html)
-[^ruder]: Sebastian Ruder An overview of gradient descent optimization algorithms  https://ruder.io/optimizing-gradient-descent/index.html#adagrad
-[^adadelta]: Zeiler, M.D. (2012). ADADELTA: An Adaptive Learning Rate Method. Available at: http://arxiv.org/abs/1212.5701
-[^stanford-lecture]: https://web.stanford.edu/~jduchi/projects/DuchiHaSi12_ismp.pdf
+[^stanford-lecture]: Duchi, J., Hazan, E., & Singer, Y. Adaptive Subgradient Methods for Online Learning and Stochastic Optimization. *International Symposium on Mathematical Programming 2012*. Available at: https://web.stanford.edu/~jduchi/projects/DuchiHaSi12_ismp.pdf
+[^adagrad]: Duchi, J., Hazan, E., & Singer, Y. (2011). Adaptive subgradient methods for online learning and stochastic optimization. *Journal of machine learning research, 12(7).* Available at: http://jmlr.org/papers/v12/duchi11a.html
+[^ruder]: Ruder, S. (2016, January 19). An overview of gradient descent optimization algorithms. Sebastian Ruder blog.  Available at: https://ruder.io/optimizing-gradient-descent/index.html#adagrad
+[^adadelta]: Zeiler, M. D. (2012). ADADELTA: an adaptive learning rate method. *arXiv preprint arXiv:1212.5701.* Available at: https://arxiv.org/abs/1212.5701
+

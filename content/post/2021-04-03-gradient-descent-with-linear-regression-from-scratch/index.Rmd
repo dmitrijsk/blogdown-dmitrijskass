@@ -142,7 +142,7 @@ $$\nabla J(\mathbf{w})=
 
 ### `grad`
 
-Returns the gradient vector of shape $[p+1, 1]$. `d_intercept` is a partial derivative of the cost function w.r.t. the intercept $w_0$. `d_x` is a partial derivative of the cost function w.r.t. to input variables ($w_1, \dots, w_p$).
+Returns the gradient vector. `d_intercept` is a partial derivative of the cost function w.r.t. the intercept $w_0$. `d_x` is a partial derivative of the cost function w.r.t. to input variables ($w_1, \dots, w_p$).
 
 ### `fit`
 
@@ -152,7 +152,7 @@ Line 55 initializes initial parameters $\mathbf{w^{(0)}}$ as a zero vector. Init
 **Note:** Sometimes we can save computation time by *warm-starting* the optimization procedure with a good initial guess. For example, iterations $2..k$ of a $k$-fold cross-validation may use parameters corresponding to a minimum loss in the previous iterations.
 </div>
 
-Line 61-72 implement the gradient descent algorithm. Line 63 calculates the gradient, line 64 updates the parameters, line 66 calculates the value of the cost function. An early stoppage occurs when the Euclidean norm of the difference between the gradient descent solution and least squares solution passes the tolerance level. Alternatively, we could use the last two values of the cost function - stop if a decrease is less than some tolerance level.
+Lines 59-73 implement the gradient descent algorithm. Line 61 calculates the gradient, line 63 updates the parameters, line 66 calculates the value of the cost function. An early stoppage occurs when the Euclidean norm of the difference in parameters in the last two iterations becomes less than the tolerance level.
 
 
 
@@ -172,7 +172,7 @@ We fit the line using the gradient descent with `GradientDescentLinearRegression
 
 ## Slow convergence
 
-With learning rate $\alpha=0.001$ the algorithm slowly converges in 1001 iterations. The surface plot below is the surface of the cost function $J(\mathbf{w})$. Red dots are updated parameters from initial $\mathbf{w}^{(0)} = [0,0]$ to optimal $\mathbf{w}^{(1001)} = [0.24, 0.84]$.
+With learning rate $\alpha=0.001$ the algorithm slowly converges in 772 iterations. The surface plot below is the surface of the cost function $J(\mathbf{w})$. Red dots are updated parameters from initial $\mathbf{w}^{(0)} = [0,0]$ to optimal $\mathbf{w}^{(1001)} = [0.24, 0.84]$.
 
 <center>
 ![](images/4-surface_0.001.png){width=100%}
@@ -187,7 +187,7 @@ Animation below shows how the line is slowly fitted though iterations 1 to 30.
 
 ## Good convergence
 
-Learning rate $\alpha=0.005$ seems to be a better guess and the algorithm converges in 196 iterations. After the first three steps the parameters are fairly close to the optimal solution.
+Learning rate $\alpha=0.005$ seems to be a better guess and the algorithm converges in 184 iterations. After the first three steps the parameters are fairly close to the optimal solution.
 
 <center>
 ![](images/4-surface_0.005.png){width=100%}
@@ -201,7 +201,7 @@ The animation below illustrates the last statement - after the first three itera
 
 ## Jumps
 
-When the learning rate is large (but not too large yet), convergence happens in jumps. The change in $\mathbf{w}$ is large enough to take the updated parameters to the other side of the surface, surpassing the minimum point. With learning rate $\alpha=0.01$ the convergence shows this jumping behavior. Nevertheless, the algorithm converges because the magnitude of the gradient becomes smaller after each iteration. Convergence takes 95 iterations.
+When the learning rate is large (but not too large yet), convergence happens in jumps. The change in $\mathbf{w}$ is large enough to take the updated parameters to the other side of the surface, surpassing the minimum point. With learning rate $\alpha=0.01$ the convergence shows this jumping behavior. Nevertheless, the algorithm converges because the magnitude of the gradient becomes smaller after each iteration. Convergence takes 97 iterations.
 
 <center>
 ![](images/4-surface_0.01.png){width=100%}
@@ -238,7 +238,7 @@ The fitted line does not seem to move during the first 20 iterations due to a hu
 
 We would like to get rid of the dark art of guessing learning rates. A safe (but sometimes slow) choice is to set $\alpha = \frac{i_0}{i}$, where $i_0$ is any initial positive value and $i$ is the iteration counter. This guarantees that it will eventually become small enough to converge[^see-one]. With the same generated data and $i_0=1$ the algorithm converged in 278,951 iterations (slow indeed).
 
-In the next post we will look at the adaptive gradient algorithm AdaGrad, which performs more informative gradient-based learning and converges much faster.
+In the [next post](/2021/04/15/adagrad-adaptive-gradient-algorithm/) we will look at the adaptive gradient algorithm AdaGrad, which performs more informative gradient-based learning by adapting the learning for each predictor individually and does not require guessing $\alpha$.
 
 
 <hr>
@@ -248,4 +248,4 @@ I would appreciate any comments or suggestions. Please leave them below, no logi
 [^see-one]: See 1.
 [^gradient-descent-and-beyond]: "Gradient Descent (and Beyond)". Lecture notes for the "Machine Learning for Intelligent Systems" course at Cornell University. [Link](https://www.cs.cornell.edu/courses/cs4780/2018fa/lectures/lecturenote07.html)
 [^partials]: Havens, A. Multivariate functions and partial derivatives. [Link](https://people.math.umass.edu/~havens/Partials.pdf)
-[^sml]: Lindholm, A., Wahlström, N., Lindsten, F., & Schön, T. B. (2020). Supervised machine learning. Chapter 5 "Learning parametric models". *Unpublished*. [Link](http://smlbook.org/)
+[^sml]: Lindholm, A., Wahlström, N., Lindsten, F., & Schön, T. B. (2020). Machine Learning - A First Course for Engineers and Scientists. Chapter 5 "Learning parametric models". *Unpublished*. [Link](http://smlbook.org/)

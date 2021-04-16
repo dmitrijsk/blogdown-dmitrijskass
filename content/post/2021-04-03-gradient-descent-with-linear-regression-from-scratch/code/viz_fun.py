@@ -18,11 +18,8 @@ def plot_data(X, y):
     plt.xlabel("x")
     plt.ylabel("y")
 
-def plot_data_and_fitted_line(model):
+def plot_data_and_fitted_line(X, y, model):
     """"2D scatter plot of generated data and a fitted line."""
-    
-    X = model.X
-    y = model.y
     
     fig, ax = plt.subplots(figsize = (4, 3), dpi = 300)
     ax.plot(X[:,1], model.predict(X), color = "red", label='Fitted line')
@@ -39,21 +36,18 @@ def plot_cost(model):
     plt.xlabel("iteration")
     plt.ylabel("$J(\mathbf{w})$")
    
-def animate_fitted_line(model, path):
+def animate_fitted_line(X, y, model, path, iterations):
     """
     Animation of the fitted line.
     Source: https://github.com/jwkvam/celluloid
     """
 
-    X = model.X
-    y = model.y
-    
     fig, ax = plt.subplots(figsize=(5, 4), dpi=100)
     plt.xlabel("x")
     plt.ylabel("y")
     
     camera = Camera(fig)
-    for i in range(30):
+    for i in range(iterations):
         ax.scatter(X[:,1], y, color = "blue")
         w = model.w_hist[i]
         y_pred = np.dot(X, w.T)
@@ -64,14 +58,11 @@ def animate_fitted_line(model, path):
     animation = camera.animate()
     animation.save(f"{path}learning_rate_{model.learning_rate}.gif", writer = 'imagemagick')
 
-def plot_surface(model, path):
+def plot_surface(X, y, model, path, w_steps):
     """
     3D plot of the cost function. 
     Source: https://matplotlib.org/2.0.2/mpl_toolkits/mplot3d/tutorial.html
     """
-    
-    X = model.X
-    y = model.y
     
     # Plot parameters depending on the learning rate.
     if (model.learning_rate == 0.02):
@@ -85,7 +76,7 @@ def plot_surface(model, path):
         x_lo, x_hi = -2, 2
         y_lo, y_hi = -0.05, 0.84*2
         n_steps = len(model.w_hist)
-        fig_title = f"Path of the converging gradient descent with $\\alpha$={model.learning_rate}"
+        fig_title = f"Path of the converging gradient descent with $\\eta$={model.learning_rate}"
         
     
     # Plot quality.
@@ -143,7 +134,7 @@ def plot_surface(model, path):
     y_arrow_end = np.diff(y_space[:n_steps])
     z_arrow_end = np.diff(z[:n_steps])
     
-    annotations = [f"$w^{({i})}$" for i in range(6)]
+    annotations = [f"$w^{({i})}$" for i in range(w_steps)] # Number of steps to display.
     for i, txt in enumerate(annotations):
          ax.text(x_space[i] - 0.1, y_space[i], z[i], txt, fontsize = 8, color = "red", alpha = 1)
     

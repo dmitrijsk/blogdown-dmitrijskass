@@ -9,57 +9,79 @@ categories:
 tags: []
 ---
 
+AdaGrad[^adagrad] is an algorithm for gradient-based optimization that adapts the learning rate individually to each parameter. Frequently occurring features receive very low learning rates (and small updates) and infrequent features high learning rates (and large updates). Setting different learning rates for different features is particularly important if they are of different scale or vary in frequency (e.g., common and rare words in text mining). The intuition is that each time an infrequent feature is seen, the learner should "take notice".
+
+
 # Theoretical idea of AdaGrad
 
+At every iteration $i$, the learner receives the gradient $\mathbf{g}^{(i)}$ vector. Standard gradient descent algorithm then multiplies it by the learning rate $\alpha$ and moves the model parameters in the opposite direction, i.e., $-\alpha\mathbf{g}^{(i)}$. AdaGrad dynamically incorporate knowledge of the geometry of the data observed in earlier iterations to perform more informative gradient-based learning. At every iteration it accumulates the squared gradients in $\mathbf{G}^{(i)}$:
 
-When predictors have different scales (e.g., milligrams and tons), the gradient will mostly point in the direction of the predictor on the larger scale. As a result, the algorithm may take a long time to converge. [AdaGrad](https://jmlr.org/papers/v12/duchi11a.html) (Duchi et al., 2011) sets the step size adaptively for each predictor separately. It keeps a running average of the squared gradient magnitude and sets a small step size for predictors that have large gradients, and a large step size for predictors with small gradients[^1].
+$$\mathbf{G}^{(i+1)} \leftarrow \mathbf{G}^{(i)} + (\mathbf{g}^{(i)})^2.$$
+We will call $\mathbf{G}^{(i)}$ cache. It has the same dimensions as the gradient. The parameter update rule is 
+
+$$\mathbf{w}^{(i+1)} \leftarrow \mathbf{w}^{(i)}-\frac{\eta}{\sqrt{\mathbf{G}^{(i+1)} + \epsilon}} \mathbf{g}^{(i)},$$
+
+where $\mathbf{w}$ are model parameters, $\eta$ is an arbitrary constant usually set at 0.01, $\mathbf{G}$ is cache and $\epsilon$ is a small number somewhere in range from 1e-4 to 1e-8, which avoid a division by zero. With this each parameter will get its own update.
 
 # Algorithm
 
-**Input:** Objective function $J(\mathbf{w})$, initial $\mathbf{w}^{(0)}$, learning rate $\alpha$, tolerance level $\epsilon$. \
+**Input:** Objective function $J(\mathbf{w})$, initial $\mathbf{w}^{(0)}$, initial $\mathbf{G}^{(0)}$, arbitrary constant $\eta$, a very small number $\epsilon$.\
 **Result:** $\widehat{\mathbf{w}}$. 
 
 1. Set $i \leftarrow 0$
 2. **while** $\lVert \mathbf{w}^{(i)} - \mathbf{w}^{(i-1)} \rVert > \epsilon$  **do**
-    3. Update $\mathbf{w}^{(i+1)} \leftarrow \mathbf{w}^{(i)} - \alpha \nabla J(\mathbf{w}^{(i)})$
+    3. Update $\mathbf{G}^{(i+1)} \leftarrow \mathbf{G}^{(i)} + (\mathbf{g}^{(i)})^2$
+    4. Update $\mathbf{w}^{(i+1)} \leftarrow \mathbf{w}^{(i)}-\frac{\eta}{\sqrt{\mathbf{G}^{(i+1)} + \epsilon}} \mathbf{g}^{(i)}$
     4. Update $i \leftarrow i + 1$
 5. **end**
 6. **return** $\widehat{\mathbf{w}} \leftarrow \mathbf{w}^{(i-1)}$
 
-Adapted from [^4]
 
-We will implement this algorithm with linear regression using the squared loss. Let's now define the linear regression and optimization problems.
+**In the original article G is the diagonal matrix but it can beshown (e.g., https://medium.com/konvergen/an-introduction-to-adagrad-f130ae871827) that it is mathematically equivalent to the accumulation of the squared gradient.**
+
+
+https://arxiv.org/pdf/1903.03614.pdf
+
+https://arxiv.org/pdf/2011.12341.pdf
+
 
 # Implementation in Python
 
-Implementation is almost the same as in the previous post [Gradient descent with linear regression from scratch in Python](/2021/04/03/gradient-descent-with-linear-regression-from-scratch/). We only replace the `grad` method with `adagrad` and use it in the `fit` method. 
+Only a few changes need to be implemented in the gradient descent code with linear regression from [the previous post](/2021/04/03/gradient-descent-with-linear-regression-from-scratch/). We add the `adagrad` method and use in `fit`. Cache \mathbf{G} is initialized as a zero vector. 
 
-###`adagrad`
-
-Implements the adjustment for the gradient.
+<script src="https://gist.github.com/dmitrijsk/e39fc06f223f00fc3f4afbe29a5aaa1f.js"></script>
 
 
+# Convergence
 
+To test convergence we use a toy dataset from [the previous post](/2021/04/03/gradient-descent-with-linear-regression-from-scratch/):
 
-## Convergence
+<center>
+![](images/1-generated-data.png){width=70%}
+</center>
 
-With the same generated data and $\alpha = 1$ the algorithm converged in just 7 iterations. With $\alpha=100$ it converged in 10 iterations, so the learning rate $\alpha$ is not important any more.
+Most implementations use $\eta=0.01$ by default[^ruder]. With such hyperparameter the algorithm converges in 20,218 iterations. However, the beauty of AdaGrad is that it eliminates the need to manually tune the learning rate. With $\eta=1$ it converges as well in 7 iterations (illustrated below) and with an extremely high $\eta=10$ is still converges in 10 iterations.
 
 <center>
 ![](images/4-surface_1.png){width=100%}
 </center>
 
-Animation below show all 7 iterations it took for the AdaGrad to converge. Amazing.
+Animation below show all 7 iterations AdaGrad needs to converge on the toy dataset with $\eta=1$.
 
 <center>
 ![](images/learning_rate_1.gif){width=70%}
 </center>
+
+The weakness of AdaGrad is an aggressive monotonic growth of the denominator as squared gradients get accumulated. After a certain number of iterations the learning rate becomes infinitesimally small, at which point the algorithm essentially stops making steps in the direction of the minimum. ADADELTA[^adadelta] is an extension of AdaGrad that seeks to reduce its aggressive, monotonically decreasing learning rate.
+
 
 <hr>
 
 I would appreciate any comments or suggestions. Please leave them below, no login required if you check "I'd rather post as a guest".
 
 
-References:
 
+[^adagrad]: Duchi, J., Hazan, E., & Singer, Y. (2011). Adaptive Subgradient Methods for Online Learning and Stochastic Optimization. Journal of Machine Learning Research, 12, 2121–2159. Available at: http://jmlr.org/papers/v12/duchi11a.html
 [^1]: [Gradient Descent (and Beyond)](https://www.cs.cornell.edu/courses/cs4780/2018fa/lectures/lecturenote07.html)
+[^ruder]: Sebastian Ruder An overview of gradient descent optimization algorithms  https://ruder.io/optimizing-gradient-descent/index.html#adagrad
+[^adadelta]: Zeiler, M.D. (2012). ADADELTA: An Adaptive Learning Rate Method. Available at: http://arxiv.org/abs/1212.5701

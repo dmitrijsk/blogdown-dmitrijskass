@@ -12,50 +12,62 @@ tags: []
 <script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
 
 
+<p>AdaGrad<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> is an algorithm for gradient-based optimization that adapts the learning rate individually to each parameter. Frequently occurring features receive very low learning rates (and small updates) and infrequent features high learning rates (and large updates). Setting different learning rates for different features is particularly important if they are of different scale or vary in frequency (e.g., common and rare words in text mining). The intuition is that each time an infrequent feature is seen, the learner should “take notice”.</p>
 <div id="theoretical-idea-of-adagrad" class="section level1">
 <h1>Theoretical idea of AdaGrad</h1>
-<p>When predictors have different scales (e.g., milligrams and tons), the gradient will mostly point in the direction of the predictor on the larger scale. As a result, the algorithm may take a long time to converge. <a href="https://jmlr.org/papers/v12/duchi11a.html">AdaGrad</a> (Duchi et al., 2011) sets the step size adaptively for each predictor separately. It keeps a running average of the squared gradient magnitude and sets a small step size for predictors that have large gradients, and a large step size for predictors with small gradients<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>.</p>
+<p>At every iteration <span class="math inline">\(i\)</span>, the learner receives the gradient <span class="math inline">\(\mathbf{g}^{(i)}\)</span> vector. Standard gradient descent algorithm then multiplies it by the learning rate <span class="math inline">\(\alpha\)</span> and moves the model parameters in the opposite direction, i.e., <span class="math inline">\(-\alpha\mathbf{g}^{(i)}\)</span>. AdaGrad dynamically incorporate knowledge of the geometry of the data observed in earlier iterations to perform more informative gradient-based learning. At every iteration it accumulates the squared gradients in <span class="math inline">\(\mathbf{G}^{(i)}\)</span>:</p>
+<p><span class="math display">\[\mathbf{G}^{(i+1)} \leftarrow \mathbf{G}^{(i)} + (\mathbf{g}^{(i)})^2.\]</span>
+We will call <span class="math inline">\(\mathbf{G}^{(i)}\)</span> cache. It has the same dimensions as the gradient. The parameter update rule is</p>
+<p><span class="math display">\[\mathbf{w}^{(i+1)} \leftarrow \mathbf{w}^{(i)}-\frac{\eta}{\sqrt{\mathbf{G}^{(i+1)} + \epsilon}} \mathbf{g}^{(i)},\]</span></p>
+<p>where <span class="math inline">\(\mathbf{w}\)</span> are model parameters, <span class="math inline">\(\eta\)</span> is an arbitrary constant usually set at 0.01, <span class="math inline">\(\mathbf{G}\)</span> is cache and <span class="math inline">\(\epsilon\)</span> is a small number somewhere in range from 1e-4 to 1e-8, which avoid a division by zero. With this each parameter will get its own update.</p>
 </div>
 <div id="algorithm" class="section level1">
 <h1>Algorithm</h1>
-<p><strong>Input:</strong> Objective function <span class="math inline">\(J(\mathbf{w})\)</span>, initial <span class="math inline">\(\mathbf{w}^{(0)}\)</span>, learning rate <span class="math inline">\(\alpha\)</span>, tolerance level <span class="math inline">\(\epsilon\)</span>.<br />
+<p><strong>Input:</strong> Objective function <span class="math inline">\(J(\mathbf{w})\)</span>, initial <span class="math inline">\(\mathbf{w}^{(0)}\)</span>, initial <span class="math inline">\(\mathbf{G}^{(0)}\)</span>, arbitrary constant <span class="math inline">\(\eta\)</span>, a very small number <span class="math inline">\(\epsilon\)</span>.<br />
 <strong>Result:</strong> <span class="math inline">\(\widehat{\mathbf{w}}\)</span>.</p>
 <ol style="list-style-type: decimal">
 <li>Set <span class="math inline">\(i \leftarrow 0\)</span></li>
 <li><strong>while</strong> <span class="math inline">\(\lVert \mathbf{w}^{(i)} - \mathbf{w}^{(i-1)} \rVert &gt; \epsilon\)</span> <strong>do</strong>
 <ol start="3" style="list-style-type: decimal">
-<li>Update <span class="math inline">\(\mathbf{w}^{(i+1)} \leftarrow \mathbf{w}^{(i)} - \alpha \nabla J(\mathbf{w}^{(i)})\)</span></li>
+<li>Update <span class="math inline">\(\mathbf{G}^{(i+1)} \leftarrow \mathbf{G}^{(i)} + (\mathbf{g}^{(i)})^2\)</span></li>
+<li>Update <span class="math inline">\(\mathbf{w}^{(i+1)} \leftarrow \mathbf{w}^{(i)}-\frac{\eta}{\sqrt{\mathbf{G}^{(i+1)} + \epsilon}} \mathbf{g}^{(i)}\)</span></li>
 <li>Update <span class="math inline">\(i \leftarrow i + 1\)</span></li>
 </ol></li>
 <li><strong>end</strong></li>
 <li><strong>return</strong> <span class="math inline">\(\widehat{\mathbf{w}} \leftarrow \mathbf{w}^{(i-1)}\)</span></li>
 </ol>
-<p>Adapted from [^4]</p>
-<p>We will implement this algorithm with linear regression using the squared loss. Let’s now define the linear regression and optimization problems.</p>
+<p><strong>In the original article G is the diagonal matrix but it can beshown (e.g., <a href="https://medium.com/konvergen/an-introduction-to-adagrad-f130ae871827" class="uri">https://medium.com/konvergen/an-introduction-to-adagrad-f130ae871827</a>) that it is mathematically equivalent to the accumulation of the squared gradient.</strong></p>
+<p><a href="https://arxiv.org/pdf/1903.03614.pdf" class="uri">https://arxiv.org/pdf/1903.03614.pdf</a></p>
+<p><a href="https://arxiv.org/pdf/2011.12341.pdf" class="uri">https://arxiv.org/pdf/2011.12341.pdf</a></p>
 </div>
 <div id="implementation-in-python" class="section level1">
 <h1>Implementation in Python</h1>
-<p>Implementation is almost the same as in the previous post <a href="/2021/04/03/gradient-descent-with-linear-regression-from-scratch/">Gradient descent with linear regression from scratch in Python</a>. We only replace the <code>grad</code> method with <code>adagrad</code> and use it in the <code>fit</code> method.</p>
-<p>###<code>adagrad</code></p>
-<p>Implements the adjustment for the gradient.</p>
-<div id="convergence" class="section level2">
-<h2>Convergence</h2>
-<p>With the same generated data and <span class="math inline">\(\alpha = 1\)</span> the algorithm converged in just 7 iterations. With <span class="math inline">\(\alpha=100\)</span> it converged in 10 iterations, so the learning rate <span class="math inline">\(\alpha\)</span> is not important any more.</p>
+<p>Only a few changes need to be implemented in the gradient descent code with linear regression from <a href="/2021/04/03/gradient-descent-with-linear-regression-from-scratch/">the previous post</a>. We add the <code>adagrad</code> method and use in <code>fit</code>. Cache  is initialized as a zero vector.</p>
+<script src="https://gist.github.com/dmitrijsk/e39fc06f223f00fc3f4afbe29a5aaa1f.js"></script>
+</div>
+<div id="convergence" class="section level1">
+<h1>Convergence</h1>
+<p>To test convergence we use a toy dataset from <a href="/2021/04/03/gradient-descent-with-linear-regression-from-scratch/">the previous post</a>:</p>
+<center>
+<img src="images/1-generated-data.png" style="width:70.0%" />
+</center>
+<p>Most implementations use <span class="math inline">\(\eta=0.01\)</span> by default<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>. With such hyperparameter the algorithm converges in 20,218 iterations. However, the beauty of AdaGrad is that it eliminates the need to manually tune the learning rate. With <span class="math inline">\(\eta=1\)</span> it converges as well in 7 iterations (illustrated below) and with an extremely high <span class="math inline">\(\eta=10\)</span> is still converges in 10 iterations.</p>
 <center>
 <img src="images/4-surface_1.png" style="width:100.0%" />
 </center>
-<p>Animation below show all 7 iterations it took for the AdaGrad to converge. Amazing.</p>
+<p>Animation below show all 7 iterations AdaGrad needs to converge on the toy dataset with <span class="math inline">\(\eta=1\)</span>.</p>
 <center>
 <img src="images/learning_rate_1.gif" style="width:70.0%" />
 </center>
+<p>The weakness of AdaGrad is an aggressive monotonic growth of the denominator as squared gradients get accumulated. After a certain number of iterations the learning rate becomes infinitesimally small, at which point the algorithm essentially stops making steps in the direction of the minimum. ADADELTA<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a> is an extension of AdaGrad that seeks to reduce its aggressive, monotonically decreasing learning rate.</p>
 <hr>
 <p>I would appreciate any comments or suggestions. Please leave them below, no login required if you check “I’d rather post as a guest”.</p>
-<p>References:</p>
-</div>
 </div>
 <div class="footnotes">
 <hr />
 <ol>
-<li id="fn1"><p><a href="https://www.cs.cornell.edu/courses/cs4780/2018fa/lectures/lecturenote07.html">Gradient Descent (and Beyond)</a><a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn1"><p>Duchi, J., Hazan, E., &amp; Singer, Y. (2011). Adaptive Subgradient Methods for Online Learning and Stochastic Optimization. Journal of Machine Learning Research, 12, 2121–2159. Available at: <a href="http://jmlr.org/papers/v12/duchi11a.html" class="uri">http://jmlr.org/papers/v12/duchi11a.html</a><a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p>Sebastian Ruder An overview of gradient descent optimization algorithms <a href="https://ruder.io/optimizing-gradient-descent/index.html#adagrad" class="uri">https://ruder.io/optimizing-gradient-descent/index.html#adagrad</a><a href="#fnref2" class="footnote-back">↩︎</a></p></li>
+<li id="fn3"><p>Zeiler, M.D. (2012). ADADELTA: An Adaptive Learning Rate Method. Available at: <a href="http://arxiv.org/abs/1212.5701" class="uri">http://arxiv.org/abs/1212.5701</a><a href="#fnref3" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>

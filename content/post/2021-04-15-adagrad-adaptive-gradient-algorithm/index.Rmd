@@ -59,7 +59,7 @@ If the elements of $\mathbf{G}^{(i)}$ are different then the learning rate for e
 
 # Implementation in Python
 
-Full code is available at my [GitHub repository](https://github.com/dmitrijsk/blogdown-dmitrijskass/tree/gradient-descent-with-linear-regression-from-scratch/content/post/2021-04-03-gradient-descent-with-linear-regression-from-scratch/code). Only a few changes need to be implemented in the gradient descent code with linear regression from [the previous post](/2021/04/03/gradient-descent-with-linear-regression-from-scratch/). Cache is initialized as a zero vector in line 56 and updated in line 63. The step size is calculated in lines 64-65. $\eta$ is usually set at 0.01[^ruder] and $\epsilon$ is a small number, e.g., 1e-6.
+Full code is available at my [GitHub repository](https://github.com/dmitrijsk/blogdown-dmitrijskass/tree/adagrad/content/post/2021-04-03-gradient-descent-with-linear-regression-from-scratch/code). Only a few changes need to be implemented in the gradient descent code with linear regression from [the previous post](/2021/04/03/gradient-descent-with-linear-regression-from-scratch/). Cache is initialized as a zero vector in line 56 and updated in line 63. The step size is calculated in lines 64-65. $\eta$ is usually set at 0.01[^ruder] and $\epsilon$ is a small number, e.g., 1e-6.
 
 <script src="https://gist.github.com/dmitrijsk/e39fc06f223f00fc3f4afbe29a5aaa1f.js"></script>
 

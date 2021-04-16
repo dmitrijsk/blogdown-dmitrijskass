@@ -161,7 +161,7 @@ Lines 59-73 implement the gradient descent algorithm. Line 61 calculates the gra
 
 "Setting the learning rate $\alpha>0$ is a dark art. Only if it is sufficiently small will gradient descent converge"[^see-one]. Below we take a look at how a choice of $\alpha$ impacts convergence.
 
-Let's generate $\mathbf{X}$ and $\mathbf{y}$ data for the linear regression and use gradient descent to fit a straight line. Full code is available at my [GitHub repository](https://github.com/dmitrijsk/blogdown-dmitrijskass/tree/gradient-descent-with-linear-regression-from-scratch/content/post/2021-04-03-gradient-descent-with-linear-regression-from-scratch/code). Generated data looks as follows:
+Let's generate $\mathbf{X}$ and $\mathbf{y}$ data for the linear regression and use gradient descent to fit a straight line. Full code is available at my [GitHub repository](https://github.com/dmitrijsk/blogdown-dmitrijskass/tree/adagrad/content/post/2021-04-03-gradient-descent-with-linear-regression-from-scratch/code). Generated data looks as follows:
 
 <center>
 ![](images/1-generated-data.png){width=70%}

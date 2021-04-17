@@ -121,7 +121,7 @@ The parameters are learned by minimizing the cost function <span class="math inl
 <p>“Setting the learning rate <span class="math inline">\(\alpha&gt;0\)</span> is a dark art. Only if it is sufficiently small will gradient descent converge”<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>. Below we take a look at how a choice of <span class="math inline">\(\alpha\)</span> impacts convergence.</p>
 <p>Let’s generate <span class="math inline">\(\mathbf{X}\)</span> and <span class="math inline">\(\mathbf{y}\)</span> data for the linear regression and use gradient descent to fit a straight line. Full code is available at my <a href="https://github.com/dmitrijsk/blogdown-dmitrijskass/tree/adagrad/content/post/2021-04-03-gradient-descent-with-linear-regression-from-scratch/code">GitHub repository</a>. Generated data looks as follows:</p>
 <center>
-<img src="images/1-generated-data.png" style="width:70.0%" />
+<img src="images/1-generated-data.png" style="width:80.0%" />
 </center>
 <p>We fit the line using the gradient descent with <code>GradientDescentLinearRegression().fit(X, y)</code>.</p>
 <div id="slow-convergence" class="section level2">
@@ -132,7 +132,7 @@ The parameters are learned by minimizing the cost function <span class="math inl
 </center>
 <p>Animation below shows how the line is slowly fitted though iterations 1 to 30.</p>
 <center>
-<img src="images/learning_rate_0.001.gif" style="width:70.0%" />
+<img src="images/learning_rate_0.001.gif" style="width:80.0%" />
 </center>
 </div>
 <div id="good-convergence" class="section level2">
@@ -143,7 +143,7 @@ The parameters are learned by minimizing the cost function <span class="math inl
 </center>
 <p>The animation below illustrates the last statement - after the first three iterations the line barely moves.</p>
 <center>
-<img src="images/learning_rate_0.005.gif" style="width:70.0%" />
+<img src="images/learning_rate_0.005.gif" style="width:80.0%" />
 </center>
 </div>
 <div id="jumps" class="section level2">
@@ -160,7 +160,7 @@ The parameters are learned by minimizing the cost function <span class="math inl
 </ul>
 <p>Animation below illustrates the jumping behavior. With time, oscillations become smaller and eventually the algorithm converges.</p>
 <center>
-<img src="images/learning_rate_0.01.gif" style="width:70.0%" />
+<img src="images/learning_rate_0.01.gif" style="width:80.0%" />
 </center>
 </div>
 <div id="divergence" class="section level2">
@@ -171,7 +171,7 @@ The parameters are learned by minimizing the cost function <span class="math inl
 </center>
 <p>The fitted line does not seem to move during the first 20 iterations due to a huge scale of the plot (1e+10). However, later we see that the line starts to swing wildly and quickly approaches a vertical where the cost becomes infinitely large.</p>
 <center>
-<img src="images/learning_rate_0.02.gif" style="width:70.0%" />
+<img src="images/learning_rate_0.02.gif" style="width:80.0%" />
 </center>
 <p><br></p>
 <p>We would like to get rid of the dark art of guessing learning rates. A safe (but sometimes slow) choice is to set <span class="math inline">\(\alpha = \frac{i_0}{i}\)</span>, where <span class="math inline">\(i_0\)</span> is any initial positive value and <span class="math inline">\(i\)</span> is the iteration counter. This guarantees that it will eventually become small enough to converge<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a>. With the same generated data and <span class="math inline">\(i_0=1\)</span> the algorithm converged in 278,951 iterations (slow indeed).</p>

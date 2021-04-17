@@ -156,7 +156,7 @@ Lines 59-73 implement the gradient descent algorithm. Line 61 calculates the gra
 Let's generate $\mathbf{X}$ and $\mathbf{y}$ data for the linear regression and use gradient descent to fit a straight line. Full code is available at my [GitHub repository](https://github.com/dmitrijsk/blogdown-dmitrijskass/tree/adagrad/content/post/2021-04-03-gradient-descent-with-linear-regression-from-scratch/code). Generated data looks as follows:
 
 <center>
-![](images/1-generated-data.png){width=70%}
+![](images/1-generated-data.png){width=80%}
 </center>
 
 We fit the line using the gradient descent with `GradientDescentLinearRegression().fit(X, y)`.
@@ -173,7 +173,7 @@ With learning rate $\alpha=0.001$ the algorithm slowly converges in 772 iteratio
 Animation below shows how the line is slowly fitted though iterations 1 to 30.
 
 <center>
-![](images/learning_rate_0.001.gif){width=70%}
+![](images/learning_rate_0.001.gif){width=80%}
 </center>
 
 
@@ -188,7 +188,7 @@ Learning rate $\alpha=0.005$ seems to be a better guess and the algorithm conver
 The animation below illustrates the last statement - after the first three iterations the line barely moves.
 
 <center>
-![](images/learning_rate_0.005.gif){width=70%}
+![](images/learning_rate_0.005.gif){width=80%}
 </center>
 
 ## Jumps
@@ -208,7 +208,7 @@ This surface plot also reveals that the gradient descent algorithm does not real
 Animation below illustrates the jumping behavior. With time, oscillations become smaller and eventually the algorithm converges.
 
 <center>
-![](images/learning_rate_0.01.gif){width=70%}
+![](images/learning_rate_0.01.gif){width=80%}
 </center>
 
 ## Divergence
@@ -222,7 +222,7 @@ Learning rate $\alpha=0.02$ turns out to be too high. The magnitude of the gradi
 The fitted line does not seem to move during the first 20 iterations due to a huge scale of the plot (1e+10). However, later we see that the line starts to swing wildly and quickly approaches a vertical where the cost becomes infinitely large.
 
 <center>
-![](images/learning_rate_0.02.gif){width=70%}
+![](images/learning_rate_0.02.gif){width=80%}
 </center>
 
 

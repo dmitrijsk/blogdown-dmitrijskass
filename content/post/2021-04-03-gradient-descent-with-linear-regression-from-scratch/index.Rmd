@@ -27,7 +27,7 @@ Simplify the function you would like to minimize by using the first-order  Taylo
 
 $$J(\mathbf{w}+\mathbf{s}) \approx J(\mathbf{w}) + \nabla J(\mathbf{w})^T \mathbf{s},$$
 
-where $\nabla J(\mathbf{w})$ is the gradient of $J$. This approximation is valid only when the step size $\mathbf{s}$ is small[^gradient-descent-and-beyond]. We will return to this in the learning rate discussion.
+where $\nabla J(\mathbf{w})$ is the gradient of $J$. This approximation is valid only when the step size $\mathbf{s}$ is small. We will return to this in the learning rate discussion.
 
 ## Gradient
 
@@ -52,7 +52,7 @@ gives the direction of steepest ascent on the surface of the function $J$, and t
 
 ## Convergence
 
-Consequently, $-\nabla J(\mathbf{w})$ points in the direction of the steepest descent. Setting $\mathbf{s} = -\alpha \nabla J(\mathbf{w})$ for a *sufficiently small* $\alpha>0$ guarantees to decrease the function[^see-one]:
+Consequently, $-\nabla J(\mathbf{w})$ points in the direction of the steepest descent. Setting $\mathbf{s} = -\alpha \nabla J(\mathbf{w})$ for a *sufficiently small* $\alpha>0$ guarantees to decrease the function[^gradient-descent-and-beyond]:
 
 $\underset{after\ one\ update}{\underbrace{J(\mathbf{w} + (-\alpha \nabla J(\mathbf{w}))}} \approx J(\mathbf{w}) - \underset{>0}{\underbrace{\alpha\overset{>0}{\overbrace{ \nabla J(\mathbf{w})^T \nabla J(\mathbf{w})}}}} < \underset{before}{\underbrace{J(\mathbf{w})}}$
 
@@ -65,15 +65,11 @@ $$\mathbf{w}^{(i+1)} \leftarrow \mathbf{w}^{(i)} - \alpha \nabla J(\mathbf{w}^{(
 
 ## Algorithm
 
-**Input:** Objective function $J(\mathbf{w})$, initial $\mathbf{w}^{(0)}$, learning rate $\alpha$, tolerance level $\epsilon$. \
-**Result:** $\widehat{\mathbf{w}}$. 
+<!-- https://www.overleaf.com/project/607b3c198b0e8e3c5fa3f21c -->
 
-1. Set $i \leftarrow 0$
-2. **while** $\lVert \mathbf{w}^{(i)} - \mathbf{w}^{(i-1)} \rVert > \epsilon$  **do**
-    3. Update $\mathbf{w}^{(i+1)} \leftarrow \mathbf{w}^{(i)} - \alpha \nabla J(\mathbf{w}^{(i)})$
-    4. Update $i \leftarrow i + 1$
-5. **end**
-6. **return** $\widehat{\mathbf{w}} \leftarrow \mathbf{w}^{(i-1)}$
+<center>
+![](images/algo.png){width=100%}
+</center>
 
 We will implement this algorithm with linear regression using the squared loss. Let's now define the linear regression and optimization problems.
 
@@ -83,9 +79,7 @@ We will implement this algorithm with linear regression using the squared loss. 
 
 ## Model
 
-<!-- Regression amounts to learning the relationships between some input variables $\mathbf{x} = [x_1, \dots, x_p]^T$ and a numerical output variable $\mathbf{y}$. -->
-
-The linear regression model assumes that the numerical output variable $y$ can be described as an affine combination of the $p$ input variables $x_1, \dots, x_p$ plus a noise term $\epsilon$,
+The linear regression model assumes that the numerical output variable $y$ can be described as an affine combination of the $p$ features $x_1, \dots, x_p$ plus a noise term $\epsilon$,
 
 $$y = w_0 + w_1x_1 + \dots + w_px_p + \epsilon.$$
 The coefficients $\mathbf{w} = [w_0, \dots, w_p]^T$ are called parameters, weights or coefficients of the model.
@@ -94,7 +88,7 @@ Prepend $\mathbf{x}$ with a constant 1 to express the linear regression model co
 
 $$y = \mathbf{w}^T \mathbf{x} + \epsilon.$$
 
-The predicted output variable $\widehat{y}$ for some input variables $\mathbf{x}$ using learned parameters $\mathbf{\widehat{w}}$ is obtained with 
+The predicted output variable $\widehat{y}$ for some features $\mathbf{x}$ using learned parameters $\mathbf{\widehat{w}}$ is obtained with 
 
 $$\widehat{y} = \mathbf{\widehat{w}}^T \mathbf{x}.$$
 The parameters are learned by minimizing the cost function $J(\mathbf{w})$,
@@ -140,7 +134,7 @@ $$\nabla J(\mathbf{w})=
 
 ### `grad`
 
-Returns the gradient vector. `d_intercept` is a partial derivative of the cost function w.r.t. the intercept $w_0$. `d_x` is a partial derivative of the cost function w.r.t. to input variables ($w_1, \dots, w_p$).
+Returns the gradient vector. `d_intercept` is a partial derivative of the cost function w.r.t. the intercept $w_0$. `d_x` is a partial derivative of the cost function w.r.t. to feature coefficients ($w_1, \dots, w_p$).
 
 ### `fit`
 
@@ -157,7 +151,7 @@ Lines 59-73 implement the gradient descent algorithm. Line 61 calculates the gra
 
 # Learning rate and convergence
 
-"Setting the learning rate $\alpha>0$ is a dark art. Only if it is sufficiently small will gradient descent converge"[^see-one]. Below we take a look at how a choice of $\alpha$ impacts convergence.
+"Setting the learning rate $\alpha>0$ is a dark art. Only if it is sufficiently small will gradient descent converge"[^ibid]. Below we take a look at how a choice of $\alpha$ impacts convergence.
 
 Let's generate $\mathbf{X}$ and $\mathbf{y}$ data for the linear regression and use gradient descent to fit a straight line. Full code is available at my [GitHub repository](https://github.com/dmitrijsk/blogdown-dmitrijskass/tree/adagrad/content/post/2021-04-03-gradient-descent-with-linear-regression-from-scratch/code). Generated data looks as follows:
 
@@ -234,15 +228,15 @@ The fitted line does not seem to move during the first 20 iterations due to a hu
 
 <br>
 
-We would like to get rid of the dark art of guessing learning rates. A safe (but sometimes slow) choice is to set $\alpha = \frac{i_0}{i}$, where $i_0$ is any initial positive value and $i$ is the iteration counter. This guarantees that it will eventually become small enough to converge[^see-one]. With the same generated data and $i_0=1$ the algorithm converged in 278,951 iterations (slow indeed).
+We would like to get rid of the dark art of guessing learning rates. A safe (but sometimes slow) choice is to set $\alpha = \frac{i_0}{i}$, where $i_0$ is any initial positive value and $i$ is the iteration counter. This guarantees that it will eventually become small enough to converge[^ibid]. With the same generated data and $i_0=1$ the algorithm converged in 278,951 iterations (slow indeed).
 
-In the [next post](/2021/04/15/adagrad-adaptive-gradient-algorithm/) we will look at the adaptive gradient algorithm AdaGrad, which performs more informative gradient-based learning by adapting the learning rate for *each predictor individually* and does not require guessing $\alpha$.
+In the [next post](/2021/04/15/adagrad-adaptive-gradient-algorithm/) we will look at the adaptive gradient algorithm AdaGrad, which performs more informative gradient-based learning by adapting the learning rate for *each feature individually* and does not require guessing $\alpha$.
 
 
 <hr>
 
 I would appreciate any comments or suggestions. Please leave them below, no login required if you check "I'd rather post as a guest".
 
-[^see-one]: See 1.
-[^gradient-descent-and-beyond]: "Gradient Descent (and Beyond)". Lecture notes for the "Machine Learning for Intelligent Systems" course by Kilian Weinberger at Cornell University. [Link](https://www.cs.cornell.edu/courses/cs4780/2018fa/lectures/lecturenote07.html)
 [^partials]: Havens, A. Multivariate functions and partial derivatives. [Link](https://people.math.umass.edu/~havens/Partials.pdf)
+[^gradient-descent-and-beyond]: "Gradient Descent (and Beyond)". Lecture notes for the "Machine Learning for Intelligent Systems" course by Kilian Weinberger at Cornell University. [Link](https://www.cs.cornell.edu/courses/cs4780/2018fa/lectures/lecturenote07.html)
+[^ibid]: Ibid.

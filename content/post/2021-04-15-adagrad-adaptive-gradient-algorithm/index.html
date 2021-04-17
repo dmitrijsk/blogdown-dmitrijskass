@@ -32,16 +32,10 @@ tags: []
 </div>
 <div id="algorithm" class="section level1">
 <h1>Algorithm</h1>
-<div class="line-block">  <strong>Input:</strong> Cost function <span class="math inline">\(J(\mathbf{w})\)</span>, initial <span class="math inline">\(\mathbf{w}^{(0)}\)</span>, initial <span class="math inline">\(\mathbf{G}^{(0)}\)</span>, positive constants <span class="math inline">\(\eta\)</span> and <span class="math inline">\(\epsilon\)</span>.<br />
-  <strong>Result:</strong> <span class="math inline">\(\widehat{\mathbf{w}}\)</span>.<br />
-<span class="math inline">\(\texttt{1}\)</span> Set <span class="math inline">\(i \leftarrow 0\)</span><br />
-<span class="math inline">\(\texttt{2}\)</span> <strong>while</strong> <span class="math inline">\(\lVert \mathbf{w}^{(i)} - \mathbf{w}^{(i-1)} \rVert &gt; \epsilon\)</span> <strong>do</strong><br />
-<span class="math inline">\(\texttt{3}\)</span> <span class="math inline">\(\text{    }\)</span> Compute gradient vector <span class="math inline">\(\mathbf{g}^{(i)} = \nabla J(\mathbf{w}^{(i)})\)</span><br />
-<span class="math inline">\(\texttt{4}\)</span> <span class="math inline">\(\text{    }\)</span> Accumulate <span class="math inline">\(\mathbf{G}^{(i+1)} \leftarrow \mathbf{G}^{(i)} + \mathbf{g}^{(i)} \cdot \mathbf{g}^{(i)}\)</span><br />
-<span class="math inline">\(\texttt{5}\)</span> <span class="math inline">\(\text{    }\)</span> Update parameters <span class="math inline">\(\mathbf{w}^{(i+1)} \leftarrow \mathbf{w}^{(i)}-\frac{\eta}{\sqrt{\mathbf{G}^{(i+1)} + \epsilon}} \mathbf{g}^{(i)}\)</span><br />
-<span class="math inline">\(\texttt{6}\)</span> <span class="math inline">\(\text{    }\)</span> Update <span class="math inline">\(i \leftarrow i + 1\)</span><br />
-<span class="math inline">\(\texttt{7}\)</span> <strong>end</strong><br />
-<span class="math inline">\(\texttt{8}\)</span> <strong>return</strong> <span class="math inline">\(\widehat{\mathbf{w}} \leftarrow \mathbf{w}^{(i-1)}\)</span></div>
+<!-- https://www.overleaf.com/project/607b3c198b0e8e3c5fa3f21c -->
+<center>
+<img src="images/algo.png" style="width:100.0%" />
+</center>
 </div>
 <div id="implementation-in-python" class="section level1">
 <h1>Implementation in Python</h1>

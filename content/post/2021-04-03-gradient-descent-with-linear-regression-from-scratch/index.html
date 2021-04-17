@@ -26,7 +26,7 @@ tags: []
 <h2>Taylor expansion</h2>
 <p>Simplify the function you would like to minimize by using the first-order Taylor polynomial. Provided that the norm <span class="math inline">\(\lVert \mathbf{s} \rVert_2\)</span> is small (i.e., <span class="math inline">\(\mathbf{w}+\mathbf{s}\)</span> is very close to <span class="math inline">\(\mathbf{w}\)</span>), we can linearly approximate the function <span class="math inline">\(J(\mathbf{w} + \mathbf{s})\)</span> by its first derivative:</p>
 <p><span class="math display">\[J(\mathbf{w}+\mathbf{s}) \approx J(\mathbf{w}) + \nabla J(\mathbf{w})^T \mathbf{s},\]</span></p>
-<p>where <span class="math inline">\(\nabla J(\mathbf{w})\)</span> is the gradient of <span class="math inline">\(J\)</span>. This approximation is valid only when the step size <span class="math inline">\(\mathbf{s}\)</span> is small<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>. We will return to this in the learning rate discussion.</p>
+<p>where <span class="math inline">\(\nabla J(\mathbf{w})\)</span> is the gradient of <span class="math inline">\(J\)</span>. This approximation is valid only when the step size <span class="math inline">\(\mathbf{s}\)</span> is small. We will return to this in the learning rate discussion.</p>
 </div>
 <div id="gradient" class="section level2">
 <h2>Gradient</h2>
@@ -39,32 +39,24 @@ tags: []
 \dfrac{\partial J (\mathbf{w})}{\partial w_p}
 \end{array}\right]
 \]</span></p>
-<p>gives the direction of steepest ascent on the surface of the function <span class="math inline">\(J\)</span>, and the rate of change in this direction is <span class="math inline">\(\lVert \nabla J(\mathbf{w}) \rVert\)</span>. <a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a></p>
+<p>gives the direction of steepest ascent on the surface of the function <span class="math inline">\(J\)</span>, and the rate of change in this direction is <span class="math inline">\(\lVert \nabla J(\mathbf{w}) \rVert\)</span>. <a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a></p>
 <!-- <p style="font-family:'Merriweather';color:blue;font-size:70%;"> -->
 <!-- TODO: Add a surface plot with 3 arrows: in the direction of $w_0$, $w_1$ and the gradient vector. E.g., [here](https://physics.stackexchange.com/questions/368634/direction-of-velocity-vector-in-3d-space) -->
 <!-- </p> -->
 </div>
 <div id="convergence" class="section level2">
 <h2>Convergence</h2>
-<p>Consequently, <span class="math inline">\(-\nabla J(\mathbf{w})\)</span> points in the direction of the steepest descent. Setting <span class="math inline">\(\mathbf{s} = -\alpha \nabla J(\mathbf{w})\)</span> for a <em>sufficiently small</em> <span class="math inline">\(\alpha&gt;0\)</span> guarantees to decrease the function<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>:</p>
+<p>Consequently, <span class="math inline">\(-\nabla J(\mathbf{w})\)</span> points in the direction of the steepest descent. Setting <span class="math inline">\(\mathbf{s} = -\alpha \nabla J(\mathbf{w})\)</span> for a <em>sufficiently small</em> <span class="math inline">\(\alpha&gt;0\)</span> guarantees to decrease the function<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>:</p>
 <p><span class="math inline">\(\underset{after\ one\ update}{\underbrace{J(\mathbf{w} + (-\alpha \nabla J(\mathbf{w}))}} \approx J(\mathbf{w}) - \underset{&gt;0}{\underbrace{\alpha\overset{&gt;0}{\overbrace{ \nabla J(\mathbf{w})^T \nabla J(\mathbf{w})}}}} &lt; \underset{before}{\underbrace{J(\mathbf{w})}}\)</span></p>
 <p>So the iterations of steepest descent are:</p>
 <p><span class="math display">\[\mathbf{w}^{(i+1)} \leftarrow \mathbf{w}^{(i)} - \alpha \nabla J(\mathbf{w}^{(i)}).\]</span></p>
 </div>
 <div id="algorithm" class="section level2">
 <h2>Algorithm</h2>
-<p><strong>Input:</strong> Objective function <span class="math inline">\(J(\mathbf{w})\)</span>, initial <span class="math inline">\(\mathbf{w}^{(0)}\)</span>, learning rate <span class="math inline">\(\alpha\)</span>, tolerance level <span class="math inline">\(\epsilon\)</span>.<br />
-<strong>Result:</strong> <span class="math inline">\(\widehat{\mathbf{w}}\)</span>.</p>
-<ol style="list-style-type: decimal">
-<li>Set <span class="math inline">\(i \leftarrow 0\)</span></li>
-<li><strong>while</strong> <span class="math inline">\(\lVert \mathbf{w}^{(i)} - \mathbf{w}^{(i-1)} \rVert &gt; \epsilon\)</span> <strong>do</strong>
-<ol start="3" style="list-style-type: decimal">
-<li>Update <span class="math inline">\(\mathbf{w}^{(i+1)} \leftarrow \mathbf{w}^{(i)} - \alpha \nabla J(\mathbf{w}^{(i)})\)</span></li>
-<li>Update <span class="math inline">\(i \leftarrow i + 1\)</span></li>
-</ol></li>
-<li><strong>end</strong></li>
-<li><strong>return</strong> <span class="math inline">\(\widehat{\mathbf{w}} \leftarrow \mathbf{w}^{(i-1)}\)</span></li>
-</ol>
+<!-- https://www.overleaf.com/project/607b3c198b0e8e3c5fa3f21c -->
+<center>
+<img src="images/algo.png" style="width:100.0%" />
+</center>
 <p>We will implement this algorithm with linear regression using the squared loss. Let’s now define the linear regression and optimization problems.</p>
 </div>
 </div>
@@ -72,13 +64,12 @@ tags: []
 <h1>Linear regression</h1>
 <div id="model" class="section level2">
 <h2>Model</h2>
-<!-- Regression amounts to learning the relationships between some input variables $\mathbf{x} = [x_1, \dots, x_p]^T$ and a numerical output variable $\mathbf{y}$. -->
-<p>The linear regression model assumes that the numerical output variable <span class="math inline">\(y\)</span> can be described as an affine combination of the <span class="math inline">\(p\)</span> input variables <span class="math inline">\(x_1, \dots, x_p\)</span> plus a noise term <span class="math inline">\(\epsilon\)</span>,</p>
+<p>The linear regression model assumes that the numerical output variable <span class="math inline">\(y\)</span> can be described as an affine combination of the <span class="math inline">\(p\)</span> features <span class="math inline">\(x_1, \dots, x_p\)</span> plus a noise term <span class="math inline">\(\epsilon\)</span>,</p>
 <p><span class="math display">\[y = w_0 + w_1x_1 + \dots + w_px_p + \epsilon.\]</span>
 The coefficients <span class="math inline">\(\mathbf{w} = [w_0, \dots, w_p]^T\)</span> are called parameters, weights or coefficients of the model.</p>
 <p>Prepend <span class="math inline">\(\mathbf{x}\)</span> with a constant 1 to express the linear regression model compactly as</p>
 <p><span class="math display">\[y = \mathbf{w}^T \mathbf{x} + \epsilon.\]</span></p>
-<p>The predicted output variable <span class="math inline">\(\widehat{y}\)</span> for some input variables <span class="math inline">\(\mathbf{x}\)</span> using learned parameters <span class="math inline">\(\mathbf{\widehat{w}}\)</span> is obtained with</p>
+<p>The predicted output variable <span class="math inline">\(\widehat{y}\)</span> for some features <span class="math inline">\(\mathbf{x}\)</span> using learned parameters <span class="math inline">\(\mathbf{\widehat{w}}\)</span> is obtained with</p>
 <p><span class="math display">\[\widehat{y} = \mathbf{\widehat{w}}^T \mathbf{x}.\]</span>
 The parameters are learned by minimizing the cost function <span class="math inline">\(J(\mathbf{w})\)</span>,</p>
 <p><span class="math display">\[\widehat{\mathbf{w}} = \arg\min_\mathbf{w} J(\mathbf{w}).\]</span></p>
@@ -114,7 +105,7 @@ The parameters are learned by minimizing the cost function <span class="math inl
 <script src="https://gist.github.com/dmitrijsk/56cd0192432d76a2d1ca6a5d34361654.js"></script>
 <div id="grad" class="section level3">
 <h3><code>grad</code></h3>
-<p>Returns the gradient vector. <code>d_intercept</code> is a partial derivative of the cost function w.r.t. the intercept <span class="math inline">\(w_0\)</span>. <code>d_x</code> is a partial derivative of the cost function w.r.t. to input variables (<span class="math inline">\(w_1, \dots, w_p\)</span>).</p>
+<p>Returns the gradient vector. <code>d_intercept</code> is a partial derivative of the cost function w.r.t. the intercept <span class="math inline">\(w_0\)</span>. <code>d_x</code> is a partial derivative of the cost function w.r.t. to feature coefficients (<span class="math inline">\(w_1, \dots, w_p\)</span>).</p>
 </div>
 <div id="fit" class="section level3">
 <h3><code>fit</code></h3>
@@ -127,7 +118,7 @@ The parameters are learned by minimizing the cost function <span class="math inl
 </div>
 <div id="learning-rate-and-convergence" class="section level1">
 <h1>Learning rate and convergence</h1>
-<p>“Setting the learning rate <span class="math inline">\(\alpha&gt;0\)</span> is a dark art. Only if it is sufficiently small will gradient descent converge”<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a>. Below we take a look at how a choice of <span class="math inline">\(\alpha\)</span> impacts convergence.</p>
+<p>“Setting the learning rate <span class="math inline">\(\alpha&gt;0\)</span> is a dark art. Only if it is sufficiently small will gradient descent converge”<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>. Below we take a look at how a choice of <span class="math inline">\(\alpha\)</span> impacts convergence.</p>
 <p>Let’s generate <span class="math inline">\(\mathbf{X}\)</span> and <span class="math inline">\(\mathbf{y}\)</span> data for the linear regression and use gradient descent to fit a straight line. Full code is available at my <a href="https://github.com/dmitrijsk/blogdown-dmitrijskass/tree/adagrad/content/post/2021-04-03-gradient-descent-with-linear-regression-from-scratch/code">GitHub repository</a>. Generated data looks as follows:</p>
 <center>
 <img src="images/1-generated-data.png" style="width:70.0%" />
@@ -183,8 +174,8 @@ The parameters are learned by minimizing the cost function <span class="math inl
 <img src="images/learning_rate_0.02.gif" style="width:70.0%" />
 </center>
 <p><br></p>
-<p>We would like to get rid of the dark art of guessing learning rates. A safe (but sometimes slow) choice is to set <span class="math inline">\(\alpha = \frac{i_0}{i}\)</span>, where <span class="math inline">\(i_0\)</span> is any initial positive value and <span class="math inline">\(i\)</span> is the iteration counter. This guarantees that it will eventually become small enough to converge<a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a>. With the same generated data and <span class="math inline">\(i_0=1\)</span> the algorithm converged in 278,951 iterations (slow indeed).</p>
-<p>In the <a href="/2021/04/15/adagrad-adaptive-gradient-algorithm/">next post</a> we will look at the adaptive gradient algorithm AdaGrad, which performs more informative gradient-based learning by adapting the learning rate for <em>each predictor individually</em> and does not require guessing <span class="math inline">\(\alpha\)</span>.</p>
+<p>We would like to get rid of the dark art of guessing learning rates. A safe (but sometimes slow) choice is to set <span class="math inline">\(\alpha = \frac{i_0}{i}\)</span>, where <span class="math inline">\(i_0\)</span> is any initial positive value and <span class="math inline">\(i\)</span> is the iteration counter. This guarantees that it will eventually become small enough to converge<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a>. With the same generated data and <span class="math inline">\(i_0=1\)</span> the algorithm converged in 278,951 iterations (slow indeed).</p>
+<p>In the <a href="/2021/04/15/adagrad-adaptive-gradient-algorithm/">next post</a> we will look at the adaptive gradient algorithm AdaGrad, which performs more informative gradient-based learning by adapting the learning rate for <em>each feature individually</em> and does not require guessing <span class="math inline">\(\alpha\)</span>.</p>
 <hr>
 <p>I would appreciate any comments or suggestions. Please leave them below, no login required if you check “I’d rather post as a guest”.</p>
 </div>
@@ -192,10 +183,9 @@ The parameters are learned by minimizing the cost function <span class="math inl
 <div class="footnotes">
 <hr />
 <ol>
-<li id="fn1"><p>“Gradient Descent (and Beyond)”. Lecture notes for the “Machine Learning for Intelligent Systems” course by Kilian Weinberger at Cornell University. <a href="https://www.cs.cornell.edu/courses/cs4780/2018fa/lectures/lecturenote07.html">Link</a><a href="#fnref1" class="footnote-back">↩︎</a></p></li>
-<li id="fn2"><p>Havens, A. Multivariate functions and partial derivatives. <a href="https://people.math.umass.edu/~havens/Partials.pdf">Link</a><a href="#fnref2" class="footnote-back">↩︎</a></p></li>
-<li id="fn3"><p>See 1.<a href="#fnref3" class="footnote-back">↩︎</a></p></li>
-<li id="fn4"><p>See 1.<a href="#fnref4" class="footnote-back">↩︎</a></p></li>
-<li id="fn5"><p>See 1.<a href="#fnref5" class="footnote-back">↩︎</a></p></li>
+<li id="fn1"><p>Havens, A. Multivariate functions and partial derivatives. <a href="https://people.math.umass.edu/~havens/Partials.pdf">Link</a><a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p>“Gradient Descent (and Beyond)”. Lecture notes for the “Machine Learning for Intelligent Systems” course by Kilian Weinberger at Cornell University. <a href="https://www.cs.cornell.edu/courses/cs4780/2018fa/lectures/lecturenote07.html">Link</a><a href="#fnref2" class="footnote-back">↩︎</a></p></li>
+<li id="fn3"><p>Ibid.<a href="#fnref3" class="footnote-back">↩︎</a></p></li>
+<li id="fn4"><p>Ibid.<a href="#fnref4" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>

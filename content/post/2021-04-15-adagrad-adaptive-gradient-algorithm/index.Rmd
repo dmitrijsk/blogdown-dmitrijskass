@@ -44,18 +44,11 @@ If the elements of $\mathbf{G}^{(i)}$ are different then the learning rate for e
 
 # Algorithm
 
-|   **Input:** Cost function $J(\mathbf{w})$, initial $\mathbf{w}^{(0)}$, initial $\mathbf{G}^{(0)}$, positive constants $\eta$ and $\epsilon$.
-|   **Result:** $\widehat{\mathbf{w}}$.
-| $\texttt{1}$ Set $i \leftarrow 0$
-| $\texttt{2}$ **while** $\lVert \mathbf{w}^{(i)} - \mathbf{w}^{(i-1)} \rVert > \epsilon$  **do**
-| $\texttt{3}$ $\text{    }$ Compute gradient vector $\mathbf{g}^{(i)} = \nabla J(\mathbf{w}^{(i)})$
-| $\texttt{4}$ $\text{    }$ Accumulate $\mathbf{G}^{(i+1)} \leftarrow \mathbf{G}^{(i)} + \mathbf{g}^{(i)} \cdot \mathbf{g}^{(i)}$
-| $\texttt{5}$ $\text{    }$ Update parameters $\mathbf{w}^{(i+1)} \leftarrow \mathbf{w}^{(i)}-\frac{\eta}{\sqrt{\mathbf{G}^{(i+1)} + \epsilon}} \mathbf{g}^{(i)}$
-| $\texttt{6}$ $\text{    }$ Update $i \leftarrow i + 1$
-| $\texttt{7}$ **end**
-| $\texttt{8}$ **return** $\widehat{\mathbf{w}} \leftarrow \mathbf{w}^{(i-1)}$
+<!-- https://www.overleaf.com/project/607b3c198b0e8e3c5fa3f21c -->
 
-
+<center>
+![](images/algo.png){width=100%}
+</center>
 
 # Implementation in Python
 

@@ -19,8 +19,6 @@ menu:
       weight: 1
     - name: About
       url: /about/
-    - name: LinkedIn
-      url: https://www.linkedin.com/in/dmitrijs-kass-prm/
 params:
   MathJaxCDN: //cdnjs.cloudflare.com/ajax/libs
   MathJaxVersion: 2.7.5

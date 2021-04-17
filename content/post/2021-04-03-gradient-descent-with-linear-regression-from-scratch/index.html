@@ -16,7 +16,7 @@ tags: []
 <p><img src="images/surface.png" style="width:100.0%" /></p>
 <p>We want to minimize a convex, continuous and differentiable cost function <span class="math inline">\(J(\mathbf{w})\)</span>. In this blog post we discuss the most popular “hill-climbing” algorithm, <strong>gradient descent</strong>, using linear regression, and build it from scratch in Python. A few highlights:</p>
 <ul>
-<li>Code for linear regression and gradient descent is generalized to work with any first-order linear regression model, i.e., <span class="math inline">\(y=w_0+w_1x_1+\dots+w_px_p\)</span>.</li>
+<li>Code for linear regression and gradient descent is generalized to work with a model <span class="math inline">\(y=w_0+w_1x_1+\dots+w_px_p\)</span> for any <span class="math inline">\(p\)</span>.</li>
 <li>Gradient descent is implemented using an object-oriented approach.</li>
 <li>Impact of the learning rate on convergence (divergence) is illustrated.</li>
 </ul>
@@ -65,7 +65,6 @@ tags: []
 <li><strong>end</strong></li>
 <li><strong>return</strong> <span class="math inline">\(\widehat{\mathbf{w}} \leftarrow \mathbf{w}^{(i-1)}\)</span></li>
 </ol>
-<p>Adapted from <a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a></p>
 <p>We will implement this algorithm with linear regression using the squared loss. Let’s now define the linear regression and optimization problems.</p>
 </div>
 </div>
@@ -128,7 +127,7 @@ The parameters are learned by minimizing the cost function <span class="math inl
 </div>
 <div id="learning-rate-and-convergence" class="section level1">
 <h1>Learning rate and convergence</h1>
-<p>“Setting the learning rate <span class="math inline">\(\alpha&gt;0\)</span> is a dark art. Only if it is sufficiently small will gradient descent converge”<a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a>. Below we take a look at how a choice of <span class="math inline">\(\alpha\)</span> impacts convergence.</p>
+<p>“Setting the learning rate <span class="math inline">\(\alpha&gt;0\)</span> is a dark art. Only if it is sufficiently small will gradient descent converge”<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a>. Below we take a look at how a choice of <span class="math inline">\(\alpha\)</span> impacts convergence.</p>
 <p>Let’s generate <span class="math inline">\(\mathbf{X}\)</span> and <span class="math inline">\(\mathbf{y}\)</span> data for the linear regression and use gradient descent to fit a straight line. Full code is available at my <a href="https://github.com/dmitrijsk/blogdown-dmitrijskass/tree/adagrad/content/post/2021-04-03-gradient-descent-with-linear-regression-from-scratch/code">GitHub repository</a>. Generated data looks as follows:</p>
 <center>
 <img src="images/1-generated-data.png" style="width:70.0%" />
@@ -136,7 +135,7 @@ The parameters are learned by minimizing the cost function <span class="math inl
 <p>We fit the line using the gradient descent with <code>GradientDescentLinearRegression().fit(X, y)</code>.</p>
 <div id="slow-convergence" class="section level2">
 <h2>Slow convergence</h2>
-<p>With learning rate <span class="math inline">\(\alpha=0.001\)</span> the algorithm slowly converges in 772 iterations. The surface plot below is the surface of the cost function <span class="math inline">\(J(\mathbf{w})\)</span>. Red dots are updated parameters from initial <span class="math inline">\(\mathbf{w}^{(0)} = [0,0]\)</span> to optimal <span class="math inline">\(\mathbf{w}^{(1001)} = [0.24, 0.84]\)</span>.</p>
+<p>With learning rate <span class="math inline">\(\alpha=0.001\)</span> the algorithm slowly converges in 772 iterations. The surface plot below is the surface of the cost function <span class="math inline">\(J(\mathbf{w})\)</span>. Red dots are updated parameters from initial <span class="math inline">\(\mathbf{w}^{(0)} = [0,0]\)</span> to optimal <span class="math inline">\(\mathbf{w}^{(772)} = [0.24, 0.84]\)</span>.</p>
 <center>
 <img src="images/4-surface_0.001.png" style="width:100.0%" />
 </center>
@@ -184,8 +183,8 @@ The parameters are learned by minimizing the cost function <span class="math inl
 <img src="images/learning_rate_0.02.gif" style="width:70.0%" />
 </center>
 <p><br></p>
-<p>We would like to get rid of the dark art of guessing learning rates. A safe (but sometimes slow) choice is to set <span class="math inline">\(\alpha = \frac{i_0}{i}\)</span>, where <span class="math inline">\(i_0\)</span> is any initial positive value and <span class="math inline">\(i\)</span> is the iteration counter. This guarantees that it will eventually become small enough to converge<a href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a>. With the same generated data and <span class="math inline">\(i_0=1\)</span> the algorithm converged in 278,951 iterations (slow indeed).</p>
-<p>In the <a href="/2021/04/15/adagrad-adaptive-gradient-algorithm/">next post</a> we will look at the adaptive gradient algorithm AdaGrad, which performs more informative gradient-based learning by adapting the learning for each predictor individually and does not require guessing <span class="math inline">\(\alpha\)</span>.</p>
+<p>We would like to get rid of the dark art of guessing learning rates. A safe (but sometimes slow) choice is to set <span class="math inline">\(\alpha = \frac{i_0}{i}\)</span>, where <span class="math inline">\(i_0\)</span> is any initial positive value and <span class="math inline">\(i\)</span> is the iteration counter. This guarantees that it will eventually become small enough to converge<a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a>. With the same generated data and <span class="math inline">\(i_0=1\)</span> the algorithm converged in 278,951 iterations (slow indeed).</p>
+<p>In the <a href="/2021/04/15/adagrad-adaptive-gradient-algorithm/">next post</a> we will look at the adaptive gradient algorithm AdaGrad, which performs more informative gradient-based learning by adapting the learning rate for <em>each predictor individually</em> and does not require guessing <span class="math inline">\(\alpha\)</span>.</p>
 <hr>
 <p>I would appreciate any comments or suggestions. Please leave them below, no login required if you check “I’d rather post as a guest”.</p>
 </div>
@@ -193,11 +192,10 @@ The parameters are learned by minimizing the cost function <span class="math inl
 <div class="footnotes">
 <hr />
 <ol>
-<li id="fn1"><p>“Gradient Descent (and Beyond)”. Lecture notes for the “Machine Learning for Intelligent Systems” course at Cornell University. <a href="https://www.cs.cornell.edu/courses/cs4780/2018fa/lectures/lecturenote07.html">Link</a><a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn1"><p>“Gradient Descent (and Beyond)”. Lecture notes for the “Machine Learning for Intelligent Systems” course by Kilian Weinberger at Cornell University. <a href="https://www.cs.cornell.edu/courses/cs4780/2018fa/lectures/lecturenote07.html">Link</a><a href="#fnref1" class="footnote-back">↩︎</a></p></li>
 <li id="fn2"><p>Havens, A. Multivariate functions and partial derivatives. <a href="https://people.math.umass.edu/~havens/Partials.pdf">Link</a><a href="#fnref2" class="footnote-back">↩︎</a></p></li>
 <li id="fn3"><p>See 1.<a href="#fnref3" class="footnote-back">↩︎</a></p></li>
-<li id="fn4"><p>Lindholm, A., Wahlström, N., Lindsten, F., &amp; Schön, T. B. (2020). Machine Learning - A First Course for Engineers and Scientists. Chapter 5 “Learning parametric models”. <em>Unpublished</em>. <a href="http://smlbook.org/">Link</a><a href="#fnref4" class="footnote-back">↩︎</a></p></li>
+<li id="fn4"><p>See 1.<a href="#fnref4" class="footnote-back">↩︎</a></p></li>
 <li id="fn5"><p>See 1.<a href="#fnref5" class="footnote-back">↩︎</a></p></li>
-<li id="fn6"><p>See 1.<a href="#fnref6" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>

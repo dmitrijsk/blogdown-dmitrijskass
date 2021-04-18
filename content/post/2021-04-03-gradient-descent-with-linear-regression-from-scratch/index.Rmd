@@ -84,7 +84,7 @@ The linear regression model assumes that the numerical output variable $y$ can b
 $$y = w_0 + w_1x_1 + \dots + w_px_p + \epsilon.$$
 The coefficients $\mathbf{w} = [w_0, w_1, \dots, w_p]^T$ are called parameters, weights or coefficients of the model.
 
-Prepend $\mathbf{x}$ with a constant 1 
+Prepend a feature vector $\mathbf{x}$ with a constant 1
 
 $$\mathbf{x} = [1, x_1, \dots, x_p]^T$$
 
@@ -106,11 +106,11 @@ We solve this optimization problem with the gradient descent.
 
 The cost function with the squared error loss is given by 
 
-$$J(\mathbf{w}) = \frac{1}{n} \sum_{i=1}^{n}(\widehat{y_i} - y_i)^2,$$
+$$J(\mathbf{w}) = \frac{1}{n} \sum_{i=1}^{n}(y_i - \widehat{y_i})^2,$$
 
 where $n$ is the number of samples in the training data. It is a scalar-valued function. If $p=2$  then 
 
-$$J(\mathbf{w}) = \frac{1}{n} \sum_{i=1}^{n}(w_0 + w_1 x_{1i} + w_2 x_{2i} - y_i)^2,$$
+$$J(\mathbf{w}) = \frac{1}{n} \sum_{i=1}^{n}(y_i - (w_0 + w_1 x_{1i} + w_2 x_{2i}))^2,$$
 
 and the gradient using the chain rule of calculus is
 
@@ -121,11 +121,11 @@ $$\nabla J(\mathbf{w})=
 \dfrac{\partial J (\mathbf{w})}{\partial w_2} 
 \end{array}\right]=
 \left[\begin{array}{c}
-2 \sum_{i=1}^{n}(w_0 + w_1 x_{1i} + x_2 x_{2i} - y_i) (-1)\\
+2 \sum_{i=1}^{n}(y_i - (w_0 + w_1 x_{1i} + w_2 x_{2i})) (-1)\\
 \\
-2 \sum_{i=1}^{n}(w_0 + w_1 x_{1i} + x_2 x_{2i} - y_i) (-x_{1i})\\
+2 \sum_{i=1}^{n}(y_i - (w_0 + w_1 x_{1i} + w_2 x_{2i})) (-x_{1i})\\
 \\
-2 \sum_{i=1}^{n}(w_0 + w_1 x_{1i} + x_2 x_{2i} - y_i) (-x_{2i})
+2 \sum_{i=1}^{n}(y_i - (w_0 + w_1 x_{1i} + w_2 x_{2i})) (-x_{2i})
 \end{array}\right]$$
 
 <div style="padding:10px;background-color:#EBEBEB;line-height:1.3;">

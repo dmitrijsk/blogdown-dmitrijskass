@@ -67,7 +67,7 @@ tags: []
 <p>The linear regression model assumes that the numerical output variable <span class="math inline">\(y\)</span> can be described as an affine combination of the <span class="math inline">\(p\)</span> features <span class="math inline">\(x_1, \dots, x_p\)</span> plus a noise term <span class="math inline">\(\epsilon\)</span>,</p>
 <p><span class="math display">\[y = w_0 + w_1x_1 + \dots + w_px_p + \epsilon.\]</span>
 The coefficients <span class="math inline">\(\mathbf{w} = [w_0, w_1, \dots, w_p]^T\)</span> are called parameters, weights or coefficients of the model.</p>
-<p>Prepend <span class="math inline">\(\mathbf{x}\)</span> with a constant 1</p>
+<p>Prepend a feature vector <span class="math inline">\(\mathbf{x}\)</span> with a constant 1</p>
 <p><span class="math display">\[\mathbf{x} = [1, x_1, \dots, x_p]^T\]</span></p>
 <p>to express the linear regression model compactly as</p>
 <p><span class="math display">\[y = \mathbf{w}^T \mathbf{x} + \epsilon.\]</span></p>
@@ -80,9 +80,9 @@ The parameters are learned by minimizing the cost function <span class="math inl
 <div id="cost-function-and-its-gradient" class="section level2">
 <h2>Cost function and its gradient</h2>
 <p>The cost function with the squared error loss is given by</p>
-<p><span class="math display">\[J(\mathbf{w}) = \frac{1}{n} \sum_{i=1}^{n}(\widehat{y_i} - y_i)^2,\]</span></p>
+<p><span class="math display">\[J(\mathbf{w}) = \frac{1}{n} \sum_{i=1}^{n}(y_i - \widehat{y_i})^2,\]</span></p>
 <p>where <span class="math inline">\(n\)</span> is the number of samples in the training data. It is a scalar-valued function. If <span class="math inline">\(p=2\)</span> then</p>
-<p><span class="math display">\[J(\mathbf{w}) = \frac{1}{n} \sum_{i=1}^{n}(w_0 + w_1 x_{1i} + w_2 x_{2i} - y_i)^2,\]</span></p>
+<p><span class="math display">\[J(\mathbf{w}) = \frac{1}{n} \sum_{i=1}^{n}(y_i - (w_0 + w_1 x_{1i} + w_2 x_{2i}))^2,\]</span></p>
 <p>and the gradient using the chain rule of calculus is</p>
 <p><span class="math display">\[\nabla J(\mathbf{w})=
 \left[\begin{array}{c}
@@ -91,11 +91,11 @@ The parameters are learned by minimizing the cost function <span class="math inl
 \dfrac{\partial J (\mathbf{w})}{\partial w_2} 
 \end{array}\right]=
 \left[\begin{array}{c}
-2 \sum_{i=1}^{n}(w_0 + w_1 x_{1i} + x_2 x_{2i} - y_i) (-1)\\
+2 \sum_{i=1}^{n}(y_i - (w_0 + w_1 x_{1i} + w_2 x_{2i})) (-1)\\
 \\
-2 \sum_{i=1}^{n}(w_0 + w_1 x_{1i} + x_2 x_{2i} - y_i) (-x_{1i})\\
+2 \sum_{i=1}^{n}(y_i - (w_0 + w_1 x_{1i} + w_2 x_{2i})) (-x_{1i})\\
 \\
-2 \sum_{i=1}^{n}(w_0 + w_1 x_{1i} + x_2 x_{2i} - y_i) (-x_{2i})
+2 \sum_{i=1}^{n}(y_i - (w_0 + w_1 x_{1i} + w_2 x_{2i})) (-x_{2i})
 \end{array}\right]\]</span></p>
 <div style="padding:10px;background-color:#EBEBEB;line-height:1.3;">
 <p><strong>Note:</strong> When I first encountered the gradient descent, I could not understand how the gradient can be calculated from discrete data points. <em>“Derivatives require continuity, but I am given just a few data points”</em>, I thought. But this is a wrong way to think about the gradient. The gradient is calculated using a given function (in our case, <span class="math inline">\(J(\mathbf{w})\)</span>) and has nothing to do with the actual data at this stage. Notice how we calculated the gradient above and we did not care about the data points yet. Data points are used <em>to evaluate</em> the gradient at <em>a specific</em> point (in our case, at <span class="math inline">\(\mathbf{w^{(i)}}\)</span> in each iteration <span class="math inline">\(i\)</span> of the gradient descent algorithm).</p>

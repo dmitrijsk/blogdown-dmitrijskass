@@ -97,6 +97,9 @@ The parameters are learned by minimizing the cost function <span class="math inl
 \\
 2 \sum_{i=1}^{n}(y_i - (w_0 + w_1 x_{1i} + w_2 x_{2i})) (-x_{2i})
 \end{array}\right]\]</span></p>
+<p style="font-family:&#39;Merriweather&#39;;color:blue;font-size:70%;">
+Fix: 1/n missing both here and in the code. Same for AdaGrad. (2021-04-18).
+</p>
 <div style="padding:10px;background-color:#EBEBEB;line-height:1.3;">
 <p><strong>Note:</strong> When I first encountered the gradient descent, I could not understand how the gradient can be calculated from discrete data points. <em>“Derivatives require continuity, but I am given just a few data points”</em>, I thought. But this is a wrong way to think about the gradient. The gradient is calculated using a given function (in our case, <span class="math inline">\(J(\mathbf{w})\)</span>) and has nothing to do with the actual data at this stage. Notice how we calculated the gradient above and we did not care about the data points yet. Data points are used <em>to evaluate</em> the gradient at <em>a specific</em> point (in our case, at <span class="math inline">\(\mathbf{w^{(i)}}\)</span> in each iteration <span class="math inline">\(i\)</span> of the gradient descent algorithm).</p>
 </div>

@@ -9,7 +9,7 @@ categories:
 tags: []
 ---
 
-We want to minimize a convex, continuous and differentiable cost function with gradient descent. One possible issue is a choice of a suitable learning rate. Another is a slow convergence is some dimensions because gradient descent treats all features as equal. But they are not![^stanford-lecture] AdaGrad[^adagrad] is one of the gradient-based optimization algorithms that aims to solve both of these issues.
+We want to minimize a convex, continuous and differentiable cost function with gradient descent. One possible issue is a choice of a suitable learning rate. Another is a slow convergence in some dimensions because gradient descent treats all features as equal. But they are not![^stanford-lecture] AdaGrad[^adagrad] is one of the gradient-based optimization algorithms that aims to solve both of these issues.
 
 AdaGrad adapts the learning rate individually to each model parameter. Setting different learning rates for different features is particularly important if they vary in frequency (e.g., common and rare words in word embeddings). Frequently occurring features receive very low learning rates (and small updates) and infrequent features high learning rates (and large updates). The intuition is that each time an infrequent feature is seen, the learner should "take notice". It does so by associating them with relatively larger learning rates during optimization. The same holds for features of different scale (e.g., milligrams and tons).
 

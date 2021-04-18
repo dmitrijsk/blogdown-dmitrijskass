@@ -82,13 +82,17 @@ We will implement this algorithm with linear regression using the squared loss. 
 The linear regression model assumes that the numerical output variable $y$ can be described as an affine combination of the $p$ features $x_1, \dots, x_p$ plus a noise term $\epsilon$,
 
 $$y = w_0 + w_1x_1 + \dots + w_px_p + \epsilon.$$
-The coefficients $\mathbf{w} = [w_0, \dots, w_p]^T$ are called parameters, weights or coefficients of the model.
+The coefficients $\mathbf{w} = [w_0, w_1, \dots, w_p]^T$ are called parameters, weights or coefficients of the model.
 
-Prepend $\mathbf{x}$ with a constant 1 to express the linear regression model compactly as 
+Prepend $\mathbf{x}$ with a constant 1 
+
+$$\mathbf{x} = [1, x_1, \dots, x_p]^T$$
+
+to express the linear regression model compactly as 
 
 $$y = \mathbf{w}^T \mathbf{x} + \epsilon.$$
 
-The predicted output variable $\widehat{y}$ for some features $\mathbf{x}$ using learned parameters $\mathbf{\widehat{w}}$ is obtained with 
+The predicted output variable $\widehat{y}$ for some feature vector $\mathbf{x}$ using learned parameters $\mathbf{\widehat{w}}$ is obtained with 
 
 $$\widehat{y} = \mathbf{\widehat{w}}^T \mathbf{x}.$$
 The parameters are learned by minimizing the cost function $J(\mathbf{w})$,

@@ -66,10 +66,12 @@ tags: []
 <h2>Model</h2>
 <p>The linear regression model assumes that the numerical output variable <span class="math inline">\(y\)</span> can be described as an affine combination of the <span class="math inline">\(p\)</span> features <span class="math inline">\(x_1, \dots, x_p\)</span> plus a noise term <span class="math inline">\(\epsilon\)</span>,</p>
 <p><span class="math display">\[y = w_0 + w_1x_1 + \dots + w_px_p + \epsilon.\]</span>
-The coefficients <span class="math inline">\(\mathbf{w} = [w_0, \dots, w_p]^T\)</span> are called parameters, weights or coefficients of the model.</p>
-<p>Prepend <span class="math inline">\(\mathbf{x}\)</span> with a constant 1 to express the linear regression model compactly as</p>
+The coefficients <span class="math inline">\(\mathbf{w} = [w_0, w_1, \dots, w_p]^T\)</span> are called parameters, weights or coefficients of the model.</p>
+<p>Prepend <span class="math inline">\(\mathbf{x}\)</span> with a constant 1</p>
+<p><span class="math display">\[\mathbf{x} = [1, x_1, \dots, x_p]^T\]</span></p>
+<p>to express the linear regression model compactly as</p>
 <p><span class="math display">\[y = \mathbf{w}^T \mathbf{x} + \epsilon.\]</span></p>
-<p>The predicted output variable <span class="math inline">\(\widehat{y}\)</span> for some features <span class="math inline">\(\mathbf{x}\)</span> using learned parameters <span class="math inline">\(\mathbf{\widehat{w}}\)</span> is obtained with</p>
+<p>The predicted output variable <span class="math inline">\(\widehat{y}\)</span> for some feature vector <span class="math inline">\(\mathbf{x}\)</span> using learned parameters <span class="math inline">\(\mathbf{\widehat{w}}\)</span> is obtained with</p>
 <p><span class="math display">\[\widehat{y} = \mathbf{\widehat{w}}^T \mathbf{x}.\]</span>
 The parameters are learned by minimizing the cost function <span class="math inline">\(J(\mathbf{w})\)</span>,</p>
 <p><span class="math display">\[\widehat{\mathbf{w}} = \arg\min_\mathbf{w} J(\mathbf{w}).\]</span></p>

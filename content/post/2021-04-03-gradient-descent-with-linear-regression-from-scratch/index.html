@@ -13,6 +13,9 @@ tags: []
 <script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
 
 
+<hr />
+<p>Hyper-parameters are parameters that are not directly learnt within estimators. In scikit-learn they are passed as arguments to the constructor of the estimator classes.</p>
+<hr />
 <p><img src="images/surface.png" style="width:100.0%" /></p>
 <p>We want to minimize a convex, continuous and differentiable cost function <span class="math inline">\(J(\mathbf{w})\)</span>. In this blog post we discuss the most popular “hill-climbing” algorithm, <strong>gradient descent</strong>, using linear regression, and build it from scratch in Python. A few highlights:</p>
 <ul>
@@ -22,22 +25,29 @@ tags: []
 </ul>
 <div id="theoretical-idea-of-the-gradient-descent" class="section level1">
 <h1>Theoretical idea of the gradient descent</h1>
+<p>Throughout this post I use bold font for vectors (e.g., <span class="math inline">\(\mathbf{w}\)</span>, <span class="math inline">\(\mathbf{x}\)</span>) and regular font for scalars and functions (e.g., <span class="math inline">\(w_0\)</span>, <span class="math inline">\(x_0\)</span>).</p>
 <div id="taylor-expansion" class="section level2">
 <h2>Taylor expansion</h2>
 <p>Simplify the function you would like to minimize by using the first-order Taylor polynomial. Provided that the norm <span class="math inline">\(\lVert \mathbf{s} \rVert_2\)</span> is small (i.e., <span class="math inline">\(\mathbf{w}+\mathbf{s}\)</span> is very close to <span class="math inline">\(\mathbf{w}\)</span>), we can linearly approximate the function <span class="math inline">\(J(\mathbf{w} + \mathbf{s})\)</span> by its first derivative:</p>
 <p><span class="math display">\[J(\mathbf{w}+\mathbf{s}) \approx J(\mathbf{w}) + \nabla J(\mathbf{w})^T \mathbf{s},\]</span></p>
 <p>where <span class="math inline">\(\nabla J(\mathbf{w})\)</span> is the gradient of <span class="math inline">\(J\)</span>. This approximation is valid only when the step size <span class="math inline">\(\mathbf{s}\)</span> is small. We will return to this in the learning rate discussion.</p>
+<div style="padding:10px;background-color:#EBEBEB;line-height:1.3;">
+<p><strong>Note:</strong> We may also use the second-order Taylor polynomial to make a quadratic approximation of the function. Examples are Newton and Gauss-Newton methods. Second-order optimization methods consume more computation power and are less popular for machine learning model training.</p>
+</div>
 </div>
 <div id="gradient" class="section level2">
 <h2>Gradient</h2>
 <p>The gradient vector</p>
 <p><span class="math display">\[
-\nabla J(\mathbf{w})=\left[\begin{array}{c}
+\nabla J(\mathbf{w})
+= \frac{\partial J (\mathbf{w})}{\partial \mathbf{w}}
+= \left[\begin{array}{c}
 \dfrac{\partial J (\mathbf{w})}{\partial w_0}\\
 \dfrac{\partial J (\mathbf{w})}{\partial w_1}\\
 \vdots \\
 \dfrac{\partial J (\mathbf{w})}{\partial w_p}
-\end{array}\right]
+\end{array}\right] 
+\in \mathbb{R}^{p+1 \times 1}
 \]</span></p>
 <p>gives the direction of steepest ascent on the surface of the function <span class="math inline">\(J\)</span>, and the rate of change in this direction is <span class="math inline">\(\lVert \nabla J(\mathbf{w}) \rVert\)</span>. <a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a></p>
 <!-- <p style="font-family:'Merriweather';color:blue;font-size:70%;"> -->
@@ -57,6 +67,9 @@ tags: []
 <center>
 <img src="images/algo.png" style="width:100.0%" />
 </center>
+<p style="font-family:&#39;Merriweather&#39;;color:blue;font-size:70%;">
+Note: <strong>do</strong> … <strong>while</strong> would be more suitable to avoid <span class="math inline">\(\mathbf{w}^{(-1)}\)</span>. (2021-04-18)
+</p>
 <p>We will implement this algorithm with linear regression using the squared loss. Let’s now define the linear regression and optimization problems.</p>
 </div>
 </div>
@@ -79,9 +92,13 @@ The parameters are learned by minimizing the cost function <span class="math inl
 </div>
 <div id="cost-function-and-its-gradient" class="section level2">
 <h2>Cost function and its gradient</h2>
+<p style="font-family:&#39;Merriweather&#39;;color:blue;font-size:70%;">
+Add: Loss function as a separate expression. (2021-04-22).
+</p>
 <p>The cost function with the squared error loss is given by</p>
 <p><span class="math display">\[J(\mathbf{w}) = \frac{1}{n} \sum_{i=1}^{n}(y_i - \widehat{y_i})^2,\]</span></p>
-<p>where <span class="math inline">\(n\)</span> is the number of samples in the training data. It is a scalar-valued function. If <span class="math inline">\(p=2\)</span> then</p>
+<p>where <span class="math inline">\(n\)</span> is the number of samples in the training data. It is is a scalar-valued function. Quadratic nature of the loss function produces a <a href="https://en.wikipedia.org/wiki/Convex_function">convex</a> cost function.</p>
+<p>If <span class="math inline">\(p=2\)</span> then</p>
 <p><span class="math display">\[J(\mathbf{w}) = \frac{1}{n} \sum_{i=1}^{n}(y_i - (w_0 + w_1 x_{1i} + w_2 x_{2i}))^2,\]</span></p>
 <p>and the gradient using the chain rule of calculus is</p>
 <p><span class="math display">\[\nabla J(\mathbf{w})=
@@ -107,6 +124,12 @@ Fix: 1/n missing both here and in the code. Same for AdaGrad. (2021-04-18).
 </div>
 <div id="implementation-in-python" class="section level1">
 <h1>Implementation in Python</h1>
+<p style="font-family:&#39;Merriweather&#39;;color:blue;font-size:70%;">
+TODO: Plug-in algorithm that calculates the step. Then it will be easy to add Adagrad and other algorithms. (2021-04-22).
+</p>
+<p style="font-family:&#39;Merriweather&#39;;color:blue;font-size:70%;">
+Fix: Comment for <span class="math inline">\(eps\)</span> is outdated. (2021-04-22)
+</p>
 <script src="https://gist.github.com/dmitrijsk/56cd0192432d76a2d1ca6a5d34361654.js"></script>
 <div id="grad" class="section level3">
 <h3><code>grad</code></h3>
@@ -114,7 +137,7 @@ Fix: 1/n missing both here and in the code. Same for AdaGrad. (2021-04-18).
 </div>
 <div id="fit" class="section level3">
 <h3><code>fit</code></h3>
-<p>Line 55 initializes initial parameters <span class="math inline">\(\mathbf{w^{(0)}}\)</span> as a zero vector. Initialization can be done arbitrarily here because we are dealing with a convex loss function. For convex problems there is only one stationary point, which also is the global minimum.</p>
+<p>Line 55 initializes parameters <span class="math inline">\(\mathbf{w^{(0)}}\)</span> as a zero vector. Initialization can be done arbitrarily here because we are dealing with a convex loss function. For convex problems there is only one stationary point, which also is the global minimum.</p>
 <div style="padding:10px;background-color:#EBEBEB;line-height:1.3;">
 <p><strong>Note:</strong> Sometimes we can save computation time by <em>warm-starting</em> the optimization procedure with a good initial guess. For example, iterations <span class="math inline">\(2..k\)</span> of a <span class="math inline">\(k\)</span>-fold cross-validation may use parameters corresponding to a minimum loss in the previous iterations.</p>
 </div>

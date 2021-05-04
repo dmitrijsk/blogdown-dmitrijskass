@@ -12,10 +12,14 @@ tags: []
 <script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
 
 
+<p style="font-family:&#39;Merriweather&#39;;color:blue;font-size:70%;">
+TODO: Add cover image with a surface and two paths with a few steps: by gradient descent and by AdaGrad. (2021-04-19)
+</p>
 <p>We want to minimize a convex, continuous and differentiable cost function with gradient descent. One possible issue is a choice of a suitable learning rate. Another is a slow convergence in some dimensions because gradient descent treats all features as equal. But they are not!<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> AdaGrad<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a> is one of the gradient-based optimization algorithms that aims to solve both of these issues.</p>
 <p>AdaGrad adapts the learning rate individually to each model parameter. Setting different learning rates for different features is particularly important if they vary in frequency (e.g., common and rare words in word embeddings). Frequently occurring features receive very low learning rates (and small updates) and infrequent features high learning rates (and large updates). The intuition is that each time an infrequent feature is seen, the learner should “take notice”. It does so by associating them with relatively larger learning rates during optimization. The same holds for features of different scale (e.g., milligrams and tons).</p>
 <div id="theoretical-idea-of-adagrad" class="section level1">
 <h1>Theoretical idea of AdaGrad</h1>
+<p>Throughout this post I use bold font for vectors (e.g., <span class="math inline">\(\mathbf{w}\)</span>, <span class="math inline">\(\mathbf{x}\)</span>) and regular font for scalars and functions (e.g., <span class="math inline">\(w_0\)</span>, <span class="math inline">\(J\)</span>).</p>
 <p>At every iteration <span class="math inline">\(i\)</span>, the learner receives the gradient vector <span class="math inline">\(\mathbf{g}^{(i)}\)</span>. Standard gradient descent algorithm then multiplies it by the learning rate <span class="math inline">\(\alpha\)</span> and moves the model parameters in the opposite direction <span class="math inline">\(-\alpha\mathbf{g}^{(i)}\)</span>. AdaGrad dynamically incorporates knowledge of the geometry of the data observed in earlier iterations to perform more informative gradient-based learning. The outer product matrix <span class="math inline">\(\mathbf{G}^{(i)}\)</span> keeps records of the computed historical gradients from the beginning until the current iteration:</p>
 <p><span class="math display">\[\mathbf{G}^{(i)} = \sum_{t = 0}^{i} \mathbf{g}^{(t)} (\mathbf{g}^{(t)})^T.\]</span></p>
 <p>The parameter update rule is</p>
@@ -36,10 +40,16 @@ tags: []
 <center>
 <img src="images/algo.png" style="width:100.0%" />
 </center>
+<p style="font-family:&#39;Merriweather&#39;;color:blue;font-size:70%;">
+Note: <strong>do</strong> … <strong>while</strong> would be more suitable to avoid <span class="math inline">\(\mathbf{w}^{(-1)}\)</span>. (2021-04-18)
+</p>
 </div>
 <div id="implementation-in-python" class="section level1">
 <h1>Implementation in Python</h1>
 <p>Full code is available at my <a href="https://github.com/dmitrijsk/blogdown-dmitrijskass/tree/adagrad/content/post/2021-04-03-gradient-descent-with-linear-regression-from-scratch/code">GitHub repository</a>. Only a few changes need to be implemented in the gradient descent code with linear regression from <a href="/2021/04/03/gradient-descent-with-linear-regression-from-scratch/">the previous post</a>. <span class="math inline">\(\mathbf{G}^{(0)}\)</span> is initialized as a zero vector in line 56 and updated in line 63. The step size is calculated in lines 64-65. <span class="math inline">\(\eta\)</span> is usually set at 0.01<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a> and <span class="math inline">\(\epsilon\)</span> is a small number, e.g., 1e-6.</p>
+<p style="font-family:&#39;Merriweather&#39;;color:blue;font-size:70%;">
+Fix: Comment for <span class="math inline">\(eps\)</span> is outdated. (2021-04-22)
+</p>
 <script src="https://gist.github.com/dmitrijsk/e39fc06f223f00fc3f4afbe29a5aaa1f.js"></script>
 </div>
 <div id="convergence" class="section level1">
@@ -57,6 +67,12 @@ tags: []
 <img src="images/learning_rate_1.gif" style="width:80.0%" />
 </center>
 <p>The weakness of AdaGrad is an aggressive monotonic growth of the denominator as squared gradients get accumulated. After a certain number of iterations the learning rate becomes infinitesimally small, at which point the algorithm essentially stops making steps in the direction of the minimum. ADADELTA<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a> is an extension of AdaGrad that seeks to reduce its aggressive, monotonically decreasing learning rate.</p>
+<p style="font-family:&#39;Merriweather&#39;;color:blue;font-size:70%;">
+RMSProp? (2021-04-22)
+</p>
+<p style="font-family:&#39;Merriweather&#39;;color:blue;font-size:70%;">
+TODO: Test of diabetes (or any other) dataset: OLs, standard gradient descent, AdaGrad. (2021-04-22)
+</p>
 <hr>
 <p>I would appreciate any comments or suggestions. Please leave them below, no login required if you check “I’d rather post as a guest”.</p>
 </div>

@@ -10,7 +10,7 @@ tags: []
 <script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
 
 
-<p>There are two methods to connect to a Jupyter notebook running on a remote Ubuntu machine through the browser on your local machine: port forwarding and public IP. You may skip the installation part if <code>jupyter notebook</code> already works.</p>
+<p>There are two methods to connect to a Jupyter notebook running on a remote Ubuntu machine through your local browser: port forwarding and public IP. You may skip the installation part if <code>jupyter notebook</code> already works.</p>
 <p>Content:</p>
 <p><a href="#inst">Install Jupyter Notebook</a><br />
 <a href="#m1">Method 1. Port forwarding to the localhost</a><br />
@@ -24,10 +24,10 @@ tags: []
 Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.</code></pre>
 <p><code>jupyter</code> command will not work by default because it is not in the search PATH. We may use <code>/home/ubuntu/.local/bin/jupyter</code> (replace <code>ubuntu</code> with your user name) instead, but this is cumbersome.</p>
 <p>To add Jupyter directory to the user’s search PATH <em>just for the current login session</em>:</p>
-<pre><code>export PATH=$PATH:/home/ubuntu/.local/bin`</code></pre>
+<pre><code>export PATH=$PATH:/home/ubuntu/.local/bin</code></pre>
 <p>If you want <em>to make this change permanent</em> then edit the user’s <code>.bash_profile</code> file in the home directory:</p>
 <ol style="list-style-type: decimal">
-<li>Open the file for editing with <code>sudo nano ~/.bash_profile</code>. This will also create a file if it does not exist.</li>
+<li>Open the file for editing with <code>sudo nano ~/.bash_profile</code>. This will create a file if it does not exist.</li>
 <li>Add a line <code>PATH="$PATH:$HOME/.local/bin"</code>. Save changes and close the file.</li>
 <li>Source the file with <code>source ~/.bash_profile</code> for changes to take effect.</li>
 </ol>
@@ -54,7 +54,7 @@ Consider adding this directory to PATH or, if you prefer to suppress this warnin
 <ol style="list-style-type: decimal">
 <li>Open the 8888 port for the inbound connection on the remote machine.</li>
 <li>Start Jupyter on the remote machine with <code>jupyter notebook --ip=* --no-browser</code>.</li>
-<li>Access it through the browser on your local machine using the public IP of the remote machine <code>http://&lt;public-ip&gt;:8888</code>.</li>
+<li>Access it through your local browser using the link from the terminal. Replace <code>localhost</code> with the public IP of the remote machine.</li>
 </ol>
 <p>This should be avoided because connection to your notebook is open to the general public and it can be used to run any type of commands.</p>
 <p>Instead, consider a secure version.</p>
@@ -63,16 +63,15 @@ Consider adding this directory to PATH or, if you prefer to suppress this warnin
 <h3>Secure</h3>
 <p>This part is based on the Jupyter Notebook documentation article <a href="https://testnb.readthedocs.io/en/stable/examples/Notebook/Configuring%20the%20Notebook%20and%20Server.html">“Configuring the Notebook and Server”</a>. Here is a short summary:</p>
 <ol style="list-style-type: decimal">
-<li><p>Create a config file in <code>~/.jupyter/</code>:</p>
-<pre><code>jupyter notebook --generate-config</code></pre>
-<p>This creates <code>~/.jupyter/jupyter_notebook_config.py</code>.</p></li>
+<li><p>Create a config file <code>~/.jupyter/jupyter_notebook_config.py</code>:</p>
+<pre><code>jupyter notebook --generate-config</code></pre></li>
 <li><p>Protect your notebook with a password. Prepare a hashed password in Python:</p>
 <pre><code>python3
 &gt;&gt;&gt;&gt; from IPython.lib import passwd
 &gt;&gt;&gt;&gt; password = passwd(&quot;secret&quot;) # Replace &quot;secret&quot; with your passord
 &gt;&gt;&gt;&gt; password
-&#39;sha1:3b6a76a30e8c:c7b277c67471730132f83cb45a95ab462495a2f6&#39;</code></pre>
-<p>Open the config file for editing, find a line with <code>c.NotebookApp.password</code>, uncomment and replace ’’ with your hashed password:</p>
+&#39;sha1:3b6a76a30e8c:c7b277c67471730132f83cb45a95ab462495adfg&#39;</code></pre>
+<p>Open the config file for editing, find a line with <code>c.NotebookApp.password</code>, uncomment it and replace ’’ with your hashed password:</p>
 <pre><code>## Hashed password to use for web authentication.
 #
 #  To generate, type in a python/IPython shell:
@@ -81,7 +80,7 @@ Consider adding this directory to PATH or, if you prefer to suppress this warnin
 #
 #  The string should be of the form type:salt:hashed-password.
 #  Default: &#39;&#39;
-c.NotebookApp.password = u&#39;sha1:3b6a76a30e8c:c7b277c67471730132f83cb45a95ab462495a2f6&#39;</code></pre></li>
+c.NotebookApp.password = u&#39;sha1:3b6a76a30e8c:c7b277c67471730132f83cb45a95ab462495adfg&#39;</code></pre></li>
 <li><p>Use SSL, so that your password is not sent unencrypted by your browser to the web server. Generate an SSL certificate:</p>
 <pre><code>cd ~/.jupyter
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout mycert.key -out mycert.crt</code></pre>
@@ -111,8 +110,8 @@ tmux new -s jpt # jpt is an arbitrary session name</code></pre>
 </ul>
 <!-- Alternatively, append `&` to the `jupyter notebook` command to run it in the background. The process ID will get printed in the terminal. You may now continue using the terminal. -->
 </div>
-<div id="listing-and-killing-jupyter-from-the-terminal" class="section level3">
-<h3>Listing and killing Jupyter from the terminal</h3>
+<div id="listing-and-killing-jupyter-sessions-from-the-terminal" class="section level3">
+<h3>Listing and killing Jupyter sessions from the terminal</h3>
 <p>It is possible to serve multiple Jupyter sessions on different ports. If port 8888 is busy, the next port (8889 and so on) will be used automatically. To see all Jupyter processes in the terminal use</p>
 <pre><code>ps -adef | grep jupyter</code></pre>
 <p>The second columns in a process ID (<code>&lt;pid&gt;</code>). To kill a process use</p>

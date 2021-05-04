@@ -1,0 +1,187 @@
+---
+title: How to start a Jupyter notebook on a remote server
+author: ''
+date: '2021-05-04'
+slug: how-to-start-a-jupyter-notebook-on-the-remote-server
+categories: []
+tags: []
+---
+
+There are two methods to connect to a Jupyter notebook running on a remote Ubuntu machine through the browser on your local machine: port forwarding and public IP. You may skip the installation part if `jupyter notebook` already works.
+
+Content:
+
+[Install Jupyter Notebook](#inst)\
+[Method 1. Port forwarding to the localhost](#m1)\
+[Method 2. Secure connection with the public IP](#m2)\
+[Misc](#tips)
+
+
+# Install Jupyter Notebook{#inst}
+
+```
+pip3 install notebook
+```
+
+Notice messages about the PATH, e.g. 
+
+```
+WARNING: The scripts jupyter, jupyter-migrate and jupyter-troubleshoot are installed in '/home/ubuntu/.local/bin' which is not on PATH. 
+Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.
+```
+
+`jupyter` command will not work by default because it is not in the search PATH. We may use `/home/ubuntu/.local/bin/jupyter` (replace `ubuntu` with your user name) instead, but this is cumbersome. 
+
+To add Jupyter directory to the user's search PATH *just for the current login session*:
+
+```
+export PATH=$PATH:/home/ubuntu/.local/bin`
+```
+
+If you want *to make this change permanent* then edit the user's `.bash_profile` file in the home directory: 
+
+1. Open the file for editing with `sudo nano ~/.bash_profile`. This will also create a file if it does not exist.
+2. Add a line `PATH="$PATH:$HOME/.local/bin"`. Save changes and close the file.
+3. Source the file with `source ~/.bash_profile` for changes to take effect.
+
+Read the ["PATH Definition" post](http://www.linfo.org/path_env_var.html#:~:text=PATH%20is%20an%20environmental%20variable,commands%20issued%20by%20a%20user) for more information about both options.
+
+
+# Method 1: Port forwarding to the localhost{#m1}
+
+If you don't want to make your notebook accessible through the internet, you may use port forwarding to map the port 8888 on your local machine to the same port on the remote machine.
+
+Open `.ssh/config` on your local machine for editing. I use [Nano](https://linuxize.com/post/how-to-use-nano-text-editor/):
+
+```
+sudo nano ~/.ssh/config
+```
+
+Add the lines below, replace `<public-ip>` with the public IP and `<user>` with the user name used to launch Jupyter on the remote machine.
+
+```
+Host <public-ip>
+  User <user>
+  LocalForward 8888 localhost:8888
+```
+
+Save changes, reconnect to the remote machine, run Jupyter with 
+
+```
+jupyter notebook --no-browser
+```
+
+Done. Open the browser on your local machine and go to `http://localhost:8888`. This method does not require opening the 8888 port on the remote machine.
+
+
+
+# Method 2: Secure connection with the public IP{#m2}
+
+### Insecure
+
+An insecure method that you should avoid goes like this:
+
+1. Open the 8888 port for the inbound connection on the remote machine.
+2. Start Jupyter on the remote machine with `jupyter notebook --ip=* --no-browser`.
+3. Access it through the browser on your local machine using the public IP of the remote machine `http://<public-ip>:8888`.
+
+This should be avoided because connection to your notebook is open to the general public and it can be used to run any type of commands. 
+
+Instead, consider a secure version.
+
+### Secure
+
+This part is based on the Jupyter Notebook documentation article ["Configuring the Notebook and Server"](https://testnb.readthedocs.io/en/stable/examples/Notebook/Configuring%20the%20Notebook%20and%20Server.html). Here is a short summary:
+
+1. Create a config file in `~/.jupyter/`:
+
+    ```
+    jupyter notebook --generate-config
+    ```
+    
+    This creates `~/.jupyter/jupyter_notebook_config.py`.
+    
+2. Protect your notebook with a password. Prepare a hashed password in Python:
+
+    ```
+    python3
+    >>>> from IPython.lib import passwd
+    >>>> password = passwd("secret") # Replace "secret" with your passord
+    >>>> password
+    'sha1:3b6a76a30e8c:c7b277c67471730132f83cb45a95ab462495a2f6'
+   ```
+   
+   Open the config file for editing, find a line with `c.NotebookApp.password`, uncomment and replace '' with your hashed password:
+   
+    ```
+    ## Hashed password to use for web authentication.
+    #
+    #  To generate, type in a python/IPython shell:
+    #
+    #    from notebook.auth import passwd; passwd()
+    #
+    #  The string should be of the form type:salt:hashed-password.
+    #  Default: ''
+    c.NotebookApp.password = u'sha1:3b6a76a30e8c:c7b277c67471730132f83cb45a95ab462495a2f6'
+   ```
+
+3. Use SSL, so that your password is not sent unencrypted by your browser to the web server. Generate an SSL certificate:
+    
+    ```
+    cd ~/.jupyter
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout mycert.key -out mycert.crt
+    ```
+    
+    Add a certificate to the Jupyter config file:
+    
+    ```
+    ## The full path to an SSL/TLS certificate file.
+    #  Default: ''
+    c.NotebookApp.certfile = u'/home/ubuntu/.jupyter/mycert.crt'
+    
+    ## The full path to a private key file for usage with SSL/TLS.
+    #  Default: ''
+    c.NotebookApp.keyfile = u'/home/ubuntu/.jupyter/mycert.key'
+    ```
+    
+Done. Open the browser on your local machine and go to `https://<public-ip>:8888`. Note that when you enable SSL support, you will need to access the notebook server over `https://`, rather than plain `http://`.
+
+
+
+
+# Misc{#tips}
+
+### Running Jupyter notebook in the background
+
+Use a terminal multiplexer, e.g., [tmux](https://github.com/tmux/tmux/wiki): 
+
+```
+sudo apt install tmux
+tmux new -s jpt # jpt is an arbitrary session name
+```
+
+Useful resources:
+
+* ["How to Use tmux on Linux (and Why It's Better Than Screen)"](https://www.howtogeek.com/671422/how-to-use-tmux-on-linux-and-why-its-better-than-screen/)
+* ["How do I scroll in tmux"](https://superuser.com/questions/209437/how-do-i-scroll-in-tmux)
+
+
+<!-- Alternatively, append `&` to the `jupyter notebook` command to run it in the background. The process ID will get printed in the terminal. You may now continue using the terminal. -->
+
+### Listing and killing Jupyter from the terminal
+
+It is possible to serve multiple Jupyter sessions on different ports. If port 8888 is busy, the next port (8889 and so on) will be used automatically. To see all Jupyter processes in the terminal use
+
+```
+ps -adef | grep jupyter
+```
+
+The second columns in a process ID (`<pid>`). To kill a process use 
+
+```
+kill -9 <pid>
+```
+
+<hr>
+
+I would appreciate any comments or suggestions. Please leave them below, no login required if you check "I'd rather post as a guest".

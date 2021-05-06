@@ -1,5 +1,5 @@
 ---
-title: How to start a Jupyter notebook on a remote server
+title: How to start a Jupyter notebook on a remote host
 author: ''
 date: '2021-05-04'
 slug: how-to-start-a-jupyter-notebook-on-the-remote-server
@@ -13,10 +13,14 @@ tags: []
 <center>
 <img src="img/1280px-Jupyter_logo.svg.png" style="width:25.0%" />
 </center>
-<p>We want to launch computationally expensive operations on a more powerful remote server or a remote server connected to a cluster. And we want to use a Jupyter notebook in a local browser to make coding and experimenting more pleasant. There are at least two ways to access Jupyter server that runs on a remote server through a browser on a local machine:</p>
+<!-- !! Replace public it with "remote-ip" !! -->
+<!-- !! Ne vazhno private ili public, prosto ip udaljennogo kompa, k kotoromu ja mogu podsoedenitjsa. !! -->
+<!-- !! Naprimer eto mozhet bitj komp na sosednem stole, k kotoromu ja mogu prisoedenitjsa cherez private IP !! -->
+<!-- !! https connection, bez tunelja !! eto podkljuchenije mezhdu prilozhenijami -->
+<p>We want to launch computationally expensive operations on a more powerful remote machine or a remote machine connected to a cluster. It can be a virtual machine on the cloud (e.g., AWS EC2) or a physical machine on a neighboring desk. The main thing is that you can access it using a remote IP. And we want to use a Jupyter notebook in a local browser to make coding and experimenting more pleasant. There are at least two ways to access Jupyter server that runs on a remote machine through a browser on a local machine:</p>
 <ul>
-<li>using <code>http://localhost:8888</code> and SSH port forwarding, and</li>
-<li>using <code>https://&lt;public-ip&gt;:8888</code> with a public IP of a remote machine.</li>
+<li>using SSH port forwarding and <code>http://localhost:8888</code> in your browser, and</li>
+<li>opening the 8888 port on a remote machine and using <code>https://&lt;remote-ip&gt;:8888</code>.</li>
 </ul>
 <p>Both methods are explained step-by-step below. But first, a few installation steps.</p>
 <div id="inst" class="section level1">
@@ -34,34 +38,48 @@ Consider adding this directory to PATH or, if you prefer to suppress this warnin
 <li>Add a line <code>PATH="$PATH:~/.local/bin"</code>. Save changes and close the file.</li>
 <li>Source the file with <code>source ~/.bash_profile</code> for changes to take effect.</li>
 </ol>
-<p>Read the <a href="http://www.linfo.org/path_env_var.html#:~:text=PATH%20is%20an%20environmental%20variable,commands%20issued%20by%20a%20user">“PATH Definition” post</a> for more information about both options.</p>
+<p>Additional reading:</p>
+<ul>
+<li>“PATH Definition” post about both options covered above. <a href="http://www.linfo.org/path_env_var.html" class="uri">http://www.linfo.org/path_env_var.html</a></li>
+</ul>
 </div>
 <div id="m1" class="section level1">
 <h1>Method 1: SSH port forwarding</h1>
-<p>If you don’t want to make your notebook accessible through the internet, you may use SSH port forwarding to map the port 8888 on your local machine to the same port on the remote machine.</p>
-<p>Open <code>.ssh/config</code> on your local machine for editing. I use <a href="https://linuxize.com/post/how-to-use-nano-text-editor/">Nano</a>:</p>
-<pre><code>nano ~/.ssh/config</code></pre>
-<p>Add the lines below, replace <code>&lt;public-ip&gt;</code> with the public IP and <code>&lt;user&gt;</code> with the user name used to launch Jupyter on the remote machine.</p>
-<pre><code>Host &lt;public-ip&gt;
-  User &lt;user&gt;
-  LocalForward 8888 localhost:8888</code></pre>
-<p>Save changes, reconnect to the remote machine, run Jupyter without opening a web browser with</p>
-<pre><code>jupyter notebook --no-browser</code></pre>
-<p>Done. Open the browser on your local machine and go to <code>http://localhost:8888</code>. This method does not require opening the 8888 port on the remote machine.</p>
-<div id="a-note-about-ssh-local-port-forwarding-aka-ssh-tunneling" class="section level3">
-<h3>A note about SSH local port forwarding (aka SSH tunneling)</h3>
-<p>If you don’t want to make permanent changes in <code>~/.ssh/config</code>, you may do local port forwarding with</p>
-<pre><code>ssh -N -f -L localhost:8888:localhost:8888 &lt;user&gt;@&lt;public-ip&gt; -i &lt;identity-file&gt;</code></pre>
-<p>on a local machine. The <code>-f</code> option tells the ssh command to run in the background, <code>-N</code> not to execute a remote command and <code>-i &lt;identity-file&gt;</code> specifies a path to the private key for public key authentication.</p>
+<p>If you don’t want to make your notebook accessible through the internet, you may use SSH local port forwarding to map the port 8888 on your local machine to the same port on the remote machine. This is accessibly illustrated in a sketch below taken from <a href="https://unix.stackexchange.com/questions/115897/whats-ssh-port-forwarding-and-whats-the-difference-between-ssh-local-and-remot/115906#115906">the answer at unix.stackexchange.com</a>:</p>
+<center>
+<img src="img/sketch.png" title="fig:" id="id" class="class" style="width:80.0%;height:80.0%" alt="SSH local port forwarding." />
+</center>
+<p><strong>Option 1: Command line interface</strong></p>
+<p>The first option is to use a command from the sketch above. A few changes for our scenario:</p>
+<ul>
+<li>Both ports are 8888.</li>
+<li><code>-f</code> option requests SSH to go to background just before command execution.</li>
+<li><code>-N</code> option prevents the execution of a remote command.</li>
+<li>Add <code>-i</code> followed by a path to the private key if you are using public key authentication.</li>
+</ul>
+<p>Here is a command to run on a local machine:</p>
+<pre><code>ssh -N -f -L localhost:8888:localhost:8888 &lt;user&gt;@&lt;remote-ip&gt; -i &lt;private-key&gt;</code></pre>
+<p>A <code>&lt;user&gt;</code> is the one used to launch Jupyter on the remote machine.</p>
 <p>Additional reading:</p>
 <ul>
-<li><a href="https://www.ssh.com/academy/ssh/tunneling/example#local-forwarding">“SSH port forwarding - Example, command, server config”</a></li>
-<li><a href="https://linuxize.com/post/how-to-setup-ssh-tunneling/">“How to Set up SSH Tunneling (Port Forwarding)”</a></li>
+<li>“SSH port forwarding - Example, command, server config”. <a href="https://www.ssh.com/academy/ssh/tunneling/example#local-forwarding" class="uri">https://www.ssh.com/academy/ssh/tunneling/example#local-forwarding</a></li>
+<li>“How to Set up SSH Tunneling (Port Forwarding)”. <a href="https://linuxize.com/post/how-to-setup-ssh-tunneling/" class="uri">https://linuxize.com/post/how-to-setup-ssh-tunneling/</a></li>
 </ul>
-</div>
+<p><strong>Option 2: Edit <code>~/.ssh/config</code></strong></p>
+<p>The second option is to edit <code>~/.ssh/config</code> on your local machine. For me it creates a more transparent picture of port forwarding. Open <code>config</code> for editing. I use <a href="https://linuxize.com/post/how-to-use-nano-text-editor/">Nano</a>:</p>
+<pre><code>nano ~/.ssh/config</code></pre>
+<p>Add the lines below, replace <code>&lt;remote-ip&gt;</code> and <code>&lt;user&gt;</code>.</p>
+<pre><code>Host &lt;remote-ip&gt;
+  User &lt;user&gt;
+  LocalForward 8888 localhost:8888</code></pre>
+<p>Save changes, reconnect to the remote machine.</p>
+<p><strong>Run Jupyter</strong></p>
+<p>Now that SSH local port forwarding is done, we may launch Jupyter on the remote machine without opening a web browser with</p>
+<pre><code>jupyter notebook --no-browser</code></pre>
+<p>Done. Open the browser on your local machine and go to <code>http://localhost:8888</code>. This method does not require opening the 8888 port on the remote machine.</p>
 </div>
 <div id="m2" class="section level1">
-<h1>Method 2: Secure connection with the public IP</h1>
+<h1>Method 2: Secure connection through the internet</h1>
 <div id="insecure" class="section level3">
 <h3>Insecure</h3>
 <p>An insecure method that you should avoid goes like this:</p>
@@ -108,7 +126,11 @@ c.NotebookApp.certfile = u&#39;/home/ubuntu/.jupyter/mycert.crt&#39;
 c.NotebookApp.keyfile = u&#39;/home/ubuntu/.jupyter/mycert.key&#39;</code></pre>
 <p>Read more about config file and command line options <a href="https://jupyter-notebook.readthedocs.io/en/stable/config.html">here</a>.</p></li>
 </ol>
-<p>Done. Open the browser on your local machine and go to <code>https://&lt;public-ip&gt;:8888</code>. Note that when you enable SSL support, you will need to access the notebook server over <code>https://</code>, rather than plain <code>http://</code>.</p>
+<p>Done. Open the browser on your local machine and go to <code>https://&lt;remote-ip&gt;:8888</code>. Note that when you enable SSL support, you will need to access the notebook server over <code>https://</code>, rather than plain <code>http://</code>.</p>
+<p>I tried to make a sketch in the manner of a sketch above:</p>
+<center>
+<img src="img/sketch-public.png" title="fig:" id="id" class="class" style="width:80.0%;height:80.0%" alt="https connection." />
+</center>
 </div>
 </div>
 <div id="tips" class="section level1">
@@ -129,7 +151,7 @@ tmux new -s jpt # jpt is an arbitrary session name</code></pre>
 <h3>List and kill Jupyter sessions from the terminal</h3>
 <p>Port 8888 is busy and we cannot find a corresponding process. Launching Jupyter again will serve it on port 8889, 8890 and so on. To find all Jupyter processes use</p>
 <pre><code>ps -adef | grep jupyter</code></pre>
-<p>The second columns in a process ID (<code>&lt;pid&gt;</code>). To kill a process use</p>
+<p>The second column is a process ID (<code>&lt;pid&gt;</code>). To kill a process use</p>
 <pre><code>kill -9 &lt;pid&gt;</code></pre>
 <hr>
 <p>I would appreciate any comments or suggestions. Please leave them below, no login required if you check “I’d rather post as a guest”.</p>

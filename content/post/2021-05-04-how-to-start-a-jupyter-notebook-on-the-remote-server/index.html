@@ -11,7 +11,7 @@ tags: []
 
 
 <center>
-<img src="img/1280px-Jupyter_logo.svg.png" style="width:25.0%" />
+<img src="images/1280px-Jupyter_logo.svg.png" style="width:25.0%" />
 </center>
 <p>We want to launch computationally expensive operations on a more powerful remote machine or a remote machine connected to a cluster. It can be a virtual machine on the cloud (e.g., AWS EC2) or a physical machine on a neighboring desk. The main thing is that you can access it using a remote IP. And we want to use a <a href="https://jupyter.org/">Jupyter notebook</a> in a local browser to make coding and experimenting more pleasant. There are at least two ways to access Jupyter server that runs on a remote machine through a browser on a local machine:</p>
 <ol style="list-style-type: decimal">
@@ -43,7 +43,7 @@ Consider adding this directory to PATH or, if you prefer to suppress this warnin
 <h1>Method 1: SSH port forwarding</h1>
 <p>If you don’t want to make your notebook accessible over the internet, you may use SSH local port forwarding to map the port 8888 on your local machine to the same port on the remote machine. This is illustrated in a beautiful sketch below from <a href="https://unix.stackexchange.com/questions/115897/whats-ssh-port-forwarding-and-whats-the-difference-between-ssh-local-and-remot/115906#115906">this answer at unix.stackexchange.com</a>:</p>
 <center>
-<img src="img/sketch.png" title="fig:" id="id" class="class" style="width:80.0%;height:80.0%" alt="SSH local port forwarding." />
+<img src="images/sketch.png" title="fig:" id="id" class="class" style="width:80.0%;height:80.0%" alt="SSH local port forwarding." />
 </center>
 <p>Basically, local port forwarding creates an encrypted SSH connection between a local and a remote machine and tunnels the traffic securely.</p>
 <p><strong>Option 1: Command line interface</strong></p>
@@ -92,7 +92,7 @@ Consider adding this directory to PATH or, if you prefer to suppress this warnin
 <h3>Secure</h3>
 <p>I tried modify a sketch above to represent a case of a secure connection over the internet:</p>
 <center>
-<img src="img/sketch-public.png" title="fig:" id="id" class="class" style="width:80.0%;height:80.0%" alt="https connection." />
+<img src="images/sketch-public.png" title="fig:" id="id" class="class" style="width:80.0%;height:80.0%" alt="https connection." />
 </center>
 <p>Steps below are based on the Jupyter Notebook documentation article <a href="https://testnb.readthedocs.io/en/stable/examples/Notebook/Configuring%20the%20Notebook%20and%20Server.html">“Configuring the Notebook and Server”</a>. Here is a short summary:</p>
 <ol style="list-style-type: decimal">

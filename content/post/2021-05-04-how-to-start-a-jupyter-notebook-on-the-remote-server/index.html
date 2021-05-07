@@ -13,15 +13,11 @@ tags: []
 <center>
 <img src="img/1280px-Jupyter_logo.svg.png" style="width:25.0%" />
 </center>
-<!-- !! Replace public it with "remote-ip" !! -->
-<!-- !! Ne vazhno private ili public, prosto ip udaljennogo kompa, k kotoromu ja mogu podsoedenitjsa. !! -->
-<!-- !! Naprimer eto mozhet bitj komp na sosednem stole, k kotoromu ja mogu prisoedenitjsa cherez private IP !! -->
-<!-- !! https connection, bez tunelja !! eto podkljuchenije mezhdu prilozhenijami -->
-<p>We want to launch computationally expensive operations on a more powerful remote machine or a remote machine connected to a cluster. It can be a virtual machine on the cloud (e.g., AWS EC2) or a physical machine on a neighboring desk. The main thing is that you can access it using a remote IP. And we want to use a Jupyter notebook in a local browser to make coding and experimenting more pleasant. There are at least two ways to access Jupyter server that runs on a remote machine through a browser on a local machine:</p>
-<ul>
-<li>using SSH port forwarding and <code>http://localhost:8888</code> in your browser, and</li>
-<li>opening the 8888 port on a remote machine and using <code>https://&lt;remote-ip&gt;:8888</code>.</li>
-</ul>
+<p>We want to launch computationally expensive operations on a more powerful remote machine or a remote machine connected to a cluster. It can be a virtual machine on the cloud (e.g., AWS EC2) or a physical machine on a neighboring desk. The main thing is that you can access it using a remote IP. And we want to use a <a href="https://jupyter.org/">Jupyter notebook</a> in a local browser to make coding and experimenting more pleasant. There are at least two ways to access Jupyter server that runs on a remote machine through a browser on a local machine:</p>
+<ol style="list-style-type: decimal">
+<li>Using SSH local port forwarding and <code>http://localhost:8888</code> in your browser.</li>
+<li>Opening the 8888 port on a remote machine and using <code>https://&lt;remote-ip&gt;:8888</code>.</li>
+</ol>
 <p>Both methods are explained step-by-step below. But first, a few installation steps.</p>
 <div id="inst" class="section level1">
 <h1>Install Jupyter Notebook</h1>
@@ -45,25 +41,26 @@ Consider adding this directory to PATH or, if you prefer to suppress this warnin
 </div>
 <div id="m1" class="section level1">
 <h1>Method 1: SSH port forwarding</h1>
-<p>If you don’t want to make your notebook accessible through the internet, you may use SSH local port forwarding to map the port 8888 on your local machine to the same port on the remote machine. This is accessibly illustrated in a sketch below taken from <a href="https://unix.stackexchange.com/questions/115897/whats-ssh-port-forwarding-and-whats-the-difference-between-ssh-local-and-remot/115906#115906">the answer at unix.stackexchange.com</a>:</p>
+<p>If you don’t want to make your notebook accessible over the internet, you may use SSH local port forwarding to map the port 8888 on your local machine to the same port on the remote machine. This is illustrated in a beautiful sketch below from <a href="https://unix.stackexchange.com/questions/115897/whats-ssh-port-forwarding-and-whats-the-difference-between-ssh-local-and-remot/115906#115906">this answer at unix.stackexchange.com</a>:</p>
 <center>
 <img src="img/sketch.png" title="fig:" id="id" class="class" style="width:80.0%;height:80.0%" alt="SSH local port forwarding." />
 </center>
+<p>Basically, local port forwarding creates an encrypted SSH connection between a local and a remote machine and tunnels the traffic securely.</p>
 <p><strong>Option 1: Command line interface</strong></p>
 <p>The first option is to use a command from the sketch above. A few changes for our scenario:</p>
 <ul>
-<li>Both ports are 8888.</li>
-<li><code>-f</code> option requests SSH to go to background just before command execution.</li>
-<li><code>-N</code> option prevents the execution of a remote command.</li>
+<li>Replace both ports with 8888.</li>
+<li>Replace <code>remotehost</code> with something like <code>&lt;user&gt;@&lt;remote-ip&gt;</code> where a <code>&lt;user&gt;</code> is the one used to launch Jupyter on the remote machine.</li>
+<li>Add <code>-f</code> to send SSH to the background just before command execution.</li>
+<li>Add <code>-N</code> to prevent the execution of a remote command.</li>
 <li>Add <code>-i</code> followed by a path to the private key if you are using public key authentication.</li>
 </ul>
 <p>Here is a command to run on a local machine:</p>
 <pre><code>ssh -N -f -L localhost:8888:localhost:8888 &lt;user&gt;@&lt;remote-ip&gt; -i &lt;private-key&gt;</code></pre>
-<p>A <code>&lt;user&gt;</code> is the one used to launch Jupyter on the remote machine.</p>
 <p>Additional reading:</p>
 <ul>
-<li>“SSH port forwarding - Example, command, server config”. <a href="https://www.ssh.com/academy/ssh/tunneling/example#local-forwarding" class="uri">https://www.ssh.com/academy/ssh/tunneling/example#local-forwarding</a></li>
-<li>“How to Set up SSH Tunneling (Port Forwarding)”. <a href="https://linuxize.com/post/how-to-setup-ssh-tunneling/" class="uri">https://linuxize.com/post/how-to-setup-ssh-tunneling/</a></li>
+<li>“SSH port forwarding - Example, command, server config”. Available at: <a href="https://www.ssh.com/academy/ssh/tunneling/example#local-forwarding" class="uri">https://www.ssh.com/academy/ssh/tunneling/example#local-forwarding</a></li>
+<li>“How to Set up SSH Tunneling (Port Forwarding)”. Available at: <a href="https://linuxize.com/post/how-to-setup-ssh-tunneling/" class="uri">https://linuxize.com/post/how-to-setup-ssh-tunneling/</a></li>
 </ul>
 <p><strong>Option 2: Edit <code>~/.ssh/config</code></strong></p>
 <p>The second option is to edit <code>~/.ssh/config</code> on your local machine. For me it creates a more transparent picture of port forwarding. Open <code>config</code> for editing. I use <a href="https://linuxize.com/post/how-to-use-nano-text-editor/">Nano</a>:</p>
@@ -76,7 +73,7 @@ Consider adding this directory to PATH or, if you prefer to suppress this warnin
 <p><strong>Run Jupyter</strong></p>
 <p>Now that SSH local port forwarding is done, we may launch Jupyter on the remote machine without opening a web browser with</p>
 <pre><code>jupyter notebook --no-browser</code></pre>
-<p>Done. Open the browser on your local machine and go to <code>http://localhost:8888</code>. This method does not require opening the 8888 port on the remote machine.</p>
+<p>Open the browser on your local machine and go to <code>http://localhost:8888</code>. <strong>Done.</strong> This method does not require opening the 8888 port on the remote machine.</p>
 </div>
 <div id="m2" class="section level1">
 <h1>Method 2: Secure connection through the internet</h1>
@@ -93,7 +90,11 @@ Consider adding this directory to PATH or, if you prefer to suppress this warnin
 </div>
 <div id="secure" class="section level3">
 <h3>Secure</h3>
-<p>This part is based on the Jupyter Notebook documentation article <a href="https://testnb.readthedocs.io/en/stable/examples/Notebook/Configuring%20the%20Notebook%20and%20Server.html">“Configuring the Notebook and Server”</a>. Here is a short summary:</p>
+<p>I tried modify a sketch above to represent a case of a secure connection over the internet:</p>
+<center>
+<img src="img/sketch-public.png" title="fig:" id="id" class="class" style="width:80.0%;height:80.0%" alt="https connection." />
+</center>
+<p>Steps below are based on the Jupyter Notebook documentation article <a href="https://testnb.readthedocs.io/en/stable/examples/Notebook/Configuring%20the%20Notebook%20and%20Server.html">“Configuring the Notebook and Server”</a>. Here is a short summary:</p>
 <ol style="list-style-type: decimal">
 <li><p>Create a config file <code>~/.jupyter/jupyter_notebook_config.py</code>:</p>
 <pre><code>jupyter notebook --generate-config</code></pre></li>
@@ -123,14 +124,13 @@ c.NotebookApp.certfile = u&#39;/home/ubuntu/.jupyter/mycert.crt&#39;
 
 ## The full path to a private key file for usage with SSL/TLS.
 #  Default: &#39;&#39;
-c.NotebookApp.keyfile = u&#39;/home/ubuntu/.jupyter/mycert.key&#39;</code></pre>
-<p>Read more about config file and command line options <a href="https://jupyter-notebook.readthedocs.io/en/stable/config.html">here</a>.</p></li>
+c.NotebookApp.keyfile = u&#39;/home/ubuntu/.jupyter/mycert.key&#39;</code></pre></li>
 </ol>
-<p>Done. Open the browser on your local machine and go to <code>https://&lt;remote-ip&gt;:8888</code>. Note that when you enable SSL support, you will need to access the notebook server over <code>https://</code>, rather than plain <code>http://</code>.</p>
-<p>I tried to make a sketch in the manner of a sketch above:</p>
-<center>
-<img src="img/sketch-public.png" title="fig:" id="id" class="class" style="width:80.0%;height:80.0%" alt="https connection." />
-</center>
+<p>Open the browser on your local machine and go to <code>https://&lt;remote-ip&gt;:8888</code>. <strong>Done.</strong> Note that when you enable SSL support, you will need to access the notebook server over <code>https://</code>, rather than plain <code>http://</code>.</p>
+<p>Additional reading:</p>
+<ul>
+<li>“Config file and command line options”. Available at: <a href="https://jupyter-notebook.readthedocs.io/en/stable/config.html" class="uri">https://jupyter-notebook.readthedocs.io/en/stable/config.html</a></li>
+</ul>
 </div>
 </div>
 <div id="tips" class="section level1">
@@ -142,14 +142,14 @@ c.NotebookApp.keyfile = u&#39;/home/ubuntu/.jupyter/mycert.key&#39;</code></pre>
 tmux new -s jpt # jpt is an arbitrary session name</code></pre>
 <p>Additional reading:</p>
 <ul>
-<li><a href="https://www.howtogeek.com/671422/how-to-use-tmux-on-linux-and-why-its-better-than-screen/">“How to Use tmux on Linux (and Why It’s Better Than Screen)”</a></li>
-<li><a href="https://superuser.com/questions/209437/how-do-i-scroll-in-tmux">“How do I scroll in tmux”</a></li>
+<li>“How to Use tmux on Linux (and Why It’s Better Than Screen)”. Available at: <a href="https://www.howtogeek.com/671422/how-to-use-tmux-on-linux-and-why-its-better-than-screen/" class="uri">https://www.howtogeek.com/671422/how-to-use-tmux-on-linux-and-why-its-better-than-screen/</a></li>
+<li>“How do I scroll in tmux”. Available at: <a href="https://superuser.com/questions/209437/how-do-i-scroll-in-tmux" class="uri">https://superuser.com/questions/209437/how-do-i-scroll-in-tmux</a></li>
 </ul>
 <!-- Alternatively, append `&` to the `jupyter notebook` command to run it in the background. The process ID will get printed in the terminal. You may now continue using the terminal. -->
 </div>
 <div id="list-and-kill-jupyter-sessions-from-the-terminal" class="section level3">
 <h3>List and kill Jupyter sessions from the terminal</h3>
-<p>Port 8888 is busy and we cannot find a corresponding process. Launching Jupyter again will serve it on port 8889, 8890 and so on. To find all Jupyter processes use</p>
+<p>If port 8888 is busy then launching Jupyter again will serve it on port 8889, 8890 and so on. To find all Jupyter processes use</p>
 <pre><code>ps -adef | grep jupyter</code></pre>
 <p>The second column is a process ID (<code>&lt;pid&gt;</code>). To kill a process use</p>
 <pre><code>kill -9 &lt;pid&gt;</code></pre>

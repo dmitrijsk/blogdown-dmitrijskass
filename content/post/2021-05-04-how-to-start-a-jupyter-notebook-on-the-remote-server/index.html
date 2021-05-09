@@ -13,30 +13,31 @@ tags: []
 <center>
 <img src="images/1280px-Jupyter_logo.svg.png" style="width:25.0%" />
 </center>
-<p>We want to launch computationally expensive operations on a more powerful remote machine or a remote machine connected to a cluster. It can be a virtual machine on the cloud (e.g., AWS EC2) or a physical machine on a neighboring desk. The main thing is that you can access it using a remote IP. And we want to use a <a href="https://jupyter.org/">Jupyter notebook</a> in a local browser to make coding and experimenting more pleasant. There are at least two ways to access Jupyter server that runs on a remote machine through a browser on a local machine:</p>
+<p>We want to launch computationally expensive operations on a more powerful remote machine or a remote machine connected to a cluster. It can be a virtual machine on the cloud (e.g. AWS EC2) or a physical machine on a neighboring desk. The main thing is that you can access it using a remote IP. And we want to use <a href="https://jupyter.org/">Jupyter notebook</a> in a local browser to make coding and experimenting more pleasant. There are at least two ways to access the Jupyter server that runs on a remote machine through a browser on a local machine:</p>
 <ol style="list-style-type: decimal">
 <li>Using SSH local port forwarding and <code>http://localhost:8888</code> in your browser.</li>
 <li>Opening the 8888 port on a remote machine and using <code>https://&lt;remote-ip&gt;:8888</code>.</li>
 </ol>
-<p>Both methods are explained step-by-step below. But first, a few installation steps.</p>
+<p>Both methods are explained step-by-step below. But first a few installation steps.</p>
 <div id="inst" class="section level1">
 <h1>Install Jupyter Notebook</h1>
 <pre><code>pip3 install notebook</code></pre>
 <p>Notice messages about the PATH, e.g. </p>
 <pre><code>WARNING: The scripts jupyter, jupyter-migrate and jupyter-troubleshoot are installed in &#39;/home/ubuntu/.local/bin&#39; which is not on PATH. 
 Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.</code></pre>
-<p><code>jupyter</code> command will not work by default because it is not in the search PATH. We may use <code>/home/ubuntu/.local/bin/jupyter</code> (replace <code>ubuntu</code> with your user name) instead, but this is cumbersome.</p>
-<p>To add Jupyter directory to the user’s search PATH <em>just for the current login session</em>:</p>
+<p>The <code>jupyter</code> command will not work by default because it is not in the search PATH. We may use <code>/home/ubuntu/.local/bin/jupyter</code> (replace <code>ubuntu</code> with your user name) instead, but this is cumbersome.</p>
+<p>To add the Jupyter directory to the user’s search PATH <em>just for the current login session</em>:</p>
 <pre><code>export PATH=$PATH:~/.local/bin</code></pre>
 <p>If you want <em>to make this change permanent</em> then edit the user’s <code>.bash_profile</code> file in the home directory:</p>
 <ol style="list-style-type: decimal">
 <li>Open the file for editing with <code>nano ~/.bash_profile</code>. This will create a file if it does not exist.</li>
 <li>Add a line <code>PATH="$PATH:~/.local/bin"</code>. Save changes and close the file.</li>
-<li>Source the file with <code>source ~/.bash_profile</code> for changes to take effect.</li>
+<li>Source the file with <code>source ~/.bash_profile</code> for the changes to take effect.</li>
 </ol>
+<p><strong>Done.</strong> Try <code>jupyter notebook</code> to check if it works. Use <code>Control+C</code> to stop the server.</p>
 <p>Additional reading:</p>
 <ul>
-<li>“PATH Definition” post about both options covered above. <a href="http://www.linfo.org/path_env_var.html" class="uri">http://www.linfo.org/path_env_var.html</a></li>
+<li>“PATH Definition” post about both options for updating the PATH. Available at: <a href="http://www.linfo.org/path_env_var.html" class="uri">http://www.linfo.org/path_env_var.html</a></li>
 </ul>
 </div>
 <div id="m1" class="section level1">
@@ -55,7 +56,7 @@ Consider adding this directory to PATH or, if you prefer to suppress this warnin
 <li>Add <code>-N</code> to prevent the execution of a remote command.</li>
 <li>Add <code>-i</code> followed by a path to the private key if you are using public key authentication.</li>
 </ul>
-<p>Here is a command to run on a local machine:</p>
+<p>Here is the command to run it on a local machine:</p>
 <pre><code>ssh -N -f -L localhost:8888:localhost:8888 &lt;user&gt;@&lt;remote-ip&gt; -i &lt;private-key&gt;</code></pre>
 <p>Additional reading:</p>
 <ul>
@@ -69,9 +70,9 @@ Consider adding this directory to PATH or, if you prefer to suppress this warnin
 <pre><code>Host &lt;remote-ip&gt;
   User &lt;user&gt;
   LocalForward 8888 localhost:8888</code></pre>
-<p>Save changes, reconnect to the remote machine.</p>
+<p>Save changes and reconnect to the remote machine.</p>
 <p><strong>Run Jupyter</strong></p>
-<p>Now that SSH local port forwarding is done, we may launch Jupyter on the remote machine without opening a web browser with</p>
+<p>Now that SSH local port forwarding is done, we may launch Jupyter on the remote machine without opening a web browser with:</p>
 <pre><code>jupyter notebook --no-browser</code></pre>
 <p>Open the browser on your local machine and go to <code>http://localhost:8888</code>. <strong>Done.</strong> This method does not require opening the 8888 port on the remote machine.</p>
 </div>
@@ -90,11 +91,11 @@ Consider adding this directory to PATH or, if you prefer to suppress this warnin
 </div>
 <div id="secure" class="section level3">
 <h3>Secure</h3>
-<p>I tried modify a sketch above to represent a case of a secure connection over the internet:</p>
+<p>I tried to modify the sketch above to represent a case of a secure connection over the internet:</p>
 <center>
 <img src="images/sketch-public.png" title="fig:" id="id" class="class" style="width:80.0%;height:80.0%" alt="https connection." />
 </center>
-<p>Steps below are based on the Jupyter Notebook documentation article <a href="https://testnb.readthedocs.io/en/stable/examples/Notebook/Configuring%20the%20Notebook%20and%20Server.html">“Configuring the Notebook and Server”</a>. Here is a short summary:</p>
+<p>The next steps are based on the Jupyter Notebook documentation article <a href="https://testnb.readthedocs.io/en/stable/examples/Notebook/Configuring%20the%20Notebook%20and%20Server.html">“Configuring the Notebook and Server”</a>. Here is a short summary:</p>
 <ol style="list-style-type: decimal">
 <li><p>Create a config file <code>~/.jupyter/jupyter_notebook_config.py</code>:</p>
 <pre><code>jupyter notebook --generate-config</code></pre></li>
@@ -104,7 +105,7 @@ Consider adding this directory to PATH or, if you prefer to suppress this warnin
 &gt;&gt;&gt;&gt; password = passwd(&quot;secret&quot;) # Replace &quot;secret&quot; with your passord
 &gt;&gt;&gt;&gt; password
 &#39;sha1:3b6a76a30e8c:c7b277c67471730132f83cb45a95ab462495adfg&#39;</code></pre>
-<p>Open the config file for editing, find a line with <code>c.NotebookApp.password</code>, uncomment it and replace ’’ with your hashed password:</p>
+<p>Open the config file for editing, find a line with <code>c.NotebookApp.password</code>, uncomment it, and replace ’’ with your hashed password:</p>
 <pre><code>## Hashed password to use for web authentication.
 #
 #  To generate, type in a python/IPython shell:
@@ -137,7 +138,7 @@ c.NotebookApp.keyfile = u&#39;/home/ubuntu/.jupyter/mycert.key&#39;</code></pre>
 <h1>Useful tips</h1>
 <div id="run-jupyter-in-the-background-and-close-the-terminal" class="section level3">
 <h3>Run Jupyter in the background and close the terminal</h3>
-<p>We want to launch a lengthy computation in Jupyter on a remote machine and shut down our local machine. We also want to see all output in the terminal when we reconnect. One option is to use a terminal multiplexer, e.g., <a href="https://github.com/tmux/tmux/wiki">tmux</a>:</p>
+<p>We want to launch a lengthy computation in Jupyter on a remote machine and shut down our local machine. We also want to see all output in the terminal when we reconnect. One option is to use a terminal multiplexer, e.g. <a href="https://github.com/tmux/tmux/wiki">tmux</a>:</p>
 <pre><code>sudo apt install tmux
 tmux new -s jpt # jpt is an arbitrary session name</code></pre>
 <p>Additional reading:</p>
@@ -149,7 +150,7 @@ tmux new -s jpt # jpt is an arbitrary session name</code></pre>
 </div>
 <div id="list-and-kill-jupyter-sessions-from-the-terminal" class="section level3">
 <h3>List and kill Jupyter sessions from the terminal</h3>
-<p>If port 8888 is busy then launching Jupyter again will serve it on port 8889, 8890 and so on. To find all Jupyter processes use</p>
+<p>If port 8888 is busy then launching Jupyter again will serve it on port 8889, 8890 and so on. To find all Jupyter processes use:</p>
 <pre><code>ps -adef | grep jupyter</code></pre>
 <p>The second column is a process ID (<code>&lt;pid&gt;</code>). To kill a process use</p>
 <pre><code>kill -9 &lt;pid&gt;</code></pre>

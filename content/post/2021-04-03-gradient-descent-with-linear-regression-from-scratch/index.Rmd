@@ -14,16 +14,17 @@ tags: []
 
 ![](images/surface.png){width=100%}
 
-We want to minimize a convex, continuous and differentiable cost function $J(\mathbf{w})$. In this blog post we discuss the most popular "hill-climbing" algorithm, **gradient descent**, using linear regression, and build it from scratch in Python. A few highlights:
+We want to minimize a convex, continuous and differentiable cost function $J(\mathbf{w})$. In this blog post we discuss the most popular algorithm, **gradient descent**, using linear regression, and build it from scratch in Python. A few highlights:
 
 * Code for linear regression and gradient descent is generalized to work with a model $y=w_0+w_1x_1+\dots+w_px_p$ for any $p$.
 * Gradient descent is implemented using an object-oriented approach.
 * Impact of the learning rate on convergence (divergence) is illustrated.
 
+Throughout this post I use a bold font for vectors (e.g., $\mathbf{w}$, $\mathbf{x}$) and a regular font for scalars and functions (e.g., $w_0$, $x_0$).
+
+
 
 # Theoretical idea of the gradient descent
-
-Throughout this post I use bold font for vectors (e.g., $\mathbf{w}$, $\mathbf{x}$) and regular font for scalars and functions (e.g., $w_0$, $x_0$).
 
 ## Taylor expansion
 
@@ -169,7 +170,7 @@ Line 63 initializes parameters $\mathbf{w^{(0)}}$ as a zero vector. Initializati
 **Note:** Sometimes we can save computation time by *warm-starting* the optimization procedure with a good initial guess. For example, iterations $2..k$ of a $k$-fold cross-validation may use parameters corresponding to a minimum loss in the previous iterations.
 </div>
 
-Lines 59-73 implement the gradient descent algorithm. Line 61 calculates the gradient, line 63 updates the parameters, line 66 calculates the value of the cost function. An early stoppage occurs when the Euclidean norm of the difference in parameters in the last two iterations becomes less than the tolerance level.
+Lines 67-85 implement the gradient descent algorithm. Line 69 calculates the gradient, line 74 updates the parameters, line 77 calculates the value of the cost function. An early stoppage occurs when the Euclidean norm of the difference in parameters in the last two iterations becomes less than the tolerance level.
 
 
 
@@ -192,10 +193,10 @@ We fit the line using the gradient descent with `GradientDescentLinearRegression
 With learning rate $\alpha=0.001$ the algorithm slowly converges in 3058 iterations. The surface plot below is the surface of the cost function $J(\mathbf{w})$. Red dots are updated parameters from initial $\mathbf{w}^{(0)} = [0,0]$ to optimal $\mathbf{w}^{(3058)} = [0.24, 0.84]$.
 
 <center>
-![](images/surface-method-standard-ls-0.001.png){width=100%}
+![](images/surface-method-standard-lr-0.001.png){width=100%}
 </center>
 
-Animation below shows how the line is slowly fitted though iterations 0 to 49.
+Animation below shows how the line is slowly fitted though the first 50 iterations.
 
 <center>
 ![](images/animation-method-standard-lr-0.001.gif){width=80%}
@@ -244,7 +245,7 @@ Learning rate $\alpha=0.08$ turns out to be too high. The magnitude of the gradi
 ![](images/surface-method-standard-lr-0.08.png){width=100%}
 </center>
 
-The fitted line does not seem to move during the first few iterations due to a huge scale of the plot. However, later we see that the line starts to swing wildly and quickly approaches a vertical where the cost becomes infinitely large.
+The fitted line barely moves during the first few iterations due to a huge scale of the plot. However, later we see that the line starts to swing wildly and quickly approaches a vertical where the cost becomes infinitely large.
 
 <center>
 ![](images/animation-method-standard-lr-0.08.gif){width=80%}

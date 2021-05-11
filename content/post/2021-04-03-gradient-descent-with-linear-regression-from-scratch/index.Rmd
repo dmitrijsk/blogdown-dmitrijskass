@@ -123,15 +123,15 @@ We solve this optimization problem with the gradient descent.
 
 ## Cost function and its gradient
 
-<p style="font-family:'Merriweather';color:blue;font-size:70%;">
-Add: Loss function as a separate expression. (2021-04-22).
-</p>
+The squared error loss 
 
-The cost function with the squared error loss is given by 
+$$L(y_i,\widehat{y_i}) = (y_i - \widehat{y_i})^2$$
+
+is a common loss function used for measuring the closeness of a prediction and the training data. The cost function is the average of the loss function evaluated on the training data: 
 
 $$J(\mathbf{w}) = \frac{1}{n} \sum_{i=1}^{n}(y_i - \widehat{y_i})^2,$$
 
-where $n$ is the number of samples in the training data. It is is a scalar-valued function. Quadratic nature of the loss function produces a [convex](https://en.wikipedia.org/wiki/Convex_function) cost function.
+where $n$ is the number of samples in the training data. It is a scalar-valued function. Quadratic nature of the loss function produces a [convex](https://en.wikipedia.org/wiki/Convex_function) cost function.
 
 If $p=2$ then 
 
@@ -146,11 +146,11 @@ $$\nabla J(\mathbf{w})=
 \dfrac{\partial J (\mathbf{w})}{\partial w_2} 
 \end{array}\right]=
 \left[\begin{array}{c}
-2 \sum_{i=1}^{n}(y_i - (w_0 + w_1 x_{1i} + w_2 x_{2i})) (-1)\\
+\frac{1}{n} 2 \sum_{i=1}^{n}(y_i - (w_0 + w_1 x_{1i} + w_2 x_{2i})) (-1)\\
 \\
-2 \sum_{i=1}^{n}(y_i - (w_0 + w_1 x_{1i} + w_2 x_{2i})) (-x_{1i})\\
+\frac{1}{n} 2 \sum_{i=1}^{n}(y_i - (w_0 + w_1 x_{1i} + w_2 x_{2i})) (-x_{1i})\\
 \\
-2 \sum_{i=1}^{n}(y_i - (w_0 + w_1 x_{1i} + w_2 x_{2i})) (-x_{2i})
+\frac{1}{n} 2 \sum_{i=1}^{n}(y_i - (w_0 + w_1 x_{1i} + w_2 x_{2i})) (-x_{2i})
 \end{array}\right]$$
 
 <p style="font-family:'Merriweather';color:blue;font-size:70%;">
@@ -200,76 +200,76 @@ Let's generate $\mathbf{X}$ and $\mathbf{y}$ data for the linear regression and 
 ![](images/1-generated-data.png){width=80%}
 </center>
 
-We fit the line using the gradient descent with `GradientDescentLinearRegression().fit(X, y)`.
+We fit the line using the gradient descent with `GradientDescentLinearRegression().fit(X, y, "standard")`. The last argument defines a variant of gradient descent to use and `standard` means the standard gradient descent. We will be adding more methods in the following blog posts.
 
 
 ## Slow convergence
 
-With learning rate $\alpha=0.001$ the algorithm slowly converges in 772 iterations. The surface plot below is the surface of the cost function $J(\mathbf{w})$. Red dots are updated parameters from initial $\mathbf{w}^{(0)} = [0,0]$ to optimal $\mathbf{w}^{(772)} = [0.24, 0.84]$.
+With learning rate $\alpha=0.001$ the algorithm slowly converges in 3058 iterations. The surface plot below is the surface of the cost function $J(\mathbf{w})$. Red dots are updated parameters from initial $\mathbf{w}^{(0)} = [0,0]$ to optimal $\mathbf{w}^{(3058)} = [0.24, 0.84]$.
 
 <center>
-![](images/4-surface_0.001.png){width=100%}
+![](images/surface-method-standard-ls-0.001.png){width=100%}
 </center>
 
-Animation below shows how the line is slowly fitted though iterations 1 to 30.
+Animation below shows how the line is slowly fitted though iterations 0 to 49.
 
 <center>
-![](images/learning_rate_0.001.gif){width=80%}
+![](images/animation-method-standard-lr-0.001.gif){width=80%}
 </center>
 
 
 ## Good convergence
 
-Learning rate $\alpha=0.005$ seems to be a better guess and the algorithm converges in 184 iterations. After the first three steps the parameters are fairly close to the optimal solution.
+Learning rate $\alpha=0.015$ seems to be a better guess and the algorithm converges in 292 iterations. After the first five steps the parameters are fairly close to the optimal solution.
 
 <center>
-![](images/4-surface_0.005.png){width=100%}
+![](images/surface-method-standard-lr-0.015.png){width=100%}
 </center>
 
-The animation below illustrates the last statement - after the first three iterations the line barely moves.
+The animation below illustrates the last statement - after the first five iterations the line barely moves.
 
 <center>
-![](images/learning_rate_0.005.gif){width=80%}
+![](images/animation-method-standard-lr-0.015.gif){width=80%}
 </center>
 
 ## Jumps
 
-When the learning rate is large (but not too large yet), convergence happens in jumps. The change in $\mathbf{w}$ is large enough to take the updated parameters to the other side of the surface, surpassing the minimum point. With learning rate $\alpha=0.01$ the convergence shows this jumping behavior. Nevertheless, the algorithm converges because the magnitude of the gradient becomes smaller after each iteration. Convergence takes 97 iterations.
+When the learning rate is large (but not too large yet), convergence happens in jumps. The change in $\mathbf{w}$ is large enough to take the updated parameters to the other side of the surface, surpassing the minimum point. With learning rate $\alpha=0.05$ the convergence shows this jumping behavior. Nevertheless, the algorithm converges because the magnitude of the gradient becomes smaller after each iteration. Convergence takes 97 iterations.
 
 <center>
-![](images/4-surface_0.01.png){width=100%}
+![](images/surface-method-standard-lr-0.05.png){width=100%}
 </center>
 
 This surface plot also reveals that the gradient descent algorithm does not really slide down the surface. In fact, it is a step-wise movement:
 
 * Start at $[ w_0^{(0)}, w_1^{(0)},J(w_0^{(0)}, w_1^{(0)}) ]$, which is $[0, 0, 13.5]$.
-* After the first update of the parameters, imagine the red dot moving in the $XY$ plane to $[ w_0^{(1)}, w_1^{(1)},J(w_0^{(0)}, w_1^{(0)}) ]$, which is $[0.05, 1.4, 13.5]$.
-* Then the cost is recalculated using $[ w_0^{(1)}, w_1^{(1)}]$ and the red dot descends to $[ w_0^{(1)}, w_1^{(1)},J(w_0^{(1)}, w_1^{(1)}) ]$, which is $[0.05, 1.4, 6.3]$. But it is not guaranteed to descent. If the step size in $XY$ plane was too large, the red dot would actually ascend and the algorithm would diverge. 
+* After the first update of the parameters, imagine the red dot moving in the $XY$ plane to $[ w_0^{(1)}, w_1^{(1)},J(w_0^{(0)}, w_1^{(0)}) ]$, which is $[-1.0, -27.3, 13.5]$.
+* Then the cost is recalculated using $[ w_0^{(1)}, w_1^{(1)}]$ and the red dot descends to $[ w_0^{(1)}, w_1^{(1)},J(w_0^{(1)}, w_1^{(1)}) ]$, which is $[-1.0, -27.3, 6.3]$. But it is not guaranteed to descent. If the step size in $XY$ plane was too large, the red dot would actually ascend and the algorithm would diverge. 
 
 Animation below illustrates the jumping behavior. With time, oscillations become smaller and eventually the algorithm converges.
 
 <center>
-![](images/learning_rate_0.01.gif){width=80%}
+![](images/animation-method-standard-lr-0.05.gif){width=80%}
 </center>
 
 ## Divergence
 
-Learning rate $\alpha=0.02$ turns out to be too high. The magnitude of the gradient grows after the first iteration, which increases the step size for the next iteration. In this fashion, parameters $\mathbf{w}^{(i)}$ spiral away from the minimum very rapidly - compare the scale of $z$ axis on the previous plot and the one below with only four iterations.
+Learning rate $\alpha=0.08$ turns out to be too high. The magnitude of the gradient grows after the first iteration, which increases the step size for the next iteration. In this fashion, parameters $\mathbf{w}^{(i)}$ spiral away from the minimum very rapidly - compare the scale of $z$ axis on the previous plot and the one below with only seven iterations.
 
 <center>
-![](images/4-surface_0.02.png){width=100%}
+![](images/surface-method-standard-lr-0.08.png){width=100%}
 </center>
 
-The fitted line does not seem to move during the first 20 iterations due to a huge scale of the plot (1e+10). However, later we see that the line starts to swing wildly and quickly approaches a vertical where the cost becomes infinitely large.
+The fitted line does not seem to move during the first few iterations due to a huge scale of the plot. However, later we see that the line starts to swing wildly and quickly approaches a vertical where the cost becomes infinitely large.
 
 <center>
-![](images/learning_rate_0.02.gif){width=80%}
+![](images/animation-method-standard-lr-0.08.gif){width=80%}
 </center>
 
 
 <br>
 
-We would like to get rid of the dark art of guessing learning rates. A safe (but sometimes slow) choice is to set $\alpha = \frac{i_0}{i}$, where $i_0$ is any initial positive value and $i$ is the iteration counter. This guarantees that it will eventually become small enough to converge[^ibid]. With the same generated data and $i_0=1$ the algorithm converged in 278,951 iterations (slow indeed).
+We would like to get rid of the dark art of guessing learning rates. A safe (but sometimes slow) choice is to set $\alpha = \frac{i_0}{i}$, where $i_0$ is any initial positive value and $i$ is the iteration counter. This guarantees that it will eventually become small enough to converge[^ibid]. With the same generated data and $i_0=1$ the algorithm converged in 2384 iterations.
 
 In the [next post](/2021/04/15/adagrad-adaptive-gradient-algorithm/) we will look at the adaptive gradient algorithm AdaGrad, which performs more informative gradient-based learning by adapting the learning rate for *each feature individually* and does not require guessing $\alpha$.
 

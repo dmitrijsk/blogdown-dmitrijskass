@@ -92,12 +92,11 @@ The parameters are learned by minimizing the cost function <span class="math inl
 </div>
 <div id="cost-function-and-its-gradient" class="section level2">
 <h2>Cost function and its gradient</h2>
-<p style="font-family:&#39;Merriweather&#39;;color:blue;font-size:70%;">
-Add: Loss function as a separate expression. (2021-04-22).
-</p>
-<p>The cost function with the squared error loss is given by</p>
+<p>The squared error loss</p>
+<p><span class="math display">\[L(y_i,\widehat{y_i}) = (y_i - \widehat{y_i})^2\]</span></p>
+<p>is a common loss function used for measuring the closeness of a prediction and the training data. The cost function is the average of the loss function evaluated on the training data:</p>
 <p><span class="math display">\[J(\mathbf{w}) = \frac{1}{n} \sum_{i=1}^{n}(y_i - \widehat{y_i})^2,\]</span></p>
-<p>where <span class="math inline">\(n\)</span> is the number of samples in the training data. It is is a scalar-valued function. Quadratic nature of the loss function produces a <a href="https://en.wikipedia.org/wiki/Convex_function">convex</a> cost function.</p>
+<p>where <span class="math inline">\(n\)</span> is the number of samples in the training data. It is a scalar-valued function. Quadratic nature of the loss function produces a <a href="https://en.wikipedia.org/wiki/Convex_function">convex</a> cost function.</p>
 <p>If <span class="math inline">\(p=2\)</span> then</p>
 <p><span class="math display">\[J(\mathbf{w}) = \frac{1}{n} \sum_{i=1}^{n}(y_i - (w_0 + w_1 x_{1i} + w_2 x_{2i}))^2,\]</span></p>
 <p>and the gradient using the chain rule of calculus is</p>
@@ -108,11 +107,11 @@ Add: Loss function as a separate expression. (2021-04-22).
 \dfrac{\partial J (\mathbf{w})}{\partial w_2} 
 \end{array}\right]=
 \left[\begin{array}{c}
-2 \sum_{i=1}^{n}(y_i - (w_0 + w_1 x_{1i} + w_2 x_{2i})) (-1)\\
+\frac{1}{n} 2 \sum_{i=1}^{n}(y_i - (w_0 + w_1 x_{1i} + w_2 x_{2i})) (-1)\\
 \\
-2 \sum_{i=1}^{n}(y_i - (w_0 + w_1 x_{1i} + w_2 x_{2i})) (-x_{1i})\\
+\frac{1}{n} 2 \sum_{i=1}^{n}(y_i - (w_0 + w_1 x_{1i} + w_2 x_{2i})) (-x_{1i})\\
 \\
-2 \sum_{i=1}^{n}(y_i - (w_0 + w_1 x_{1i} + w_2 x_{2i})) (-x_{2i})
+\frac{1}{n} 2 \sum_{i=1}^{n}(y_i - (w_0 + w_1 x_{1i} + w_2 x_{2i})) (-x_{2i})
 \end{array}\right]\]</span></p>
 <p style="font-family:&#39;Merriweather&#39;;color:blue;font-size:70%;">
 Fix: 1/n missing both here and in the code. Same for AdaGrad. (2021-04-18).
@@ -151,58 +150,58 @@ Fix: Comment for <span class="math inline">\(eps\)</span> is outdated. (2021-04-
 <center>
 <img src="images/1-generated-data.png" style="width:80.0%" />
 </center>
-<p>We fit the line using the gradient descent with <code>GradientDescentLinearRegression().fit(X, y)</code>.</p>
+<p>We fit the line using the gradient descent with <code>GradientDescentLinearRegression().fit(X, y, "standard")</code>. The last argument defines a variant of gradient descent to use and <code>standard</code> means the standard gradient descent. We will be adding more methods in the following blog posts.</p>
 <div id="slow-convergence" class="section level2">
 <h2>Slow convergence</h2>
-<p>With learning rate <span class="math inline">\(\alpha=0.001\)</span> the algorithm slowly converges in 772 iterations. The surface plot below is the surface of the cost function <span class="math inline">\(J(\mathbf{w})\)</span>. Red dots are updated parameters from initial <span class="math inline">\(\mathbf{w}^{(0)} = [0,0]\)</span> to optimal <span class="math inline">\(\mathbf{w}^{(772)} = [0.24, 0.84]\)</span>.</p>
+<p>With learning rate <span class="math inline">\(\alpha=0.001\)</span> the algorithm slowly converges in 3058 iterations. The surface plot below is the surface of the cost function <span class="math inline">\(J(\mathbf{w})\)</span>. Red dots are updated parameters from initial <span class="math inline">\(\mathbf{w}^{(0)} = [0,0]\)</span> to optimal <span class="math inline">\(\mathbf{w}^{(3058)} = [0.24, 0.84]\)</span>.</p>
 <center>
-<img src="images/4-surface_0.001.png" style="width:100.0%" />
+<img src="images/surface-method-standard-ls-0.001.png" style="width:100.0%" />
 </center>
-<p>Animation below shows how the line is slowly fitted though iterations 1 to 30.</p>
+<p>Animation below shows how the line is slowly fitted though iterations 0 to 49.</p>
 <center>
-<img src="images/learning_rate_0.001.gif" style="width:80.0%" />
+<img src="images/animation-method-standard-lr-0.001.gif" style="width:80.0%" />
 </center>
 </div>
 <div id="good-convergence" class="section level2">
 <h2>Good convergence</h2>
-<p>Learning rate <span class="math inline">\(\alpha=0.005\)</span> seems to be a better guess and the algorithm converges in 184 iterations. After the first three steps the parameters are fairly close to the optimal solution.</p>
+<p>Learning rate <span class="math inline">\(\alpha=0.015\)</span> seems to be a better guess and the algorithm converges in 292 iterations. After the first five steps the parameters are fairly close to the optimal solution.</p>
 <center>
-<img src="images/4-surface_0.005.png" style="width:100.0%" />
+<img src="images/surface-method-standard-lr-0.015.png" style="width:100.0%" />
 </center>
-<p>The animation below illustrates the last statement - after the first three iterations the line barely moves.</p>
+<p>The animation below illustrates the last statement - after the first five iterations the line barely moves.</p>
 <center>
-<img src="images/learning_rate_0.005.gif" style="width:80.0%" />
+<img src="images/animation-method-standard-lr-0.015.gif" style="width:80.0%" />
 </center>
 </div>
 <div id="jumps" class="section level2">
 <h2>Jumps</h2>
-<p>When the learning rate is large (but not too large yet), convergence happens in jumps. The change in <span class="math inline">\(\mathbf{w}\)</span> is large enough to take the updated parameters to the other side of the surface, surpassing the minimum point. With learning rate <span class="math inline">\(\alpha=0.01\)</span> the convergence shows this jumping behavior. Nevertheless, the algorithm converges because the magnitude of the gradient becomes smaller after each iteration. Convergence takes 97 iterations.</p>
+<p>When the learning rate is large (but not too large yet), convergence happens in jumps. The change in <span class="math inline">\(\mathbf{w}\)</span> is large enough to take the updated parameters to the other side of the surface, surpassing the minimum point. With learning rate <span class="math inline">\(\alpha=0.05\)</span> the convergence shows this jumping behavior. Nevertheless, the algorithm converges because the magnitude of the gradient becomes smaller after each iteration. Convergence takes 97 iterations.</p>
 <center>
-<img src="images/4-surface_0.01.png" style="width:100.0%" />
+<img src="images/surface-method-standard-lr-0.05.png" style="width:100.0%" />
 </center>
 <p>This surface plot also reveals that the gradient descent algorithm does not really slide down the surface. In fact, it is a step-wise movement:</p>
 <ul>
 <li>Start at <span class="math inline">\([ w_0^{(0)}, w_1^{(0)},J(w_0^{(0)}, w_1^{(0)}) ]\)</span>, which is <span class="math inline">\([0, 0, 13.5]\)</span>.</li>
-<li>After the first update of the parameters, imagine the red dot moving in the <span class="math inline">\(XY\)</span> plane to <span class="math inline">\([ w_0^{(1)}, w_1^{(1)},J(w_0^{(0)}, w_1^{(0)}) ]\)</span>, which is <span class="math inline">\([0.05, 1.4, 13.5]\)</span>.</li>
-<li>Then the cost is recalculated using <span class="math inline">\([ w_0^{(1)}, w_1^{(1)}]\)</span> and the red dot descends to <span class="math inline">\([ w_0^{(1)}, w_1^{(1)},J(w_0^{(1)}, w_1^{(1)}) ]\)</span>, which is <span class="math inline">\([0.05, 1.4, 6.3]\)</span>. But it is not guaranteed to descent. If the step size in <span class="math inline">\(XY\)</span> plane was too large, the red dot would actually ascend and the algorithm would diverge.</li>
+<li>After the first update of the parameters, imagine the red dot moving in the <span class="math inline">\(XY\)</span> plane to <span class="math inline">\([ w_0^{(1)}, w_1^{(1)},J(w_0^{(0)}, w_1^{(0)}) ]\)</span>, which is <span class="math inline">\([-1.0, -27.3, 13.5]\)</span>.</li>
+<li>Then the cost is recalculated using <span class="math inline">\([ w_0^{(1)}, w_1^{(1)}]\)</span> and the red dot descends to <span class="math inline">\([ w_0^{(1)}, w_1^{(1)},J(w_0^{(1)}, w_1^{(1)}) ]\)</span>, which is <span class="math inline">\([-1.0, -27.3, 6.3]\)</span>. But it is not guaranteed to descent. If the step size in <span class="math inline">\(XY\)</span> plane was too large, the red dot would actually ascend and the algorithm would diverge.</li>
 </ul>
 <p>Animation below illustrates the jumping behavior. With time, oscillations become smaller and eventually the algorithm converges.</p>
 <center>
-<img src="images/learning_rate_0.01.gif" style="width:80.0%" />
+<img src="images/animation-method-standard-lr-0.05.gif" style="width:80.0%" />
 </center>
 </div>
 <div id="divergence" class="section level2">
 <h2>Divergence</h2>
-<p>Learning rate <span class="math inline">\(\alpha=0.02\)</span> turns out to be too high. The magnitude of the gradient grows after the first iteration, which increases the step size for the next iteration. In this fashion, parameters <span class="math inline">\(\mathbf{w}^{(i)}\)</span> spiral away from the minimum very rapidly - compare the scale of <span class="math inline">\(z\)</span> axis on the previous plot and the one below with only four iterations.</p>
+<p>Learning rate <span class="math inline">\(\alpha=0.08\)</span> turns out to be too high. The magnitude of the gradient grows after the first iteration, which increases the step size for the next iteration. In this fashion, parameters <span class="math inline">\(\mathbf{w}^{(i)}\)</span> spiral away from the minimum very rapidly - compare the scale of <span class="math inline">\(z\)</span> axis on the previous plot and the one below with only seven iterations.</p>
 <center>
-<img src="images/4-surface_0.02.png" style="width:100.0%" />
+<img src="images/surface-method-standard-lr-0.08.png" style="width:100.0%" />
 </center>
-<p>The fitted line does not seem to move during the first 20 iterations due to a huge scale of the plot (1e+10). However, later we see that the line starts to swing wildly and quickly approaches a vertical where the cost becomes infinitely large.</p>
+<p>The fitted line does not seem to move during the first few iterations due to a huge scale of the plot. However, later we see that the line starts to swing wildly and quickly approaches a vertical where the cost becomes infinitely large.</p>
 <center>
-<img src="images/learning_rate_0.02.gif" style="width:80.0%" />
+<img src="images/animation-method-standard-lr-0.08.gif" style="width:80.0%" />
 </center>
 <p><br></p>
-<p>We would like to get rid of the dark art of guessing learning rates. A safe (but sometimes slow) choice is to set <span class="math inline">\(\alpha = \frac{i_0}{i}\)</span>, where <span class="math inline">\(i_0\)</span> is any initial positive value and <span class="math inline">\(i\)</span> is the iteration counter. This guarantees that it will eventually become small enough to converge<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a>. With the same generated data and <span class="math inline">\(i_0=1\)</span> the algorithm converged in 278,951 iterations (slow indeed).</p>
+<p>We would like to get rid of the dark art of guessing learning rates. A safe (but sometimes slow) choice is to set <span class="math inline">\(\alpha = \frac{i_0}{i}\)</span>, where <span class="math inline">\(i_0\)</span> is any initial positive value and <span class="math inline">\(i\)</span> is the iteration counter. This guarantees that it will eventually become small enough to converge<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a>. With the same generated data and <span class="math inline">\(i_0=1\)</span> the algorithm converged in 2384 iterations.</p>
 <p>In the <a href="/2021/04/15/adagrad-adaptive-gradient-algorithm/">next post</a> we will look at the adaptive gradient algorithm AdaGrad, which performs more informative gradient-based learning by adapting the learning rate for <em>each feature individually</em> and does not require guessing <span class="math inline">\(\alpha\)</span>.</p>
 <hr>
 <p>I would appreciate any comments or suggestions. Please leave them below, no login required if you check “I’d rather post as a guest”.</p>

@@ -46,10 +46,7 @@ Note: <strong>do</strong> … <strong>while</strong> would be more suitable to a
 </div>
 <div id="implementation-in-python" class="section level1">
 <h1>Implementation in Python</h1>
-<p>Full code is available at my <a href="https://github.com/dmitrijsk/blogdown-dmitrijskass/tree/adagrad/content/post/2021-04-03-gradient-descent-with-linear-regression-from-scratch/code">GitHub repository</a>. Only a few changes need to be implemented in the gradient descent code with linear regression from <a href="/2021/04/03/gradient-descent-with-linear-regression-from-scratch/">the previous post</a>. <span class="math inline">\(\mathbf{G}^{(0)}\)</span> is initialized as a zero vector in line 56 and updated in line 63. The step size is calculated in lines 64-65. <span class="math inline">\(\eta\)</span> is usually set at 0.01<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a> and <span class="math inline">\(\epsilon\)</span> is a small number, e.g., 1e-6.</p>
-<p style="font-family:&#39;Merriweather&#39;;color:blue;font-size:70%;">
-Fix: Comment for <span class="math inline">\(eps\)</span> is outdated. (2021-04-22)
-</p>
+<p>Full code is available at my <a href="https://github.com/dmitrijsk/blogdown-dmitrijskass/tree/adagrad/content/post/2021-04-03-gradient-descent-with-linear-regression-from-scratch/code">GitHub repository</a>. Only a few changes need to be implemented in the gradient descent code with linear regression from <a href="/2021/04/03/gradient-descent-with-linear-regression-from-scratch/">the previous post</a>. <span class="math inline">\(\mathbf{G}^{(0)}\)</span> is initialized as a zero vector in a line 70 and updated in line 42. The step size is calculated in a line 43. <span class="math inline">\(\eta\)</span> is usually set at 0.01<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a> and <span class="math inline">\(\epsilon\)</span> is a small number, e.g., 1e-6.</p>
 <script src="https://gist.github.com/dmitrijsk/e39fc06f223f00fc3f4afbe29a5aaa1f.js"></script>
 </div>
 <div id="convergence" class="section level1">
@@ -60,11 +57,11 @@ Fix: Comment for <span class="math inline">\(eps\)</span> is outdated. (2021-04-
 </center>
 <p>With <span class="math inline">\(\eta=0.01\)</span> and <span class="math inline">\(\epsilon=1e-6\)</span> the algorithm converges in 10,579 iterations. However, the beauty of AdaGrad is that it eliminates the need to manually tune the learning rate. With <span class="math inline">\(\eta=1\)</span> it converges in 11 iterations (illustrated below) and with an extremely high <span class="math inline">\(\eta=10\)</span> is still converges in 12 iterations.</p>
 <center>
-<img src="images/4-surface_1.png" style="width:100.0%" />
+<img src="images/surface-method-adagrad-lr-1.png" style="width:100.0%" />
 </center>
 <p>Animation below show all 11 iterations AdaGrad needs to converge on the toy dataset with <span class="math inline">\(\eta=1\)</span>.</p>
 <center>
-<img src="images/learning_rate_1.gif" style="width:80.0%" />
+<img src="images/animation-method-adagrad-lr-1.gif" style="width:80.0%" />
 </center>
 <p>The weakness of AdaGrad is an aggressive monotonic growth of the denominator as squared gradients get accumulated. After a certain number of iterations the learning rate becomes infinitesimally small, at which point the algorithm essentially stops making steps in the direction of the minimum. ADADELTA<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a> is an extension of AdaGrad that seeks to reduce its aggressive, monotonically decreasing learning rate.</p>
 <p style="font-family:&#39;Merriweather&#39;;color:blue;font-size:70%;">

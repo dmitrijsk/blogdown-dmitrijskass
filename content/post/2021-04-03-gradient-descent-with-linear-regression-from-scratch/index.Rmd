@@ -10,11 +10,7 @@ categories:
 tags: []
 ---
 
-*** 
-
-Hyper-parameters are parameters that are not directly learnt within estimators. In scikit-learn they are passed as arguments to the constructor of the estimator classes.
-
-***
+<!-- Hyper-parameters are parameters that are not directly learnt within estimators. In scikit-learn they are passed as arguments to the constructor of the estimator classes. -->
 
 ![](images/surface.png){width=100%}
 
@@ -86,9 +82,9 @@ $$\mathbf{w}^{(i+1)} \leftarrow \mathbf{w}^{(i)} - \alpha \nabla J(\mathbf{w}^{(
 ![](images/algo.png){width=100%}
 </center>
 
-<p style="font-family:'Merriweather';color:blue;font-size:70%;">
-Note: **do** ... **while** would be more suitable to avoid $\mathbf{w}^{(-1)}$. (2021-04-18)
-</p>
+<!-- <p style="font-family:'Merriweather';color:blue;font-size:70%;"> -->
+<!-- Note: **do** ... **while** would be more suitable to avoid $\mathbf{w}^{(-1)}$. (2021-04-18) -->
+<!-- </p> -->
 
 We will implement this algorithm with linear regression using the squared loss. Let's now define the linear regression and optimization problems.
 
@@ -153,23 +149,11 @@ $$\nabla J(\mathbf{w})=
 \frac{1}{n} 2 \sum_{i=1}^{n}(y_i - (w_0 + w_1 x_{1i} + w_2 x_{2i})) (-x_{2i})
 \end{array}\right]$$
 
-<p style="font-family:'Merriweather';color:blue;font-size:70%;">
-Fix: 1/n missing both here and in the code. Same for AdaGrad. (2021-04-18).
-</p>
-
 <div style="padding:10px;background-color:#EBEBEB;line-height:1.3;">
 **Note:** When I first encountered the gradient descent, I could not understand how the gradient can be calculated from discrete data points. *"Derivatives require continuity, but I am given just a few data points"*, I thought. But this is a wrong way to think about the gradient. The gradient is calculated using a given function (in our case, $J(\mathbf{w})$) and has nothing to do with the actual data at this stage. Notice how we calculated the gradient above and we did not care about the data points yet. Data points are used *to evaluate* the gradient at *a specific* point (in our case, at $\mathbf{w^{(i)}}$ in each iteration $i$ of the gradient descent algorithm).
 </div>
 
 # Implementation in Python
-
-<p style="font-family:'Merriweather';color:blue;font-size:70%;">
-TODO: Plug-in algorithm that calculates the step. Then it will be easy to add Adagrad and other algorithms. (2021-04-22).
-</p>
-
-<p style="font-family:'Merriweather';color:blue;font-size:70%;">
-Fix: Comment for $eps$ is outdated. (2021-04-22)
-</p>
 
 <script src="https://gist.github.com/dmitrijsk/56cd0192432d76a2d1ca6a5d34361654.js"></script>
 
@@ -179,7 +163,7 @@ Returns the gradient vector. `d_intercept` is a partial derivative of the cost f
 
 ### `fit`
 
-Line 55 initializes parameters $\mathbf{w^{(0)}}$ as a zero vector. Initialization can be done arbitrarily here because we are dealing with a convex loss function. For convex problems there is only one stationary point, which also is the global minimum.
+Line 63 initializes parameters $\mathbf{w^{(0)}}$ as a zero vector. Initialization can be done arbitrarily here because we are dealing with a convex loss function. For convex problems there is only one stationary point, which also is the global minimum.
 
 <div style="padding:10px;background-color:#EBEBEB;line-height:1.3;">
 **Note:** Sometimes we can save computation time by *warm-starting* the optimization procedure with a good initial guess. For example, iterations $2..k$ of a $k$-fold cross-validation may use parameters corresponding to a minimum loss in the previous iterations.
@@ -194,7 +178,7 @@ Lines 59-73 implement the gradient descent algorithm. Line 61 calculates the gra
 
 "Setting the learning rate $\alpha>0$ is a dark art. Only if it is sufficiently small will gradient descent converge"[^ibid]. Below we take a look at how a choice of $\alpha$ impacts convergence.
 
-Let's generate $\mathbf{X}$ and $\mathbf{y}$ data for the linear regression and use gradient descent to fit a straight line. Full code is available at my [GitHub repository](https://github.com/dmitrijsk/blogdown-dmitrijskass/tree/adagrad/content/post/2021-04-03-gradient-descent-with-linear-regression-from-scratch/code). Generated data looks as follows:
+Let's generate $\mathbf{X}$ and $\mathbf{y}$ data for the linear regression and use gradient descent to fit a straight line. Full code is available at my [GitHub repository](https://github.com/dmitrijsk/blogdown-dmitrijskass/tree/gradient-updates/content/post/2021-04-03-gradient-descent-with-linear-regression-from-scratch/code). Generated data looks as follows:
 
 <center>
 ![](images/1-generated-data.png){width=80%}

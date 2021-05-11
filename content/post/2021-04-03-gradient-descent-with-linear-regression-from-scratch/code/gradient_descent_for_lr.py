@@ -1,13 +1,14 @@
 """
-Learning rate for the standard gradient descent: 
-    Convergence:
-        0.001 (slow), 0.005 (fast), 0.01 (jumps).
-    Divergence: 0.02
+Author: Dmitrijs Kass.
 """
 
 import numpy as np
 import matplotlib.pyplot as plt
 import viz_fun as viz # My visualization functions.
+
+LR = 0.01
+MAX_ITER = 10000
+METHOD = "adagrad"
 
 class GradientDescentLinearRegression:
     """
@@ -19,9 +20,9 @@ class GradientDescentLinearRegression:
     max_iterations : int
         Maximum number of iteration for the gradient descent algorithm.
     eps : float
-        Tolerance level for the Euclidean norm between the OLS solution
-        and the gradient descent solution. The algorithm is stooped when
-        the norm becomes less than the tolerance level.
+        Tolerance level for the Euclidean norm between model parameters in two 
+        consequitive iterations. The algorithm is stopped when the norm becomes 
+        less than the tolerance level.
     """
     
     def __init__(self, learning_rate=0.01, max_iterations=100000, eps=1e-6):
@@ -45,9 +46,14 @@ class GradientDescentLinearRegression:
         d_intercept = -2*sum(y - y_pred)                    # dJ/d w_0.
         d_x = -2*sum(X[:,1:] * (y - y_pred).reshape(-1,1))  # dJ/d w_i.
         g = np.append(np.array(d_intercept), d_x)           # Gradient.
-        return g
-          
-    def fit(self, X, y, adagrad = True):
+        return g / X.shape[0]                               # Average over training samples.
+
+    def adagrad(self, g):
+        self.G += g**2                                     # Update cache.
+        step = self.learning_rate / (np.sqrt(self.G + self.eps)) * g
+        return step
+        
+    def fit(self, X, y, method = "standard", verbose = True):
         """
         Fit linear model with gradient descent.
         
@@ -57,9 +63,12 @@ class GradientDescentLinearRegression:
             Training data
         y : numpy array of shape [n_samples,1]
             Target values.
-        adagrad : boolean
-                  If False, uses a standard gradient descent with
-                  a constant learning rate. If True, uses AdaGrad.
+        method : string
+                 Defines the variant of gradient descent to use. 
+                 Possible values: "standard", "adagrad".
+        verbose: boolean
+                 If True, print the gradient, parameters and the cost function 
+                 for each iteration.
         
         Returns
         -------
@@ -67,35 +76,38 @@ class GradientDescentLinearRegression:
         """
         
         self.w = np.zeros(X.shape[1])                     # Initialization of params.
-        if adagrad == True:
-            G = np.zeros(X.shape[1])                      # Initialization of cache for AdaGrad.
+        if method == "adagrad":
+            self.G = np.zeros(X.shape[1])                 # Initialization of cache for AdaGrad.
         w_hist = [self.w]                                 # History of params.
         cost_hist = [self.cost(X, y)]                     # History of cost.      
         
         for iter in range(self.max_iterations):
             
             g = self.grad(X, y)                           # Calculate the gradient.
-            if adagrad == False:
+            if method == "standard":
                 step = self.learning_rate * g             # Calculate standard gradient step.
+            elif method == "adagrad":
+                step = self.adagrad(g)                    # Calculate AdaGrad step.
             else:
-                G += g**2                                 # Update cache.
-                step = self.learning_rate * \
-                    1 / (np.sqrt(G + self.eps)) * g       # Calculate AdaGrad step.
+                raise ValueError("Method not supported.")
             self.w = self.w - step                        # Update parameters.
             w_hist.append(self.w)                         # Save to history.
             
             J = self.cost(X, y)                           # Calculate the cost.
             cost_hist.append(J)                           # Save to history.
             
-            print(f"Iter: {iter}, gradient: {g}, params: {self.w}, cost: {J}")
+            if verbose:
+                print(f"Iter: {iter}, gradient: {g}, params: {self.w}, cost: {J}")
             
             # Stop if update is small enough.
             if np.linalg.norm(w_hist[-1] - w_hist[-2]) < self.eps:
                 break
         
+        # Final updates before finishing.
         self.iterations = iter + 1                       # Due to zero-based indexing.
         self.w_hist = w_hist
         self.cost_hist = cost_hist
+        self.method = method
         
         return self
 
@@ -125,28 +137,57 @@ if __name__ == "__main__":
     path = "./"
 
     X, y = generate_data()
-    viz.plot_data(X, y)
-    plt.savefig(path + "1-generated-data.png")
 
-
-    model = GradientDescentLinearRegression().fit(X, y)
-
-
+    model = GradientDescentLinearRegression(LR, MAX_ITER).fit(X, y, METHOD)
     print(f"Gradient descent solution in {model.iterations} iterations: {model.w}.")
 
     w_lstsq = np.linalg.lstsq(X, y, rcond = None)[0]
     print(f"Least squares solutions: {w_lstsq}.")
 
     if (X.shape[1] == 2):
+        # Generate plots only for a two-parameter problem.
+        
+        viz.plot_data(X, y)
+        plt.savefig(path + "1-generated-data.png")
 
         viz.plot_data_and_fitted_line(X, y, model)
         plt.savefig(path + "2-generated-data-and-fitted-line.png")
-
+        
         viz.plot_cost(model)
         plt.savefig(path + "3-cost-hist.png")
         
-        viz.plot_surface(X, y, model, path, w_steps = 4)
-        viz.animate_fitted_line(X, y, model, path, iterations = 11)
+        # Animation plot ------------------------------------------------------
+        
+        iter_dict = {("standard", 0.001): 50,
+                     ("standard", 0.015): 20,
+                     ("standard", 0.05): 20,
+                     ("standard", 0.08): 15,
+                     ("adagrad", 1): 11}
+        
+        viz.animate_fitted_line(X, y, model, path, iterations = iter_dict.get((METHOD, LR), 20))
+
+        # Surface plot -------------------------------------------------------
+                
+        surf_dict = {("standard", 0.001): {"steps": len(model.w_hist), 
+                                           "annotation_steps": 5,
+                                           "title": f"Path of the converging gradient descent with $\\alpha$={LR}"},
+                     ("standard", 0.015): {"steps": len(model.w_hist), 
+                                           "annotation_steps": 5,
+                                           "title": f"Path of the converging gradient descent with $\\alpha$={LR}"},
+                     ("standard", 0.05): {"steps": len(model.w_hist), 
+                                           "annotation_steps": 5,
+                                           "title": f"Path of the converging gradient descent with $\\alpha$={LR}"},
+                     ("standard", 0.08): {"steps": 7, 
+                                           "annotation_steps": 7,
+                                           "title": f"Path of the diverging gradient descent with $\\alpha$={LR}"},
+                     ("adagrad", 1): {"steps": len(model.w_hist), 
+                                           "annotation_steps": 3,
+                                           "title": f"AdaGrad with $\\eta$={LR}"}}
+        
+        surf_dict_default = {"steps": 5, "annotation_steps": 5, "title": ""}
+        
+        viz.plot_surface(X, y, model, path, params = surf_dict.get((METHOD, LR), surf_dict_default))
+
 
 
 

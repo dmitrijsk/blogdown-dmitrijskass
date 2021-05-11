@@ -13,9 +13,7 @@ tags: []
 <script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
 
 
-<hr />
-<p>Hyper-parameters are parameters that are not directly learnt within estimators. In scikit-learn they are passed as arguments to the constructor of the estimator classes.</p>
-<hr />
+<!-- Hyper-parameters are parameters that are not directly learnt within estimators. In scikit-learn they are passed as arguments to the constructor of the estimator classes. -->
 <p><img src="images/surface.png" style="width:100.0%" /></p>
 <p>We want to minimize a convex, continuous and differentiable cost function <span class="math inline">\(J(\mathbf{w})\)</span>. In this blog post we discuss the most popular “hill-climbing” algorithm, <strong>gradient descent</strong>, using linear regression, and build it from scratch in Python. A few highlights:</p>
 <ul>
@@ -67,9 +65,9 @@ tags: []
 <center>
 <img src="images/algo.png" style="width:100.0%" />
 </center>
-<p style="font-family:&#39;Merriweather&#39;;color:blue;font-size:70%;">
-Note: <strong>do</strong> … <strong>while</strong> would be more suitable to avoid <span class="math inline">\(\mathbf{w}^{(-1)}\)</span>. (2021-04-18)
-</p>
+<!-- <p style="font-family:'Merriweather';color:blue;font-size:70%;"> -->
+<!-- Note: **do** ... **while** would be more suitable to avoid $\mathbf{w}^{(-1)}$. (2021-04-18) -->
+<!-- </p> -->
 <p>We will implement this algorithm with linear regression using the squared loss. Let’s now define the linear regression and optimization problems.</p>
 </div>
 </div>
@@ -113,9 +111,6 @@ The parameters are learned by minimizing the cost function <span class="math inl
 \\
 \frac{1}{n} 2 \sum_{i=1}^{n}(y_i - (w_0 + w_1 x_{1i} + w_2 x_{2i})) (-x_{2i})
 \end{array}\right]\]</span></p>
-<p style="font-family:&#39;Merriweather&#39;;color:blue;font-size:70%;">
-Fix: 1/n missing both here and in the code. Same for AdaGrad. (2021-04-18).
-</p>
 <div style="padding:10px;background-color:#EBEBEB;line-height:1.3;">
 <p><strong>Note:</strong> When I first encountered the gradient descent, I could not understand how the gradient can be calculated from discrete data points. <em>“Derivatives require continuity, but I am given just a few data points”</em>, I thought. But this is a wrong way to think about the gradient. The gradient is calculated using a given function (in our case, <span class="math inline">\(J(\mathbf{w})\)</span>) and has nothing to do with the actual data at this stage. Notice how we calculated the gradient above and we did not care about the data points yet. Data points are used <em>to evaluate</em> the gradient at <em>a specific</em> point (in our case, at <span class="math inline">\(\mathbf{w^{(i)}}\)</span> in each iteration <span class="math inline">\(i\)</span> of the gradient descent algorithm).</p>
 </div>
@@ -123,12 +118,6 @@ Fix: 1/n missing both here and in the code. Same for AdaGrad. (2021-04-18).
 </div>
 <div id="implementation-in-python" class="section level1">
 <h1>Implementation in Python</h1>
-<p style="font-family:&#39;Merriweather&#39;;color:blue;font-size:70%;">
-TODO: Plug-in algorithm that calculates the step. Then it will be easy to add Adagrad and other algorithms. (2021-04-22).
-</p>
-<p style="font-family:&#39;Merriweather&#39;;color:blue;font-size:70%;">
-Fix: Comment for <span class="math inline">\(eps\)</span> is outdated. (2021-04-22)
-</p>
 <script src="https://gist.github.com/dmitrijsk/56cd0192432d76a2d1ca6a5d34361654.js"></script>
 <div id="grad" class="section level3">
 <h3><code>grad</code></h3>
@@ -136,7 +125,7 @@ Fix: Comment for <span class="math inline">\(eps\)</span> is outdated. (2021-04-
 </div>
 <div id="fit" class="section level3">
 <h3><code>fit</code></h3>
-<p>Line 55 initializes parameters <span class="math inline">\(\mathbf{w^{(0)}}\)</span> as a zero vector. Initialization can be done arbitrarily here because we are dealing with a convex loss function. For convex problems there is only one stationary point, which also is the global minimum.</p>
+<p>Line 63 initializes parameters <span class="math inline">\(\mathbf{w^{(0)}}\)</span> as a zero vector. Initialization can be done arbitrarily here because we are dealing with a convex loss function. For convex problems there is only one stationary point, which also is the global minimum.</p>
 <div style="padding:10px;background-color:#EBEBEB;line-height:1.3;">
 <p><strong>Note:</strong> Sometimes we can save computation time by <em>warm-starting</em> the optimization procedure with a good initial guess. For example, iterations <span class="math inline">\(2..k\)</span> of a <span class="math inline">\(k\)</span>-fold cross-validation may use parameters corresponding to a minimum loss in the previous iterations.</p>
 </div>
@@ -146,7 +135,7 @@ Fix: Comment for <span class="math inline">\(eps\)</span> is outdated. (2021-04-
 <div id="learning-rate-and-convergence" class="section level1">
 <h1>Learning rate and convergence</h1>
 <p>“Setting the learning rate <span class="math inline">\(\alpha&gt;0\)</span> is a dark art. Only if it is sufficiently small will gradient descent converge”<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>. Below we take a look at how a choice of <span class="math inline">\(\alpha\)</span> impacts convergence.</p>
-<p>Let’s generate <span class="math inline">\(\mathbf{X}\)</span> and <span class="math inline">\(\mathbf{y}\)</span> data for the linear regression and use gradient descent to fit a straight line. Full code is available at my <a href="https://github.com/dmitrijsk/blogdown-dmitrijskass/tree/adagrad/content/post/2021-04-03-gradient-descent-with-linear-regression-from-scratch/code">GitHub repository</a>. Generated data looks as follows:</p>
+<p>Let’s generate <span class="math inline">\(\mathbf{X}\)</span> and <span class="math inline">\(\mathbf{y}\)</span> data for the linear regression and use gradient descent to fit a straight line. Full code is available at my <a href="https://github.com/dmitrijsk/blogdown-dmitrijskass/tree/gradient-updates/content/post/2021-04-03-gradient-descent-with-linear-regression-from-scratch/code">GitHub repository</a>. Generated data looks as follows:</p>
 <center>
 <img src="images/1-generated-data.png" style="width:80.0%" />
 </center>

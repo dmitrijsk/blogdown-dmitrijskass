@@ -56,27 +56,26 @@ def animate_fitted_line(X, y, model, path, iterations):
         camera.snap()   
         
     animation = camera.animate()
-    animation.save(f"{path}learning_rate_{model.learning_rate}.gif", writer = 'imagemagick')
+    animation.save(f"{path}animation-method-{model.method}-lr-{model.learning_rate}.gif", writer = 'imagemagick')
 
-def plot_surface(X, y, model, path, w_steps):
+def plot_surface(X, y, model, path, params):
     """
     3D plot of the cost function. 
     Source: https://matplotlib.org/2.0.2/mpl_toolkits/mplot3d/tutorial.html
     """
     
+    n_steps = params["steps"]
+    fig_title = params["title"]
+    annotation_steps = params["annotation_steps"]
+    x_lo, x_hi = -2, 2    
+    
     # Plot parameters depending on the learning rate.
-    if (model.learning_rate == 0.02):
+    if (model.learning_rate == 0.08):
         # Divergence.
-        x_lo, x_hi = -20, 20
-        y_lo, y_hi = -22, 22
-        n_steps = 5
-        fig_title = f"Path of the diverging gradient descent with $\\alpha$={model.learning_rate}"
+        y_lo, y_hi = -13, 13
     else:
         # Convergence.
-        x_lo, x_hi = -2, 2
         y_lo, y_hi = -0.05, 0.84*2
-        n_steps = len(model.w_hist)
-        fig_title = f"Path of the converging gradient descent with $\\eta$={model.learning_rate}"
         
     
     # Plot quality.
@@ -134,7 +133,7 @@ def plot_surface(X, y, model, path, w_steps):
     y_arrow_end = np.diff(y_space[:n_steps])
     z_arrow_end = np.diff(z[:n_steps])
     
-    annotations = [f"$w^{({i})}$" for i in range(w_steps)] # Number of steps to display.
+    annotations = [f"$w^{({i})}$" for i in range(annotation_steps)] # Number of steps to display.
     for i, txt in enumerate(annotations):
          ax.text(x_space[i] - 0.1, y_space[i], z[i], txt, fontsize = 8, color = "red", alpha = 1)
     
@@ -152,7 +151,7 @@ def plot_surface(X, y, model, path, w_steps):
               alpha = 1)
     
     # Export the plot.
-    plt.savefig(path + f"4-surface_{model.learning_rate}.png", dpi = 300)
+    plt.savefig(path + f"{path}surface-method-{model.method}-lr-{model.learning_rate}.png", dpi = 300)
     
     # Add a color bar which maps values to colors.
     fig.colorbar(surf, shrink=0.5, aspect=5)

@@ -9,11 +9,17 @@ categories:
 tags: []
 ---
 
+<!-- <p style="font-family:'Merriweather';color:blue;font-size:70%;"> -->
+<!-- TODO: Add cover image with a surface and two paths with a few steps: by gradient descent and by AdaGrad. (2021-04-19) -->
+<!-- </p> -->
+
 We want to minimize a convex, continuous and differentiable cost function with gradient descent. One possible issue is a choice of a suitable learning rate. Another is a slow convergence in some dimensions because gradient descent treats all features as equal. But they are not![^stanford-lecture] AdaGrad[^adagrad] is one of the gradient-based optimization algorithms that aims to solve both of these issues.
 
 AdaGrad adapts the learning rate individually to each model parameter. Setting different learning rates for different features is particularly important if they vary in frequency (e.g., common and rare words in word embeddings). Frequently occurring features receive very low learning rates (and small updates) and infrequent features high learning rates (and large updates). The intuition is that each time an infrequent feature is seen, the learner should "take notice". It does so by associating them with relatively larger learning rates during optimization. The same holds for features of different scale (e.g., milligrams and tons).
 
 # Theoretical idea of AdaGrad
+
+Throughout this post I use bold font for vectors (e.g., $\mathbf{w}$, $\mathbf{x}$) and regular font for scalars and functions (e.g., $w_0$, $J$).
 
 At every iteration $i$, the learner receives the gradient vector $\mathbf{g}^{(i)}$. Standard gradient descent algorithm then multiplies it by the learning rate $\alpha$ and moves the model parameters in the opposite direction $-\alpha\mathbf{g}^{(i)}$. AdaGrad dynamically incorporates knowledge of the geometry of the data observed in earlier iterations to perform more informative gradient-based learning. The outer product matrix $\mathbf{G}^{(i)}$ keeps records of the computed historical gradients from the beginning until the current iteration:
 
@@ -50,9 +56,13 @@ If the elements of $\mathbf{G}^{(i)}$ are different then the learning rate for e
 ![](images/algo.png){width=100%}
 </center>
 
+<!-- <p style="font-family:'Merriweather';color:blue;font-size:70%;"> -->
+<!-- Note: **do** ... **while** would be more suitable to avoid $\mathbf{w}^{(-1)}$. (2021-04-18) -->
+<!-- </p> -->
+
 # Implementation in Python
 
-Full code is available at my [GitHub repository](https://github.com/dmitrijsk/blogdown-dmitrijskass/tree/adagrad/content/post/2021-04-03-gradient-descent-with-linear-regression-from-scratch/code). Only a few changes need to be implemented in the gradient descent code with linear regression from [the previous post](/2021/04/03/gradient-descent-with-linear-regression-from-scratch/). $\mathbf{G}^{(0)}$ is initialized as a zero vector in line 56 and updated in line 63. The step size is calculated in lines 64-65. $\eta$ is usually set at 0.01[^ruder] and $\epsilon$ is a small number, e.g., 1e-6.
+Full code is available at my [GitHub repository](https://github.com/dmitrijsk/blogdown-dmitrijskass/tree/gradient-updates/content/post/2021-04-03-gradient-descent-with-linear-regression-from-scratch/code). Only a few changes need to be implemented in the gradient descent code with linear regression from [the previous post](/2021/04/03/gradient-descent-with-linear-regression-from-scratch/). $\mathbf{G}^{(0)}$ is initialized as a zero vector in a line 70 and updated in line 42. The step size is calculated in a line 43. $\eta$ is usually set at 0.01[^ruder] and $\epsilon$ is a small number, e.g., 1e-6.
 
 <script src="https://gist.github.com/dmitrijsk/e39fc06f223f00fc3f4afbe29a5aaa1f.js"></script>
 
@@ -68,16 +78,24 @@ To test convergence we use a toy dataset from [the previous post](/2021/04/03/gr
 With $\eta=0.01$ and $\epsilon=1e-6$ the algorithm converges in 10,579 iterations. However, the beauty of AdaGrad is that it eliminates the need to manually tune the learning rate. With $\eta=1$ it converges in 11 iterations (illustrated below) and with an extremely high $\eta=10$ is still converges in 12 iterations.
 
 <center>
-![](images/4-surface_1.png){width=100%}
+![](images/surface-method-adagrad-lr-1.png){width=100%}
 </center>
 
 Animation below show all 11 iterations AdaGrad needs to converge on the toy dataset with $\eta=1$.
 
 <center>
-![](images/learning_rate_1.gif){width=80%}
+![](images/animation-method-adagrad-lr-1.gif){width=80%}
 </center>
 
 The weakness of AdaGrad is an aggressive monotonic growth of the denominator as squared gradients get accumulated. After a certain number of iterations the learning rate becomes infinitesimally small, at which point the algorithm essentially stops making steps in the direction of the minimum. ADADELTA[^adadelta] is an extension of AdaGrad that seeks to reduce its aggressive, monotonically decreasing learning rate.
+
+<!-- <p style="font-family:'Merriweather';color:blue;font-size:70%;"> -->
+<!-- RMSProp? (2021-04-22) -->
+<!-- </p> -->
+
+<!-- <p style="font-family:'Merriweather';color:blue;font-size:70%;"> -->
+<!-- TODO: Test of diabetes (or any other) dataset: OLs, standard gradient descent, AdaGrad. (2021-04-22) -->
+<!-- </p> -->
 
 
 <hr>

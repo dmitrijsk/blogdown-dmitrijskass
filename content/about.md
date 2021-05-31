@@ -3,12 +3,11 @@ date: "2019-05-06"
 title: About
 ---
 
-<img style="margin-bottom: 20px" src="/img/dmitrijs_wide_2.jpg" width="100%"></img>
+![](/./about_files/dmitrijs_wide_2.jpg)
 
-Hi! I'm Dmitrijs Kass, lecturer at [Latvian University](https://www.lu.lv/en/studies/faculties/faculty-of-physics-mathematics-and-optometry/) and [Riga Business School](http://www.rbs.lv/bachelor). I enjoy teaching **data analysis and visualization with R** as much as applying it in practice at [Creamfinance](https://www.creamfinance.com/) in the role of a Data science team leader.
+Hi! I'm Dmitrijs, currently the "Machine Learning and Statistics" master's student at Uppsala University in Sweden. More information is available in [my LinkedIn profile](https://www.linkedin.com/in/dmitrijs-kass-prm/).
 
-This blog is intended to serve few purposes:
+I enjoy exploring concepts in data science and visualization to gain an intuitive understanding of them. Properly coded and documented stories get to this blog and serve as a cheat-sheet for my future self. Hopefully, you will find valuable insights for yourself here as well.
 
-* Share the work I enjoy doing, such as **data viz and telling stories with data**.
-* Share my approach to understanding various elements of **data science**. 
-* Invite **feedback** from the community about my work so that I may improve in fulfilling the first two points.
+Thanks for visiting! \
+Dmitrijs Kass

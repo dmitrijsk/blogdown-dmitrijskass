@@ -1,0 +1,171 @@
+---
+title: 'Tf-idf: the effect of idf on tf visualised'
+author: Dmitrijs Kass
+date: '2019-05-10'
+slug: swdchallenge-artisanal-data
+categories:
+  - data-viz
+  - text analysis
+tags:
+  - SWDchallenge
+output:
+  blogdown::html_page:
+    toc: yes
+---
+
+This post is a participation in [#SWDchallenge: artisanal data](http://www.storytellingwithdata.com/blog/2019/5/1/swdchallenge-artisanal-data). Along with that it **visualizes two common measures of word importance: tf and tf-idf**. Variations of tf-idf, term frequency-inverse document frequency, are often used by search engines and text-based recommender systems.
+
+----
+
+I use the [transcript](https://docs.google.com/document/d/1S2_63MUbvQs7fxWQrcuCNSl03fmDl1Vr3FjNjnbWK14/edit#) of the "learning dataviz" episode of [#SWDpodcast](http://www.storytellingwithdata.com/podcast), where 12 data visualization professionals share their stories and recommendations.
+
+I find a lot of wisdom and inspiration in this episode. [The Storytelling with Data](http://www.storytellingwithdata.com/book) (SWD) book has been on my shelf for over a year and it is this podcast episode that sparked an interest in me about data visualization and inspired me to read the book in a few days and start participating in data viz challenges. So I thought I would enjoy spending more time with this episode by analysing the words in it.
+
+The analysis was performed in [R](https://www.r-project.org/), a free software environment for statistical computing and graphics, mainly using the [tidyverse](https://www.tidyverse.org/) packages, including [ggplot2](https://ggplot2.tidyverse.org/) for visualization.
+
+
+# text cleaning
+
+Text cleaning involves five steps:
+
+1. Extract 12 interviews from the transcript.
+2. Replace [contractions](https://en.wikipedia.org/wiki/Contraction_(grammar)). For example: *"It's a fascinating field"* becomes *"It is a fascinating field"*.
+3. Split sentences into single words. 
+4. [Lemmatize](https://en.wikipedia.org/wiki/Lemmatisation) words. 
+5. Remove [stop words](https://en.wikipedia.org/wiki/Stop_words), the most common[^1] words in English language. Skipping this step may lead to conclusions like on the map below:
+
+```{r tweet_chunk, echo=FALSE}
+blogdown::shortcode('tweet', '1129765180987117569')
+```
+
+Here is a quote from Jeffrey Shaffer's interview to illustrate steps 3-5:
+
+```{r example_chunk, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(tidytext)
+sentense <- "I learned R and started doing visualizations in R"
+stop_words <- setdiff(tm::stopwords(kind = "SMART"), "r")
+
+example <- tibble(sentense) %>% 
+  unnest_tokens(output = "word", input = sentense) %>% 
+  mutate(word_lemma = textstem::lemmatize_words(word),
+         stop_word = word %in% stop_words)
+
+example
+```
+
+
+
+
+# about tf-idf {#about-tf-idf}
+
+If you are already familiar with tf (term frequency), idf (inverse document frequency) and tf-idf (term frequency-inverse document frequency) then you may skip this section and go directly to the [visual comparison of these two measures of word importance](#tfidf).
+
+
+
+Few definitions in the context of this analysis:
+
+* *term* is a single word (in general, a term may be a combination of two words, a sentence, etc.)
+* *document* is an interview - any single interview from the "learning dataviz" episode. 
+* *collection of documents* is a collection of 12 interviews in the episode.
+
+**Term frequency (tf)** measures how frequently a term occurs in a document. Since every document is different in length, it is often divided by the document length[^2]: 
+
+$$\text{tf}(t) = \frac{\text{Number of times term t appears in a document}}{\text{Total number of terms in the document}}.$$
+
+
+```{r source_chunk, include = FALSE}
+# Text analysis from start to finish with plots and tables.
+source("2019-05-08-swdchallenge-artisanal-data.R")
+```
+
+
+```{r one_word_chunk, include = FALSE}
+one_word <- t_summary %>% 
+  filter(word_lemma == "learn")
+```
+
+
+For example, if the word "learn" is used `r one_word$freq` times and the interview contains `r one_word$total_words` words then
+
+$$\text{tf}(learn)=8/540\approx0.015.$$
+
+When used to measure word importance, the shortcoming of tf is that it is calculated using a single document in isolation from other documents in the collection. Notice that a word's tf may be different for each document within a collection.
+
+**Inverse document frequency (idf)** measures how important a term is in the context of other documents. Idf is computed as the logarithm of the number of documents in the collection divided by the number of documents where the specific term appears:
+
+$$\text{idf}(t) = log_e\left(\frac{\text{Total number of documents}}{\text{Number of documents with term t in it}}\right).$$
+
+Here is the relationship between a number of documents with term $t$ in it and the term's idf. I assume there are 12 documents in the collection:
+
+```{r idf_plot_chunk, echo = FALSE, fig.height=2.5, fig.width=5, fig.align='center'}
+p_idf
+```
+
+
+The "learning dataviz" episode of #SWDpodcast is about learning data visualization. Naturally, the word "learn" appears at least once in each of the 12 interviews. Does it mean that this word is important? In describing the whole episode - yes. In describing any particular interview from this episode - no, at least in the understanding of idf. Because *all* interviewees use the word "learn". 
+
+The word "learn" appears in all 12 interviews, so its idf is zero: 
+
+$$\text{idf}(learn)=log_e(12/12)=log_e(1)=0$$
+
+This means that the word "learn" is completely unimportant to describe any specific interview in the context of the other 11 interviews. Other words with zero importance here are *`r setdiff(zero_tfidf, "learn")`*.
+
+Notice that the idf of each term is the same for all documents in a collection.
+
+
+
+**Term frequency-inverse document frequency (tf-idf)** is a multiplication of tf and idf:
+
+$$\text{tfidf}(t) = \text{tf}(t) \times \text{idf}(t).$$
+
+It does not matter how high $\text{tf}(learn)$ is, if $\text{idf}(learn)=0$, the $\text{tfidf}(learn)$ will also be zero. On the contrary, if a word is only mentioned in one interview from 12 then its tf gets multiplied by `r round(log(12/1), 2)`. This is what happened to the word "copy". Its importance rank increased from #40, measured by tf, to #3, measured by tf-idf.
+
+
+Tf-idf gives the highest weight to words that are "common locally and rare globally"[^3]. "Common locally" refers to the tf component, while "rare globally" refers to the idf component.
+
+
+
+# tf-idf: the effect of idf on tf visualised {#tfidf}
+
+Next I use the most important words, as measured by tf and tf-idf, from Andy Cotgreave's interview in the "learning dataviz" episode of #SWDpodcast. The plot below visualises changes in *ranks* - slopes go from tf ranks on the left to tf-idf ranks on the right. Ranks are positions relative to other words; the highest rank means the highest importance. There are 271 unique words, so the lowest possible rank is 271.
+
+Tf gives the highest weight to words that are simply used most frequently. It is a local measure in the sense that it ignores other interviews in the same podcast episode.
+
+Multiplication of tf by idf, which gives tf-idf, diminishes the importance of words that are common across all interviews, such as "data" and "learn". At the same time it amplifies the importance of rare words, such as "copy" and "fun". 
+
+The word "copy" is used only in Andy's interview. It is used in the context of recommending Austin Kleon's book “Steal Like an Artist”. The word “fun” is used only in two more interviews. Andy says *"... get out of your comfort zone and have fun. Have fun. My gosh, you are allowed to have fun ..."*. Let's do it!
+
+
+```{r slopes_plot_chunk, message=FALSE, warning=FALSE, echo = FALSE, fig.width=6, fig.height=6.2, fig.align='center'}
+p_slopes
+```
+
+Below is the data used for plotting. There are 12 interviews. Andy Cotgreave's interview contains 540 words, 271 of them unique. There are six words with zero tf-idf (three of them in the table below); they share tf-idf ranks from 266 to 271.
+
+```{r summary_table_chunk, echo = FALSE}
+cols <- c("word", "count", "total words", "tf", "documents with word", "idf", "tf-idf", "rank by tf", "rank by idf")
+knitr::kable(t_summary, format = "html", col.names = cols, digits = 3)
+```
+
+
+
+<br>
+
+**References:**
+
+* Learn about text analysis in a tidy way with [Text Mining with R](https://www.tidytextmining.com/)
+* R code for this blog post is available at my [GitHub repository](https://github.com/dmitrijsk/blogdown-dmitrijskass/blob/master/content/post/2019-05-08-swdchallenge-artisanal-data.R).
+
+
+
+<br>
+
+I would appreciate any comments or suggestions. Please leave them below, no login required if you check "I'd rather post as a guest".
+
+
+
+
+[^1]: Stop words from the [SMART information retrieval system](http://www.jmlr.org/papers/volume5/lewis04a/lewis04a.pdf) available in `tm` package served as the basis. They were supplemented with the names of podcast host and guests. One stop word was removed; it was the letter *"r"*, which is used by one of the podcast guests to refer to R as a software. It is definitely worth knowing prepackaged stop words!
+[^2]: http://www.tfidf.com
+[^3]: I heard the phrase "common locally and rare globally" for the first time [here](https://www.coursera.org/lecture/ml-foundations/calculating-tf-idf-vectors-1rg5n) and I liked this definition a lot.

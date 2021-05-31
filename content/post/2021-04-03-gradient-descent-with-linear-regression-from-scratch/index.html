@@ -15,22 +15,22 @@ tags: []
 
 <!-- Hyper-parameters are parameters that are not directly learnt within estimators. In scikit-learn they are passed as arguments to the constructor of the estimator classes. -->
 <p><img src="images/surface.png" style="width:100.0%" /></p>
-<p>We want to minimize a convex, continuous and differentiable cost function <span class="math inline">\(J(\mathbf{w})\)</span>. In this blog post we discuss the most popular algorithm, <strong>gradient descent</strong>, using linear regression, and build it from scratch in Python. A few highlights:</p>
+<p>We want to minimize a convex, continuous, and differentiable cost function <span class="math inline">\(J(\mathbf{w})\)</span>. In this blog post we discuss the most popular algorithm, <strong>gradient descent</strong>, using linear regression, and build it from scratch in Python. A few highlights:</p>
 <ul>
 <li>Code for linear regression and gradient descent is generalized to work with a model <span class="math inline">\(y=w_0+w_1x_1+\dots+w_px_p\)</span> for any <span class="math inline">\(p\)</span>.</li>
 <li>Gradient descent is implemented using an object-oriented approach.</li>
 <li>Impact of the learning rate on convergence (divergence) is illustrated.</li>
 </ul>
-<p>Throughout this post I use a bold font for vectors (e.g., <span class="math inline">\(\mathbf{w}\)</span>, <span class="math inline">\(\mathbf{x}\)</span>) and a regular font for scalars and functions (e.g., <span class="math inline">\(w_0\)</span>, <span class="math inline">\(x_0\)</span>).</p>
+<p>Throughout this post I use a bold font for vectors (e.g. <span class="math inline">\(\mathbf{w}\)</span>, <span class="math inline">\(\mathbf{x}\)</span>) and a regular font for scalars and functions (e.g. <span class="math inline">\(w_0\)</span>, <span class="math inline">\(x_0\)</span>).</p>
 <div id="theoretical-idea-of-the-gradient-descent" class="section level1">
 <h1>Theoretical idea of the gradient descent</h1>
 <div id="taylor-expansion" class="section level2">
 <h2>Taylor expansion</h2>
-<p>Simplify the function you would like to minimize by using the first-order Taylor polynomial. Provided that the norm <span class="math inline">\(\lVert \mathbf{s} \rVert_2\)</span> is small (i.e., <span class="math inline">\(\mathbf{w}+\mathbf{s}\)</span> is very close to <span class="math inline">\(\mathbf{w}\)</span>), we can linearly approximate the function <span class="math inline">\(J(\mathbf{w} + \mathbf{s})\)</span> by its first derivative:</p>
+<p>Simplify the function you would like to minimize by using the first-order Taylor polynomial. Provided that the norm <span class="math inline">\(\lVert \mathbf{s} \rVert_2\)</span> is small (i.e. <span class="math inline">\(\mathbf{w}+\mathbf{s}\)</span> is very close to <span class="math inline">\(\mathbf{w}\)</span>), we can linearly approximate the function <span class="math inline">\(J(\mathbf{w} + \mathbf{s})\)</span> by its first derivative:</p>
 <p><span class="math display">\[J(\mathbf{w}+\mathbf{s}) \approx J(\mathbf{w}) + \nabla J(\mathbf{w})^T \mathbf{s},\]</span></p>
 <p>where <span class="math inline">\(\nabla J(\mathbf{w})\)</span> is the gradient of <span class="math inline">\(J\)</span>. This approximation is valid only when the step size <span class="math inline">\(\mathbf{s}\)</span> is small. We will return to this in the learning rate discussion.</p>
 <div style="padding:10px;background-color:#EBEBEB;line-height:1.3;">
-<p><strong>Note:</strong> We may also use the second-order Taylor polynomial to make a quadratic approximation of the function. Examples are Newton and Gauss-Newton methods. Second-order optimization methods consume more computation power and are less popular for machine learning model training.</p>
+<p><strong>Note:</strong> We may also use the second-order Taylor polynomial to make a quadratic approximation of the function. Examples are the Newton and Gauss-Newton methods. Second-order optimization methods consume more computational power and are less popular for machine learning model training.</p>
 </div>
 </div>
 <div id="gradient" class="section level2">
@@ -76,15 +76,15 @@ tags: []
 <div id="model" class="section level2">
 <h2>Model</h2>
 <p>The linear regression model assumes that the numerical output variable <span class="math inline">\(y\)</span> can be described as an affine combination of the <span class="math inline">\(p\)</span> features <span class="math inline">\(x_1, \dots, x_p\)</span> plus a noise term <span class="math inline">\(\epsilon\)</span>,</p>
-<p><span class="math display">\[y = w_0 + w_1x_1 + \dots + w_px_p + \epsilon.\]</span>
-The coefficients <span class="math inline">\(\mathbf{w} = [w_0, w_1, \dots, w_p]^T\)</span> are called parameters, weights or coefficients of the model.</p>
+<p><span class="math display">\[y = w_0 + w_1x_1 + \dots + w_px_p + \epsilon.\]</span></p>
+<p>The coefficients <span class="math inline">\(\mathbf{w} = [w_0, w_1, \dots, w_p]^T\)</span> are called parameters, weights or coefficients of the model.</p>
 <p>Prepend a feature vector <span class="math inline">\(\mathbf{x}\)</span> with a constant 1</p>
 <p><span class="math display">\[\mathbf{x} = [1, x_1, \dots, x_p]^T\]</span></p>
 <p>to express the linear regression model compactly as</p>
 <p><span class="math display">\[y = \mathbf{w}^T \mathbf{x} + \epsilon.\]</span></p>
 <p>The predicted output variable <span class="math inline">\(\widehat{y}\)</span> for some feature vector <span class="math inline">\(\mathbf{x}\)</span> using learned parameters <span class="math inline">\(\mathbf{\widehat{w}}\)</span> is obtained with</p>
-<p><span class="math display">\[\widehat{y} = \mathbf{\widehat{w}}^T \mathbf{x}.\]</span>
-The parameters are learned by minimizing the cost function <span class="math inline">\(J(\mathbf{w})\)</span>,</p>
+<p><span class="math display">\[\widehat{y} = \mathbf{\widehat{w}}^T \mathbf{x}.\]</span></p>
+<p>The parameters are learned by minimizing the cost function <span class="math inline">\(J(\mathbf{w})\)</span>,</p>
 <p><span class="math display">\[\widehat{\mathbf{w}} = \arg\min_\mathbf{w} J(\mathbf{w}).\]</span></p>
 <p>We solve this optimization problem with the gradient descent.</p>
 </div>
@@ -94,7 +94,7 @@ The parameters are learned by minimizing the cost function <span class="math inl
 <p><span class="math display">\[L(y_i,\widehat{y_i}) = (y_i - \widehat{y_i})^2\]</span></p>
 <p>is a common loss function used for measuring the closeness of a prediction and the training data. The cost function is the average of the loss function evaluated on the training data:</p>
 <p><span class="math display">\[J(\mathbf{w}) = \frac{1}{n} \sum_{i=1}^{n}(y_i - \widehat{y_i})^2,\]</span></p>
-<p>where <span class="math inline">\(n\)</span> is the number of samples in the training data. It is a scalar-valued function. Quadratic nature of the loss function produces a <a href="https://en.wikipedia.org/wiki/Convex_function">convex</a> cost function.</p>
+<p>where <span class="math inline">\(n\)</span> is the number of samples in the training data. It is a scalar-valued function. The quadratic nature of the loss function produces a <a href="https://en.wikipedia.org/wiki/Convex_function">convex</a> cost function.</p>
 <p>If <span class="math inline">\(p=2\)</span> then</p>
 <p><span class="math display">\[J(\mathbf{w}) = \frac{1}{n} \sum_{i=1}^{n}(y_i - (w_0 + w_1 x_{1i} + w_2 x_{2i}))^2,\]</span></p>
 <p>and the gradient using the chain rule of calculus is</p>
@@ -112,7 +112,7 @@ The parameters are learned by minimizing the cost function <span class="math inl
 \frac{1}{n} 2 \sum_{i=1}^{n}(y_i - (w_0 + w_1 x_{1i} + w_2 x_{2i})) (-x_{2i})
 \end{array}\right]\]</span></p>
 <div style="padding:10px;background-color:#EBEBEB;line-height:1.3;">
-<p><strong>Note:</strong> When I first encountered the gradient descent, I could not understand how the gradient can be calculated from discrete data points. <em>“Derivatives require continuity, but I am given just a few data points”</em>, I thought. But this is a wrong way to think about the gradient. The gradient is calculated using a given function (in our case, <span class="math inline">\(J(\mathbf{w})\)</span>) and has nothing to do with the actual data at this stage. Notice how we calculated the gradient above and we did not care about the data points yet. Data points are used <em>to evaluate</em> the gradient at <em>a specific</em> point (in our case, at <span class="math inline">\(\mathbf{w^{(i)}}\)</span> in each iteration <span class="math inline">\(i\)</span> of the gradient descent algorithm).</p>
+<p><strong>Note:</strong> When I first encountered the gradient descent I could not understand how the gradient could be calculated from discrete data points. <em>“Derivatives require continuity, but I am given just a few data points”</em>, I thought. But this is the wrong way to think about the gradient. The gradient is calculated using a given function (in our case, <span class="math inline">\(J(\mathbf{w})\)</span>) and has nothing to do with the actual data at this stage. Notice how we calculated the gradient above and we did not care about the data points yet. Data points are used <em>to evaluate</em> the gradient at <em>a specific</em> point (in our case, at <span class="math inline">\(\mathbf{w^{(i)}}\)</span> in each iteration <span class="math inline">\(i\)</span> of the gradient descent algorithm).</p>
 </div>
 </div>
 </div>
@@ -125,7 +125,7 @@ The parameters are learned by minimizing the cost function <span class="math inl
 </div>
 <div id="fit" class="section level3">
 <h3><code>fit</code></h3>
-<p>Line 63 initializes parameters <span class="math inline">\(\mathbf{w^{(0)}}\)</span> as a zero vector. Initialization can be done arbitrarily here because we are dealing with a convex loss function. For convex problems there is only one stationary point, which also is the global minimum.</p>
+<p>Line 63 initializes parameters <span class="math inline">\(\mathbf{w^{(0)}}\)</span> as a zero vector. Initialization can be done arbitrarily here because we are dealing with a convex loss function. For convex problems there is only one stationary point, which is also the global minimum.</p>
 <div style="padding:10px;background-color:#EBEBEB;line-height:1.3;">
 <p><strong>Note:</strong> Sometimes we can save computation time by <em>warm-starting</em> the optimization procedure with a good initial guess. For example, iterations <span class="math inline">\(2..k\)</span> of a <span class="math inline">\(k\)</span>-fold cross-validation may use parameters corresponding to a minimum loss in the previous iterations.</p>
 </div>
@@ -135,7 +135,7 @@ The parameters are learned by minimizing the cost function <span class="math inl
 <div id="learning-rate-and-convergence" class="section level1">
 <h1>Learning rate and convergence</h1>
 <p>“Setting the learning rate <span class="math inline">\(\alpha&gt;0\)</span> is a dark art. Only if it is sufficiently small will gradient descent converge”<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>. Below we take a look at how a choice of <span class="math inline">\(\alpha\)</span> impacts convergence.</p>
-<p>Let’s generate <span class="math inline">\(\mathbf{X}\)</span> and <span class="math inline">\(\mathbf{y}\)</span> data for the linear regression and use gradient descent to fit a straight line. Full code is available at my <a href="https://github.com/dmitrijsk/blogdown-dmitrijskass/tree/gradient-updates/content/post/2021-04-03-gradient-descent-with-linear-regression-from-scratch/code">GitHub repository</a>. Generated data looks as follows:</p>
+<p>Let’s generate <span class="math inline">\(\mathbf{X}\)</span> and <span class="math inline">\(\mathbf{y}\)</span> data for the linear regression and use gradient descent to fit a straight line. Full code is available at my <a href="https://github.com/dmitrijsk/blogdown-dmitrijskass/tree/master/content/post/2021-04-03-gradient-descent-with-linear-regression-from-scratch/code">GitHub repository</a>. Generated data looks as follows:</p>
 <center>
 <img src="images/1-generated-data.png" style="width:80.0%" />
 </center>
@@ -146,7 +146,7 @@ The parameters are learned by minimizing the cost function <span class="math inl
 <center>
 <img src="images/surface-method-standard-lr-0.001.png" style="width:100.0%" />
 </center>
-<p>Animation below shows how the line is slowly fitted though the first 50 iterations.</p>
+<p>The animation below shows how the line is slowly fitted though the first 50 iterations.</p>
 <center>
 <img src="images/animation-method-standard-lr-0.001.gif" style="width:80.0%" />
 </center>
@@ -168,20 +168,20 @@ The parameters are learned by minimizing the cost function <span class="math inl
 <center>
 <img src="images/surface-method-standard-lr-0.05.png" style="width:100.0%" />
 </center>
-<p>This surface plot also reveals that the gradient descent algorithm does not really slide down the surface. In fact, it is a step-wise movement:</p>
+<p>This surface plot also reveals that the gradient descent algorithm does not really slide down the surface. In fact it is a step-wise movement:</p>
 <ul>
 <li>Start at <span class="math inline">\([ w_0^{(0)}, w_1^{(0)},J(w_0^{(0)}, w_1^{(0)}) ]\)</span>, which is <span class="math inline">\([0, 0, 13.5]\)</span>.</li>
 <li>After the first update of the parameters, imagine the red dot moving in the <span class="math inline">\(XY\)</span> plane to <span class="math inline">\([ w_0^{(1)}, w_1^{(1)},J(w_0^{(0)}, w_1^{(0)}) ]\)</span>, which is <span class="math inline">\([-1.0, -27.3, 13.5]\)</span>.</li>
-<li>Then the cost is recalculated using <span class="math inline">\([ w_0^{(1)}, w_1^{(1)}]\)</span> and the red dot descends to <span class="math inline">\([ w_0^{(1)}, w_1^{(1)},J(w_0^{(1)}, w_1^{(1)}) ]\)</span>, which is <span class="math inline">\([-1.0, -27.3, 6.3]\)</span>. But it is not guaranteed to descent. If the step size in <span class="math inline">\(XY\)</span> plane was too large, the red dot would actually ascend and the algorithm would diverge.</li>
+<li>Then the cost is recalculated using <span class="math inline">\([ w_0^{(1)}, w_1^{(1)}]\)</span> and the red dot descends to <span class="math inline">\([ w_0^{(1)}, w_1^{(1)},J(w_0^{(1)}, w_1^{(1)}) ]\)</span>, which is <span class="math inline">\([-1.0, -27.3, 6.3]\)</span>. But it is not guaranteed to descend. If the step size in <span class="math inline">\(XY\)</span> plane was too large, the red dot would actually ascend and the algorithm would diverge.</li>
 </ul>
-<p>Animation below illustrates the jumping behavior. With time, oscillations become smaller and eventually the algorithm converges.</p>
+<p>The aimation below illustrates the jumping behavior. With time, oscillations become smaller and eventually the algorithm converges.</p>
 <center>
 <img src="images/animation-method-standard-lr-0.05.gif" style="width:80.0%" />
 </center>
 </div>
 <div id="divergence" class="section level2">
 <h2>Divergence</h2>
-<p>Learning rate <span class="math inline">\(\alpha=0.08\)</span> turns out to be too high. The magnitude of the gradient grows after the first iteration, which increases the step size for the next iteration. In this fashion, parameters <span class="math inline">\(\mathbf{w}^{(i)}\)</span> spiral away from the minimum very rapidly - compare the scale of <span class="math inline">\(z\)</span> axis on the previous plot and the one below with only seven iterations.</p>
+<p>Learning rate <span class="math inline">\(\alpha=0.08\)</span> turns out to be too high. The magnitude of the gradient grows after the first iteration, which increases the step size for the next iteration. In this fashion, parameters <span class="math inline">\(\mathbf{w}^{(i)}\)</span> spiral away from the minimum very rapidly - compare the scale of the <span class="math inline">\(z\)</span> axis on the previous plot and the one below with only seven iterations.</p>
 <center>
 <img src="images/surface-method-standard-lr-0.08.png" style="width:100.0%" />
 </center>

@@ -48,7 +48,7 @@ If you want *to make this change permanent* then edit the user's `.bash_profile`
 2. Add a line `PATH="$PATH:~/.local/bin"`. Save changes and close the file.
 3. Source the file with `source ~/.bash_profile` for the changes to take effect.
 
-**Done.** Try `jupyter notebook` to check if it works. Use `Control+C` to stop the server.
+**Done.** Try `jupyter notebook` to check if it works on the remote machine. Now we need a way to access Jupyter from the local machine and below we look at two methods. Before we start, use `Control+C` to stop the server and return to the console.
 
 
 Additional reading:
@@ -64,7 +64,7 @@ If you don't want to make your notebook accessible over the internet, you may us
 ![SSH local port forwarding.](images/sketch.png){#id .class width=80% height=80%}
 </center>
 
-Basically, local port forwarding creates an encrypted SSH connection between a local and a remote machine and tunnels the traffic securely.
+Basically, local port forwarding creates an encrypted SSH connection between a local and a remote machine and tunnels the traffic securely. Below are two alternative options for implementing it.
 
 
 

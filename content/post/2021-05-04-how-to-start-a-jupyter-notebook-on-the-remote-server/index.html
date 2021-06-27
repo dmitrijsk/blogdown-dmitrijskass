@@ -34,7 +34,7 @@ Consider adding this directory to PATH or, if you prefer to suppress this warnin
 <li>Add a line <code>PATH="$PATH:~/.local/bin"</code>. Save changes and close the file.</li>
 <li>Source the file with <code>source ~/.bash_profile</code> for the changes to take effect.</li>
 </ol>
-<p><strong>Done.</strong> Try <code>jupyter notebook</code> to check if it works. Use <code>Control+C</code> to stop the server.</p>
+<p><strong>Done.</strong> Try <code>jupyter notebook</code> to check if it works on the remote machine. Now we need a way to access Jupyter from the local machine and below we look at two methods. Before we start, use <code>Control+C</code> to stop the server and return to the console.</p>
 <p>Additional reading:</p>
 <ul>
 <li>“PATH Definition” post about both options for updating the PATH. Available at: <a href="http://www.linfo.org/path_env_var.html" class="uri">http://www.linfo.org/path_env_var.html</a></li>
@@ -46,7 +46,7 @@ Consider adding this directory to PATH or, if you prefer to suppress this warnin
 <center>
 <img src="images/sketch.png" title="fig:" id="id" class="class" style="width:80.0%;height:80.0%" alt="SSH local port forwarding." />
 </center>
-<p>Basically, local port forwarding creates an encrypted SSH connection between a local and a remote machine and tunnels the traffic securely.</p>
+<p>Basically, local port forwarding creates an encrypted SSH connection between a local and a remote machine and tunnels the traffic securely. Below are two alternative options for implementing it.</p>
 <p><strong>Option 1: Command line interface</strong></p>
 <p>The first option is to use a command from the sketch above. A few changes for our scenario:</p>
 <ul>

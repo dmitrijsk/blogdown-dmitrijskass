@@ -13,9 +13,9 @@ What is the source of randomness in a binary logistic regression model? Recall t
 
 $$p(y = 1 | \mathbf{x}; \boldsymbol\theta) = \text{logistic}(\boldsymbol\theta^\top\mathbf{x}) = 1 / (1 + e^{-\boldsymbol\theta^\top\mathbf{x}}),$$
 
-where $y$ is a class label, $\boldsymbol\theta$ is a vector of model parameters and $\mathbf{x}$ is a set of features. The dot product $\boldsymbol\theta^\top\mathbf{x}$ is usually referred to as a logit.
+where $y$ is a class label, $\boldsymbol\theta$ is a vector of model's parameters and $\mathbf{x}$ is a vector of features. The dot product $\boldsymbol\theta^\top\mathbf{x}$ is usually referred to as a logit.
 
-Notice that there is no explicit noise term here. The randomness in logistic regression setting originates from that fact that the class labels of data points follow Bernoulli distribution. Therefore, the probability of a data point being of a positive class is $\text{Bernoulli(logistic}(\boldsymbol\theta^\top\mathbf{x})\text{)}$.
+Notice that there is no explicit noise term here, e.g. $\epsilon$. The randomness in logistic regression setting originates from that fact that the class labels of data points follow Bernoulli distribution. Therefore, the probability of a data point being of a positive class is $\text{Bernoulli(logistic}(\boldsymbol\theta^\top\mathbf{x})\text{)}$. 
 
 To see this in practice, let's simulate a dataset for binary logistic regression using Python.
 
@@ -66,20 +66,22 @@ Generate class labels from Bernoulli. Each data point uses its own probability f
 y = np.random.binomial(1, prob.flatten())
 ```
 
-Train a logistic regression model with no intercept and no regularization. By default, the penalty is $L_2$.
+Note that we don't use some threshold, e.g. 0.5, to assign data points to classes deterministically! For example, we could label a data point with class $1$ when `logistic(z)` is above 0.5 and class 0 otherwise. But this would create a dataset with no noise (no randomness) where classes would be perfectly separable with a straight line.
+
+Now train a logistic regression model with no intercept and no regularization to see if we are able to learn $\boldsymbol\theta$ parameters.
 
 ```{python eval=FALSE}
 # Train a logistic regression model.
 model = LogisticRegression(fit_intercept = False, penalty = "none").fit(X, y)
 ```
 
-With the random seed we set above, the learned $\boldsymbol\theta$ parameters are $[3.94$ $-1.93]$, which is close to the true vector $[4$ $-2]$.
+With the random seed we set above, the learned $\boldsymbol\theta$ is $[3.94$ $-1.93]$, which is close to the true vector $[4$ $-2]$.
 
 Here is a full code:
 
 <script src="https://gist.github.com/dmitrijsk/69de066902d57bb4820bdc254313d1aa.js"></script>
 
-Additionally, we can make an illustration of the data points and the decision boundary of the logistic regression classifier:
+Additionally, we can make an illustration of our simulated data points and the learned decision boundary of the logistic regression model:
 
 <center>
 ![](images/log-reg-decision-boundary.png){width=80%}

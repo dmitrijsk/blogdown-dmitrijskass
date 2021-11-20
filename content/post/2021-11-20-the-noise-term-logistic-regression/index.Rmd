@@ -87,7 +87,7 @@ Additionally, we can make an illustration of our simulated data points and the l
 ![](images/log-reg-decision-boundary.png){width=80%}
 </center>
 
-The decision boundary here was obtained by creating a grid of points and classifying them using the model obtained above. The full code for the plot is available [here](). Alternatively we could explicitly estimate the equation of the linear decision boundary. As an example, [this page](https://scipython.com/blog/plotting-the-decision-boundary-of-a-logistic-regression-model/) contains a nice explanation of how to do it. Just note that in our model we assumed that the intercept is zero.
+The decision boundary here was obtained by creating a grid of points and classifying them using the model obtained above. The full code for the plot is available [here](https://github.com/dmitrijsk/blogdown-dmitrijskass/blob/noise-term-in-logistic-regression/content/post/2021-11-20-the-noise-term-logistic-regression/code/plot_decision_boundary.py). Alternatively we could explicitly estimate the equation of the linear decision boundary. As an example, [this page](https://scipython.com/blog/plotting-the-decision-boundary-of-a-logistic-regression-model/) contains a nice explanation of how to do it. Just note that in our model we assumed that the intercept is zero.
 
 <hr>
 

@@ -24,7 +24,8 @@ def plot_decision_boundary(X, y, model):
            ylabel = '$x_2$', 
            title = 'Logistic regression decision boundary')
     # Plot data points.
-    ax.scatter(X[:,0], X[:,1], c = y, cmap='bwr') # Blue-white-red colormap.
+    scatter = ax.scatter(X[:,0], X[:,1], c = y, cmap='bwr') # Blue-white-red colormap.
+    ax.legend(*scatter.legend_elements(), loc = 'upper left')
     # Plot class regions.
     cmap = LinearSegmentedColormap.from_list('cmap', ['skyblue', 'lightsalmon'])
     ax.imshow(pred_grid.reshape(xs1.shape[0],-1),

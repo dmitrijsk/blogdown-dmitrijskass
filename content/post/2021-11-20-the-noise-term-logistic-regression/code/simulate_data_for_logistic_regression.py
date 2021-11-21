@@ -1,5 +1,6 @@
 import numpy as np
 from sklearn.linear_model import LogisticRegression
+# Plotting function in plot_decision_boundary.py.
 from plot_decision_boundary import plot_decision_boundary as plot_db
 
 def logistic(z):
@@ -21,8 +22,14 @@ z = X @ theta.reshape(-1, 1)
 # Calculate probabilities.
 prob = logistic(z)
 
+# Print the first 5 elements.
+print(f"The first five probabilities: {np.round(prob[:5].flatten(), 2)}")
+
 # Generate labels by sampling from Bernoulli(prob)
 y = np.random.binomial(1, prob.flatten())
+
+# Print the first 5 elements.
+print(f"The first five class labels: {y[:5].flatten()}")
 
 # Check the proportion of classes.
 y_counts = np.unique(y, return_counts = True)

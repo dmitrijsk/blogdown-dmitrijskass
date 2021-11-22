@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
 
-def plot_decision_boundary(X, y, model):
+def plot_decision_boundary(X, y, model, title, filename):
     
     # Generate a grid of points and classify them ----------------------------
     
@@ -17,12 +17,12 @@ def plot_decision_boundary(X, y, model):
     
     # Make a plot ------------------------------------------------------------
     
-    fig, ax = plt.subplots(figsize = (5, 5), dpi = 300)
+    fig, ax = plt.subplots(figsize = (4, 4), dpi = 300)
     ax.set(xlim = [0,1], 
            ylim = [0,1], 
            xlabel = '$x_1$', 
            ylabel = '$x_2$', 
-           title = 'Logistic regression decision boundary')
+           title = title)
     # Plot data points.
     scatter = ax.scatter(X[:,0], X[:,1], c = y, cmap='bwr') # Blue-white-red colormap.
     ax.legend(*scatter.legend_elements(), loc = 'upper left')
@@ -32,6 +32,6 @@ def plot_decision_boundary(X, y, model):
                cmap = cmap,
                origin = 'lower',
                extent = [0,1,0,1],
-               aspect = 'auto', alpha = 0.6)    
-    fig.savefig("log-reg-decision-boundary.png")
+               aspect = 'auto', alpha = 0.6)
+    fig.savefig(filename)
     

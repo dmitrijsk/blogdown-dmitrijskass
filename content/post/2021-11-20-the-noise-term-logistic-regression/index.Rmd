@@ -35,7 +35,7 @@ Define the true values for the parameter vector $\boldsymbol\theta$ of length $p
 
 ```{python eval=FALSE}
 # True theta coefficients.
-theta = np.array([4, -2])
+theta = np.array([[4], [-2]])
 # Number of features.
 p = len(theta)
 ```
@@ -54,7 +54,7 @@ Calculate the probabilities of the positive class (labeled as $1$).
 
 ```{python eval=FALSE}
 # Calculate logits.
-z = X @ theta.reshape(-1, 1)
+z = np.dot(X, theta)
 # Calculate probabilities.
 prob = logistic(z)
 ```
@@ -70,7 +70,7 @@ y = np.random.binomial(1, prob.flatten())
 
 The first five class labels in `y` are $[0, 1, 1, 0, 1]$. Note how $\text{Bernoulli}(0.56)$ resulted into `0` and $\text{Bernoulli}(0.35)$ resulted into `1` due to class label being a random variable.
 
-Also note that we don't use some threshold, e.g. 0.5, to assign data points to classes deterministically! For example, we could label a data point with class $1$ when `logistic(z)` is above 0.5 and class 0 otherwise. But this would create a dataset with no noise (no randomness) where classes would be perfectly separable with a straight line.
+Also note that we don't use some threshold, e.g. 0.5, to assign data points to classes deterministically! For example, we could label a data point with class $1$ when `prob` is above 0.5 and class 0 otherwise. But this would create a dataset with no noise (no randomness) where classes would be perfectly separable with a straight line. See an illustration at the bottom of the page.
 
 Now train a logistic regression model with no intercept and no regularization to see if we are able to learn $\boldsymbol\theta$ parameters.
 
@@ -79,19 +79,33 @@ Now train a logistic regression model with no intercept and no regularization to
 model = LogisticRegression(fit_intercept = False, penalty = "none").fit(X, y)
 ```
 
-With the random seed we set above, the learned $\boldsymbol\theta$ is $[3.94, -1.93]$, which is close to the true vector $[4, -2]$.
+With the random seed set above, the learned $\boldsymbol\theta$ is $[3.94, -1.93]$, which is close to the true vector $[4, -2]$.
 
 Here is a full code:
 
 <script src="https://gist.github.com/dmitrijsk/69de066902d57bb4820bdc254313d1aa.js"></script>
 
-Additionally, we can make an illustration of our simulated data points and the learned decision boundary of the logistic regression model:
+Additionally, we can make an illustration of our simulated noisy dataset and the learned decision boundary of the logistic regression model:
 
 <center>
-![](images/log-reg-decision-boundary.png){width=80%}
+![](images/log-reg-decision-boundary-probabilistic.png){width=50%}
 </center>
 
-The decision boundary here was obtained by creating a grid of points and classifying them using the model obtained above. The full code for the plot is available [here](https://github.com/dmitrijsk/blogdown-dmitrijskass/blob/noise-term-in-logistic-regression/content/post/2021-11-20-the-noise-term-logistic-regression/code/plot_decision_boundary.py). Alternatively we could explicitly estimate the equation of the linear decision boundary. As an example, [this page](https://scipython.com/blog/plotting-the-decision-boundary-of-a-logistic-regression-model/) contains a nice explanation of how to do it. Just note that in our model we assumed that the intercept is zero.
+As noted above, if we would assign class labels deterministically with 
+
+```{python eval=FALSE}
+y_deterministic = np.where(prob.flatten() >= 0.5, 1, 0)
+```
+
+then the noiseless dataset with perfectly separable classes would look as follows:
+
+<center>
+![](images/log-reg-decision-boundary-deterministic.png){width=50%}
+</center>
+
+In both cases a decision boundary was obtained by creating a grid of points and classifying them using the fit model. The full code for the plot is available [here](https://github.com/dmitrijsk/blogdown-dmitrijskass/blob/noise-term-in-logistic-regression/content/post/2021-11-20-the-noise-term-logistic-regression/code/plot_decision_boundary.py). Alternatively we could explicitly estimate the equation of the linear decision boundary. As an example, [this page](https://scipython.com/blog/plotting-the-decision-boundary-of-a-logistic-regression-model/) contains a nice explanation of how to do it. Just note that in our model we assumed that the intercept is zero.
+
+
 
 <hr>
 

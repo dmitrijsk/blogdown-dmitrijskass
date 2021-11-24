@@ -15,9 +15,15 @@ $$p(y = 1 | \mathbf{x}; \boldsymbol\theta) = \text{logistic}(\boldsymbol\theta^\
 
 where $y$ is a class label, $\boldsymbol\theta$ is a vector of model parameters and $\mathbf{x}$ is a vector of features. The dot product $\boldsymbol\theta^\top\mathbf{x}$ is usually referred to as a logit.
 
-Notice that there is no explicit noise term here, e.g. $\epsilon$. The randomness in logistic regression setting originates from that fact that the class labels of data points follow Bernoulli distribution. Therefore, the probability of a data point being of a positive class is $\text{Bernoulli(logistic}(\boldsymbol\theta^\top\mathbf{x})\text{)}$. 
+Since there are only two classes, the conditional probability for the negative class (labeled as $0$) is
 
-To see this in practice, let's simulate a dataset for binary logistic regression using Python.
+$$p(y = 0 | \mathbf{x}; \boldsymbol\theta) = 1 - p(y = 1 | \mathbf{x}; \boldsymbol\theta).$$
+
+Notice that there is no explicit noise term here, e.g. $\epsilon$. The randomness in logistic regression setting originates from that fact that the class labels of data points follow Bernoulli distribution. Why Bernoulli? Because there are only two classes. And the parameter of the distribution is set according to the assumption of logistic regression about class probabilities. Therefore, the probability of a data point being of a positive class is $\text{Bernoulli(logistic}(\boldsymbol\theta^\top\mathbf{x})\text{)}$. 
+
+We can use this knowledge to generate a dataset for logistic regression. Knowing the true $\boldsymbol\theta$ can be useful in experiments, for example, to check if the model's learned parameters are close to the true ones.
+
+The following example uses Python.
 
 ```{python eval=FALSE}
 import numpy as np
@@ -88,7 +94,7 @@ Here is a full code:
 Additionally, we can make an illustration of our simulated noisy dataset and the learned decision boundary of the logistic regression model:
 
 <center>
-![](images/log-reg-decision-boundary-probabilistic.png){width=50%}
+![](images/log-reg-decision-boundary-probabilistic.png){width=60%}
 </center>
 
 As noted above, if we would assign class labels deterministically with 
@@ -100,12 +106,10 @@ y_deterministic = np.where(prob.flatten() >= 0.5, 1, 0)
 then the noiseless dataset with perfectly separable classes would look as follows:
 
 <center>
-![](images/log-reg-decision-boundary-deterministic.png){width=50%}
+![](images/log-reg-decision-boundary-deterministic.png){width=60%}
 </center>
 
-In both cases a decision boundary was obtained by creating a grid of points and classifying them using the fit model. The full code for the plot is available [here](https://github.com/dmitrijsk/blogdown-dmitrijskass/blob/noise-term-in-logistic-regression/content/post/2021-11-20-the-noise-term-logistic-regression/code/plot_decision_boundary.py). Alternatively we could explicitly estimate the equation of the linear decision boundary. As an example, [this page](https://scipython.com/blog/plotting-the-decision-boundary-of-a-logistic-regression-model/) contains a nice explanation of how to do it. Just note that in our model we assumed that the intercept is zero.
-
-
+Full code, including plotting, is available [here](https://github.com/dmitrijsk/blogdown-dmitrijskass/blob/noise-term-in-logistic-regression/content/post/2021-11-20-the-noise-term-logistic-regression/code).
 
 <hr>
 

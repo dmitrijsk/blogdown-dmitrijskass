@@ -1,9 +1,11 @@
 ---
 title: Generate data for logistic regression
-author: ''
-date: '2021-11-20'
-slug: the-noise-term-logistic-regression
-categories: []
+author: Dmitris Kass
+date: '2021-11-25'
+slug: generate-data-for-logistic-regression
+categories:
+  - Python
+  - logistic regression
 tags: []
 ---
 

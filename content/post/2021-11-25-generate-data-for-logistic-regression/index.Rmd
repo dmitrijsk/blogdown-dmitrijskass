@@ -111,7 +111,7 @@ then the noiseless dataset with perfectly separable classes would look as follow
 ![](images/log-reg-decision-boundary-deterministic.png){width=60%}
 </center>
 
-Full code, including plotting, is available [here](https://github.com/dmitrijsk/blogdown-dmitrijskass/blob/noise-term-in-logistic-regression/content/post/2021-11-20-the-noise-term-logistic-regression/code).
+Full code, including plotting, is available [here](https://github.com/dmitrijsk/blogdown-dmitrijskass/tree/noise-term-in-logistic-regression/content/post/2021-11-25-generate-data-for-logistic-regression/code).
 
 <hr>
 

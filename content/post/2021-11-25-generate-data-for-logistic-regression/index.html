@@ -1,0 +1,69 @@
+---
+title: Generate data for logistic regression
+author: Dmitris Kass
+date: '2021-12-07'
+slug: generate-data-for-logistic-regression
+categories:
+  - Python
+  - logistic regression
+tags: []
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<p>Generating data allows the true values of (usually) unknown variables to be set. And knowing the true values of these variables can be useful in experiments, for example, to check if a model is able to learn them. In this post we generate data for a binary logistic regression and discuss the source of randomness in it.</p>
+<p>Let’s start with something simpler. When using a linear regression, we assume that the data was generated with <span class="math inline">\(y_i=\boldsymbol\theta^\top \mathbf{x}_i+\epsilon_i\)</span>, where <span class="math inline">\(\epsilon_i\)</span> is an explicit noise term. Usually, it is assumed to be Normally distributed. This is a source of randomness in the linear regression model and that’s why data points don’t lie on a straight line.</p>
+<p>What is the source of randomness in a binary logistic regression model? Recall that logistic regression is a classification model where a conditional probability for the positive class (labeled as <span class="math inline">\(1\)</span>) is</p>
+<p><span class="math display">\[p(y = 1 | \mathbf{x}; \boldsymbol\theta) = \text{logistic}(\boldsymbol\theta^\top\mathbf{x}) = \frac{1}{1 + e^{-\boldsymbol\theta^\top\mathbf{x}}},\]</span></p>
+<p>where <span class="math inline">\(y\)</span> is a class label, <span class="math inline">\(\boldsymbol\theta\)</span> is a vector of model parameters and <span class="math inline">\(\mathbf{x}\)</span> is a vector of features. The dot product <span class="math inline">\(\boldsymbol\theta^\top\mathbf{x}\)</span> is usually referred to as a logit.</p>
+<p>Since there are only two classes, the conditional probability for the negative class (labeled as <span class="math inline">\(0\)</span>) is</p>
+<p><span class="math display">\[p(y = 0 | \mathbf{x}; \boldsymbol\theta) = 1 - p(y = 1 | \mathbf{x}; \boldsymbol\theta).\]</span></p>
+<p>Notice that there is no explicit noise term here, e.g. <span class="math inline">\(\epsilon\)</span>. The randomness in logistic regression setting originates from that fact that the class labels of data points follow Bernoulli distribution. Why Bernoulli? Because there are only two classes. And the parameter of the distribution is set according to the assumption of logistic regression about class probabilities. Therefore, the probability of a data point being of a positive class is <span class="math inline">\(\text{Bernoulli}(p(y = 1 | \mathbf{x}; \boldsymbol\theta))\)</span>.</p>
+<p>Let’s use this to generate a dataset for logistic regression. The following example uses Python.</p>
+<pre class="python"><code>import numpy as np
+from sklearn.linear_model import LogisticRegression</code></pre>
+<p>Define a logistic function to model a probability of a positive class.</p>
+<pre class="python"><code>def logistic(z):
+    return 1 / (1 + np.exp(-z))</code></pre>
+<p>Define the true values for the parameter vector <span class="math inline">\(\boldsymbol\theta\)</span> of length <span class="math inline">\(p=2\)</span>.</p>
+<pre class="python"><code># True theta coefficients.
+theta = np.array([[4], [-2]])
+# Number of features.
+p = len(theta)</code></pre>
+<p>Generate <span class="math inline">\(n=200\)</span> data points from a uniform distribution on [0,1]. Note that logistic regression does not make an assumption about the distribution of <span class="math inline">\(\mathbf{x}\)</span> features. This is in contrast with, for example, linear and quadratic discriminant analysis.</p>
+<pre class="python"><code># Number of training data points.
+n = 200
+# Generate feature values from U[0,1].
+np.random.seed(1)
+X = np.random.rand(n, p)</code></pre>
+<p>Calculate the probabilities of the positive class (labeled as <span class="math inline">\(1\)</span>).</p>
+<pre class="python"><code># Calculate logits.
+z = np.dot(X, theta)
+# Calculate probabilities.
+prob = logistic(z)</code></pre>
+<p>The first five elements of the probability vector <code>prob</code> are <span class="math inline">\([0.56, 0.35, 0.60, 0.51, 0.62]\)</span></p>
+<p>Generate class labels from Bernoulli. Each data point uses its own probability from <code>prob</code>.</p>
+<pre class="python"><code># Generate labels by sampling from Bernoulli(prob)
+y = np.random.binomial(1, prob.flatten())</code></pre>
+<p>The first five class labels in <code>y</code> are <span class="math inline">\([0, 1, 1, 0, 1]\)</span>. Note how <span class="math inline">\(\text{Bernoulli}(0.56)\)</span> resulted into <code>0</code> and <span class="math inline">\(\text{Bernoulli}(0.35)\)</span> resulted into <code>1</code> due to a class label being a random variable.</p>
+<p>Also note that we don’t use some threshold, e.g. 0.5, to assign data points to classes deterministically! For example, we could label a data point with class <span class="math inline">\(1\)</span> when <code>prob</code> is above 0.5 and class 0 otherwise. But this would create a dataset with no noise (no randomness) where classes would be perfectly separable with a straight line. See an illustration at the bottom of the page.</p>
+<p>Now train a logistic regression model with no intercept and no regularization to see if we are able to learn <span class="math inline">\(\boldsymbol\theta\)</span> parameters.</p>
+<pre class="python"><code># Train a logistic regression model.
+model = LogisticRegression(fit_intercept = False, penalty = &quot;none&quot;).fit(X, y)</code></pre>
+<p>With the random seed set above, the learned <span class="math inline">\(\boldsymbol\theta\)</span> is <span class="math inline">\([3.94, -1.93]\)</span>, which is close to the true vector <span class="math inline">\([4, -2]\)</span>.</p>
+<p>Here is a full code:</p>
+<script src="https://gist.github.com/dmitrijsk/69de066902d57bb4820bdc254313d1aa.js"></script>
+<p>Additionally, we can make an illustration of our simulated noisy dataset and the learned decision boundary of the logistic regression model:</p>
+<center>
+<img src="images/log-reg-decision-boundary-probabilistic.png" style="width:60.0%" />
+</center>
+<p>As noted above, if we would assign class labels deterministically with</p>
+<pre class="python"><code>y_deterministic = np.where(prob.flatten() &gt;= 0.5, 1, 0)</code></pre>
+<p>then the noiseless dataset with perfectly separable classes would look as follows:</p>
+<center>
+<img src="images/log-reg-decision-boundary-deterministic.png" style="width:60.0%" />
+</center>
+<p>Full code, including plotting, is available <a href="https://github.com/dmitrijsk/blogdown-dmitrijskass/tree/noise-term-in-logistic-regression/content/post/2021-11-25-generate-data-for-logistic-regression/code">here</a>.</p>
+<hr>
+<p>I would appreciate any comments or suggestions. Please leave them below, no login required if you check “I’d rather post as a guest”.</p>

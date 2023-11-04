@@ -1,0 +1,503 @@
+---
+title: "How to deploy Shiny apps on AWS"
+author: Dmitrijs Kass
+date: '2020-05-05'
+slug: deploy-shiny-app-on-aws
+categories:
+  - shiny
+tags: []
+output:
+  blogdown::html_page:
+    toc: no
+---
+
+```{r eval = TRUE, echo = FALSE}
+knitr::opts_chunk$set(echo = FALSE, eval = TRUE)
+```
+
+```{r}
+public_ip <- "54.173.50.131"
+```
+
+Shiny apps are used extensively, including [education](http://www2.stat.duke.edu/~mc301/shinyed/) and business. For example, Data Science team in Creamfinance uses Shiny apps to streamline the modelling process from data collection to model selection. It enhances standardization and efficiency by removing the R programming part from processes that are well-established.
+
+So you have built a Shiny app and it runs nicely on your personal computer. How do you make it available to its users? [There are few options](https://shiny.rstudio.com/deploy/). This tutorial shows how to deploy Shiny apps on a virtual server in the cloud using Amazon Web Services (AWS).
+
+The outline is the following:
+
+1. [Launch a virtual server using AWS](#launch).
+2. [Connect to a virtual server](#connect).
+3. [Install R and packages](#r).
+4. [Install Shiny Server](#shiny).
+5. [Clone your git repo](#git).
+6. [Deploy your own Shiny apps](#deploy).
+7. [What's next?](#next)
+
+<!-- 7. [FAQ](#faq). -->
+
+Before we start, why AWS? AWS is one of leaders in the marketplace of cloud computing. It offers [a broad set of products](https://aws.amazon.com/products), so if you plan using other cloud services later then becoming familiar with AWS now may be a good investment. There are lots of educational resources, including [Coursera](https://www.coursera.org/specializations/aws-fundamentals) and [edX](https://www.edx.org/school/aws) MOOCs by AWS.
+
+
+
+
+# Launch a virtual server using AWS{#launch}
+
+1. Create a new AWS account and log into the AWS Management Console.
+2. Look for **EC2** (Elastic Compute Cloud) in the Compute product category. Amazon EC2 is a secure and resizable virtual server in the cloud, also called an instance. Click on it to open the EC2 Dashboard.
+
+<!-- "An instance is a virtual server in the cloud.".  -->
+<!-- Source: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instances-and-amis.html -->
+
+```{r}
+# knitr::include_graphics("/img/aws/ec2_dashboard.png")
+```
+
+3. Launch an EC2 instance by clicking the **Launch instance** button. This brings us to the 7-step process.
+
+```{r fig.align='center', fig.cap="Launch instance button in the EC2 Dashboard"}
+knitr::include_graphics("/img/aws/launch_instance.png")
+```
+
+**Step 1: Choose an Amazon Machine Image (AMI).**
+
+<!-- Select a Linux distribution (often abbreviated as distro[^5]) -->
+<!-- [^5]: https://en.wikipedia.org/wiki/Linux_distribution -->
+
+Select a Linux distribution. An important selection criteria is an availability of R, RStudio Server and Shiny Server distributions for the selected Linux distribution. We will pick the latest release of Ubuntu Server, which is 18.04 LTS at the time of writing. 
+
+```{r fig.align='center', fig.cap="Amazon Machine Image (AMI) with Ubuntu Server among other available Linux distributions"}
+knitr::include_graphics("/img/aws/ubuntu_server_instance.png")
+```
+
+The full name of this release is Ubuntu 18.04 LTS (Bionic Beaver). Note the code name in the brackets - Ubuntu releases are often referred to using only the adjective portion of it. Here it is *Bionic*, remember it - we will need it later.
+
+<!-- "Ubuntu releases are often referred to using only the adjective portion of it" -->
+<!-- Source: https://en.wikipedia.org/wiki/Ubuntu_version_history -->
+
+<!-- LTS is an abbreviation for "Long Term Support". -->
+<!-- Source: https://wiki.ubuntu.com/LTS -->
+
+**Step 2: Choose an Instance Type.**
+
+t2.micro instance type is preselected. It is the only free tier eligible type, which means it is free for one year. Note that you have only 1GB of RAM. Scroll through other types of instances just to familiarize yourself with other available options. Then press **Next: Configure Instance Details**.
+
+<!-- There are many types of EC2 instances -->
+<!-- Source: https://aws.amazon.com/ec2/instance-types/ -->
+
+**Step 3: Configure Instance Details.**
+
+No changes here. Press **Next: Add storage**.
+
+**Step 4: Add Storage.**
+
+The default storage size is 8GB. The maximum within the free tier is 30GB. The default value is sufficient for this tutorial. Press **Next: Add Tags**.
+
+**Step 5: Add Tags.**
+
+Tag is a label that you assign to an AWS resource. Each tag consists of a key and an optional value, both of which you define. This is optional, but is considered a good practice. Let's add two tags:
+
+```{r}
+library(magrittr)
+library(kableExtra)
+tags_df <- data.frame(Tag = 1:2,
+                      Key = c("me:environment-type", "me:application-type"),
+                      Value = c("test", "shiny"), check.names = FALSE)
+
+knitr::kable(tags_df, align = "c") %>% 
+  kable_styling(full_width = FALSE) %>% 
+  row_spec(1:2, background = "#FFFFFF")
+```
+
+The prefix "me" ensures that tags are clearly identified as having been defined by you and not by AWS. Using all lowercase with hyphens
+for separators avoids confusion about how to capitalize a tag name. Read more about tagging best practices [here](https://d1.awsstatic.com/whitepapers/aws-tagging-best-practices.pdf). Press **Next: Configure Security Group**.
+
+<!-- Tagging your Amazon EC2 resources: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html -->
+<!-- Tagging Best Practices: https://d1.awsstatic.com/whitepapers/aws-tagging-best-practices.pdf -->
+
+**Step 6: Configure Security Group**
+
+Changes will be needed here but we will make them later when the time comes. For now just note that there is already one Inbound rule with type SSH and the port 22. Press **Review and Launch**.
+
+**Step 7: Review Instance Launch**
+
+Review your instance launch details, press **Launch**. You will then be prompted to create a new key pair that will allow you to connect to your instance using SSH (Secure Shell). Select **Create a new key pair**, give it a name and press **Download Key Pair**. Store your private key in a secure and accessible location and press **Launch Instances**.
+
+```{r fig.align='center', fig.cap="Create a new key pair and launch an instance."}
+knitr::include_graphics("/img/aws/key_pair.png")
+```
+
+--- 
+
+You have just launched a virtual server in the cloud. Note that usage hours on your instance will start immediately and continue to accrue until you stop or terminate it. Press **View Instances**. Once your instance is in the running state, you can connect to it.
+
+
+
+
+# Connect to a virtual server{#connect}
+
+1. Public IP is reachable from the Internet. Find out the public IP of your instance in the "IPv4 Public IP" column. The public IP of mine is `r public_ip`:
+  
+    ```{r fig.align='center', fig.cap = "IPv4 Public IP"}
+    knitr::include_graphics("/img/aws/public_ip.png")
+    ```
+
+    Note that if you will stop an instance someday, its public IP address will be released. It means that a new public IP address will be assigned to your instance when you will start it again[^1].
+    
+    Press **Connect** on top.
+
+[^1]: [AWS documentation. "Public IPv4 Addresses and External DNS Hostnames"](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-instance-addressing.html#concepts-public-addresses).
+
+2. The "Connect to your instance" window provides instructions for Linux users and gives a link to how to connect using PuTTY for Windows users. As I'm a Windows user, I will describe the second option.
+
+3. Download and install PuTTY from https://www.putty.org/.
+
+3. PuTTY doesn't natively support the private key format (.pem) generated by Amazon EC2. You must convert your private key into a .ppk file before you can connect to your instance using PuTTY. You can use the PuTTYgen tool (PuTTY Key Generator) for this conversion[^7].
+
+    ```{r fig.align='center', fig.cap = "PuTTY Key Generator"}
+    knitr::include_graphics("/img/aws/putty_keygen.png")
+    ```
+
+    Press **Load**, optionally create a key passphrase (i.e. password-protect your private key), press **Generate** and then **Save private key**. In case of an issue read detailed instructions [here](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/putty.html).
+
+
+[^7]: [AWS article. "How do I convert a .pem file into a .ppk, and vice versa, on Windows and Linux?"](https://aws.amazon.com/premiumsupport/knowledge-center/convert-pem-file-into-ppk/). 
+
+4. Open PuTTY, enter the IPv4 Public of your instance into **Host Name (or IP address)**, `r public_ip` in my case. The default **Port** is 22 and your EC2 instance must be ready to establish a connection using this port number. Remember from **Step 6: Configure Security Group** above, port 22 is already open for SSH communication. So we may continue.
+
+    ```{r fig.align='center', fig.cap = "EC2 > Security Groups."}
+    knitr::include_graphics("/img/aws/security_groups_22.png")
+    ```
+
+    In PuTTY go to Connection > SSH > Auth, press **Browse** and select your private key. Go back to Session, type the name of the instance into **Saved Sessions** and press **Save**. I named my configuration "aws-ec2-test-shiny" to include tags that were created earlier. Next time you open PuTTY, just select your configuration and press **Load**. 
+    
+    ```{r fig.align='center', fig.cap = "PuTTY Configuration - Session."}
+    knitr::include_graphics("/img/aws/putty_conf.png")
+    ```
+
+    Press **Open** to launch a terminal. All further communication between you and your instance will happen in this terminal.
+
+
+
+
+
+
+
+
+5. In the terminal, enter `ubuntu` as a login and the passphrase if you created it. Your terminal should look approximately like this:
+
+    ```{r fig.align='center', fig.cap = "PuTTY terminal after login as ubuntu user."}
+    knitr::include_graphics("/img/aws/terminal_login.png")
+    ```
+
+    Make yourself at home!
+
+6. Verify that you really are at home (directory).
+
+```{bash, eval = FALSE, echo = TRUE}
+$ pwd
+/home/ubuntu
+```
+
+Note: Do not copy the dollar sign `$`. It is used to differentiate between the command and the output. `$` in the command line means that you are a normal user (not root).
+
+Note: `pwd` stands for "print working directory".
+
+----
+
+Congratulations! By now you have launched a virtual server and established a secure connection with it. In the next step you will install R and some packages.
+
+
+
+
+# Install R and packages{#r}
+
+1. To install the latest version of R, Ubuntu should know where to get it from. Open [the official instructions](https://cran.r-project.org/bin/linux/ubuntu/README.html) for how to install R on Ubuntu. Under the **Installation** heading you will find something like 
+
+```{r fig.align='center', fig.cap = "Excerpt from R installation guide for Ubuntu."}
+knitr::include_graphics("/img/aws/cran_ubuntu_readme.png")
+```
+
+2. Which one do you need? Remember the adjective from the code name of the selected Ubuntu release? Right, *Bionic*.
+
+```{bash, eval = FALSE, echo = TRUE}
+$ sudo sh -c 'echo "deb https://cloud.r-project.org/bin/linux/ubuntu bionic-cran40/" >> /etc/apt/sources.list'
+```
+
+Note: `ubuntu` user has minimal access rights, therefore, we will usually use `sudo` (*su*peruser *do*) that allows `ubuntu` user to run programs with security privileges of the superuser (root user). 
+
+Note: `>>` takes the text on the left and appends it at the end of the file on the right.
+
+<!-- **Append the file in the text editor** -->
+
+<!-- Open `/etc/apt/sources.list` in the nano text editor:  -->
+
+
+
+<!-- ```{bash, eval = FALSE, echo = TRUE} -->
+<!-- $ sudo nano /etc/apt/sources.list -->
+<!-- ``` -->
+
+<!-- You will need the following shortcuts: CTRL+U to paste, CTRL+O to save and CTRL+X to exit. -->
+
+3. Verify that it worked.
+
+```{bash, eval = FALSE, echo = TRUE}
+$ cat /etc/apt/sources.list
+```
+
+Note: `cat` is short for "concatenate".
+
+4. Further in the documentation see that "The Ubuntu archives on CRAN are signed with key ID 0x51716619e084dab9. To add the key to your system with one command use":
+
+```{bash, eval = FALSE, echo = TRUE}
+$ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
+```
+
+5. Download the package lists from the repositories and install R:
+
+```{bash, eval = FALSE, echo = TRUE}
+$ sudo apt-get update
+$ sudo apt-get install r-base
+```
+
+6. Open R to verify that it works. 
+
+```{bash, eval = FALSE, echo = TRUE}
+$ R
+```
+
+7. Feels like we could install few packages while we are in R. But this is a wrong place and a wrong time.
+
+    **Wrong place**
+
+    The default library `/usr/local/lib/R/site-library` is not writable for `ubuntu` user. As a result, you will be offered to use a personal library under `/home/ubuntu/R/x86_64-pc-linux-gnu-library/4.0`. This is a wrong place to install packages because `ubuntu` will not be the only user to use them. Shiny apps will be run by `shiny` user who does not have access to `/home/ubuntu`. To avoid installing the same set of packages for each user, install them into the default library. Quit R for now with `q()`.
+
+    Now we know the right place.
+    
+    **Wrong time**
+
+    Compilation of some packages requires >1GB of RAM, while 1GB is all we have under the free tier. To guard yourself against out-of-memory errors, add some swap space to your instance. Below I just provide a commented list of commands from an easy-to-follow article ["How To Add Swap Space on Ubuntu 18.04"](https://www.digitalocean.com/community/tutorials/how-to-add-swap-space-on-ubuntu-18-04) by the DigitalOcean:
+
+    ```{bash, eval = FALSE, echo = TRUE}
+    $ sudo fallocate -l 1G /swapfile  # Create a swap file.
+    $ sudo chmod 600 /swapfile        # Make the file only accessible to root.
+    $ sudo mkswap /swapfile           # Mark the file as swap space.
+    $ sudo swapon /swapfile           # Enable the swap file.
+    $ free -h                         # Verify that there is an active swap space.
+    ```
+
+    The output of the last command should indicate that 1GB of swap space is available:
+
+    ```{r fig.align='center', fig.cap = "Output of `free -h`"}
+    knitr::include_graphics("/img/aws/free_h.png")
+    ```
+
+    Now it is the right time.
+
+8. Yet still one more thing. Let me tell you that several R packages will fail to install because `libssl-dev`, `libcurl4-openssl-dev` and `libxml2-dev` Ubuntu packages are missing. This is easy to fix:
+
+    ```{bash, eval = FALSE, echo = TRUE}
+    $ sudo apt-get install libssl-dev libcurl4-openssl-dev libxml2-dev 
+    ```
+
+    Without this spoiler you'd find this out from package error messages, like the one from `xml2` package below:
+
+    ```{r fig.align='center', fig.cap = "Error message in R about missing Ubuntu packages that prevented xml2 R package from being installed."}
+    knitr::include_graphics("/img/aws/r_package_error_msg.png")
+    ```
+
+
+
+9. Now you are ready to install R packages into the default library that is available to all users. Let's install `shiny`, `rmarkdown`, `plotly` and `tidyverse`:
+
+    ```{bash, eval = FALSE, echo = TRUE}
+    $ sudo su - \
+    $ -c "R -e \"install.packages(c('shiny', 'rmarkdown', 'plotly', 'tidyverse'), repos='https://cran.rstudio.com/')\""
+    ```
+
+    Note: `su` stands for "switch user". Invoked without a username, `su` defaults to becoming the superuser. In effect, these two commands install the packages from under the root[^3].
+
+<!-- Alternatively: -->
+<!-- sudo su - -c "R -e \"install.packages(c('shiny', 'rmarkdown', 'plotly', 'tidyverse'), repos='http://cran.rstudio.com/')\"" -->
+
+[^3]: [RStudio article. Download Shiny Server for Ubuntu 14.04 or later](https://rstudio.com/products/shiny/download-server/ubuntu/)
+
+----
+
+You have approximately 20 minutes while packages are being installed.
+
+
+
+
+# Install Shiny Server{#shiny}
+
+1. Follow the [official instructions](https://rstudio.com/products/shiny/download-server/ubuntu/) from RStudio. At the time of writing, the last version of Shiny Server is 1.5.13.944.
+
+    ```{bash, eval = FALSE, echo = TRUE}
+    $ sudo apt-get install gdebi-core
+    $ sudo wget https://download3.rstudio.org/ubuntu-14.04/x86_64/shiny-server-1.5.13.944-amd64.deb
+    $ sudo gdebi shiny-server-1.5.13.944-amd64.deb
+    ```
+
+    Note: `gdebi-core` is a tool to install deb files, `wget` retrieves content from web and `gdebi` installs the deb package.
+    
+2. The default configuration of Shiny Server is stored in `/etc/shiny-server/shiny-server.conf`. Print it into the console:
+
+    ```{bash, eval = FALSE, echo = TRUE}
+    $ cat /etc/shiny-server/shiny-server.conf
+    ```
+
+    Lines beginning with a `#` are treated as comments, so the content is self-explanatory.
+
+
+3. The default configuration printed out above will create a server listening on port 3838, serving any application contained within `/srv/shiny-server/` at the root URL (/). Shiny Server comes with a "Hello World!" app in the mentioned directory, so it should be already available at `r paste0("http://", public_ip, ":3838/")`. But it is not because the port 3838 is not open by default.
+
+    ```{r fig.align='center', fig.cap = "Shiny Server can't be reached because the port 3838 was not opened."}
+    knitr::include_graphics("/img/aws/shiny_not_reachable.png")
+    ```
+
+3. To open the port go back to the **EC2 Dashboard** in your browser. Click on **Running instances**, select your instance, find the **Security Groups** column and click on **launch-wizard-1**. Find the **Inbound rules** tab and press **Edit inbound rules**. Add one more rule:
+
+    ```{r}
+tags_df <- data.frame(Type = "Custom TCP",
+                      `Port range` = 3838,
+                      Source = "Anywhere", 
+                      `Description - optional` = "shiny",
+                      check.names = FALSE)
+
+knitr::kable(tags_df, align = "c") %>% 
+  kable_styling(full_width = FALSE)
+    ```
+
+    Your inbound rules should look like this now:
+
+    ```{r fig.align='center', fig.cap = "Inbound security rules with port 3838 for the Shiny Server."}
+    knitr::include_graphics("/img/aws/inbound_rules_with_shiny.png")
+    ```
+
+4. Save updated security rules and refresh `r paste0("http://", public_ip, ":3838/")` in the browser. If you followed all steps in this tutorial then you should see a welcome page with a Shiny app and a Shiny doc.
+
+    ```{r fig.align='center', fig.cap = "Shiny Server's Welcome page"}
+    knitr::include_graphics("/img/aws/shiny_welcome.png")
+    ```
+
+
+
+<!-- # Install RStudio Server -->
+
+<!-- [Official instructions](https://rstudio.com/products/rstudio/download-server/debian-ubuntu/). -->
+
+<!-- ```{bash, eval = FALSE, echo = TRUE} -->
+<!-- sudo apt-get install gdebi-core -->
+<!-- sudo (in my case did not work without sudo) wget https://download2.rstudio.org/server/bionic/amd64/rstudio-server-1.2.5042-amd64.deb -->
+<!-- sudo gdebi rstudio-server-1.2.5042-amd64.deb -->
+<!-- ``` -->
+
+----
+
+Congratulations with successfully installing a Shiny Server! The next step is to deploy your own apps. There are various ways to get your scripts to `/srv/shiny-server/`. One way is to use your favorite file manager for copying files between a local computer and remote servers, such as WinSCP or FileZilla. However, you may quickly lose track of app versions, so we will stick to a sound practice of using git.
+
+
+
+
+# Clone your git repo{#git}
+
+1. If you have your own git repository with Shiny apps then just use your own web URL and branch names. If you'd like to use mine then first go to https://github.com/dmitrijsk/tutorials and fork it (you must have a GitHub account to do it).
+
+    Note: If you don't know what is git then I highly recommend learning it. It is one of the most valuable tools you may use in your programmer's life. Public repositories are for free.
+
+2. You may clone the git repo directly to `/srv/shiny-server/`. But in general, I think it is best to keep our hands away from `/srv/shiny-server/` and avoid breaking something unintentionally. We will use the home directory instead and will link it with `/srv/shiny-server/`.
+
+3. Create a new directory in `/home/ubuntu/`:
+
+    ```{bash, eval = FALSE, echo = TRUE}
+    $ mkdir ~/git  # Create a new "git" directory in the home directory.
+    $ cd ~/git     # Go to "git" directory.
+    ```
+
+    Note: `mkdir` stands for "make directory" and `cd` stands for "change directory".
+
+3. Clone with HTTPS:
+
+    ```{bash, eval = FALSE, echo = TRUE}
+    $ git clone https://github.com/dmitrijsk/tutorials.git
+    ```
+
+4. Verify that you have cloned directories with Shiny apps.
+
+    ```{bash, eval = FALSE, echo = TRUE}
+    $ cd ~/git/tutorials/apps
+    $ ls
+    ```
+
+    Note: `ls` lists files.
+
+
+
+
+# Deploy your own apps{#deploy}
+
+1. Go to `/srv/shiny-server` and verify that it contains the welcome page and sample apps. Delete both:
+
+    ```{bash, eval = FALSE, echo = TRUE}
+    $ cd /srv/shiny-server
+    $ ls
+    index.html  sample-apps
+    $ sudo rm index.html
+    $ sudo rm -R sample-apps
+    ```
+
+    Note: `rm` stands for "remove", option `-R` removes directories and their contents recursively.
+
+2. Create a link to the git repo:
+
+    ```{bash, eval = FALSE, echo = TRUE}
+    $ sudo ln -s ~/git/tutorials/apps/
+    $ ls
+    apps
+    ```
+
+    Note: `ln -s` makes a symbolic link.
+    
+    <!-- and option `-s` makes a symbolic link instead of a hard link. -->
+
+3. Refresh the browser's page. You should see the `app` directory in the the root URL:
+
+    ```{r fig.align='center', fig.cap = "Directory index generated by Shiny Server"}
+    knitr::include_graphics("/img/aws/index_of_apps.png")
+    ```
+
+4. Open the `apps` directory and click on the "minimum-variance-portfolio-cor" link to launch the Shiny app demonstrating the influence of correlation between two investment asset returns on the mean and variance of portfolio returns.
+
+----
+
+Congratulations! You've done the minimum necessary for deploying your Shiny apps on AWS! Here is what you have done:
+
+1. Created an account with AWS and launched an instance - a virtual server in the cloud.
+2. Securely connected to the instance using SSH and configured it by installing Ubuntu packages, R, R packages and Shiny Server.
+3. Deployed Shiny apps from GitHub by cloning a repo to your instance and linking it with a directory hosting Shiny apps.
+
+Your Shiny apps are now available to the world!
+
+
+
+# What's next?{#next}
+
+Here are the things that you may want to add to the basic steps covered in this tutorial:
+
+1. Restrict an access to your Shiny apps by adding web authentication.
+1. Replace the public IPv4 with your custom web address.
+1. Resize the instance if t2.micro is insufficient.
+1. Install RStudio Server to write code directly on the remote machine because.
+1. Control the costs and usage of your AWS EC2 instances.
+
+<!-- Check the [pricelist](https://aws.amazon.com/ec2/pricing/on-demand/). At the time of writing, it is $0.0116 per hour. So, approximately $\$0.0116 \times 24 \times 30 = \$8.35$ per month. -->
+
+<!-- # FAQ{#faq} -->
+
+<!-- **How to add web authentication for accessing Shiny apps on my Amazon EC2 instance?** -->
+<!-- **What is the price of Amazon EC2 t2.micro instance after the free period ends?** -->
+<!-- **May I launch multiple instances under the free tier?** -->
+<!-- **How to check the utilization of time by my instances?** -->
+<!-- **t2.micro is not sufficient anymore. How to resize?** -->
+
